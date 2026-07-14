@@ -1,0 +1,168 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- App Title -->
+    <sys:String x:Key="AppTitle">Motion Stabilizer · 防晕动症叠加层</sys:String>
+    <sys:String x:Key="AppBrand_Motion">Motion</sys:String>
+    <sys:String x:Key="AppBrand_Stabilizer">Stabilizer</sys:String>
+
+    <!-- Sidebar -->
+    <sys:String x:Key="Nav_Overlay">边缘叠加</sys:String>
+    <sys:String x:Key="Nav_Crosshair">中心准星</sys:String>
+    <sys:String x:Key="Nav_Clock">悬浮时钟</sys:String>
+    <sys:String x:Key="Nav_Hotkeys">快捷键绑定</sys:String>
+    <sys:String x:Key="Nav_Options">全局选项</sys:String>
+
+    <!-- Common -->
+    <sys:String x:Key="Enable">启用</sys:String>
+    <sys:String x:Key="Disable">禁用</sys:String>
+    <sys:String x:Key="Enabled">已启用</sys:String>
+    <sys:String x:Key="Disabled">已禁用</sys:String>
+    <sys:String x:Key="Hotkey">热键</sys:String>
+    <sys:String x:Key="Color">颜色</sys:String>
+    <sys:String x:Key="Opacity">不透明度</sys:String>
+    <sys:String x:Key="Shape">形状</sys:String>
+    <sys:String x:Key="Size">尺寸</sys:String>
+    <sys:String x:Key="AspectRatio">宽高比</sys:String>
+    <sys:String x:Key="Length">长度</sys:String>
+    <sys:String x:Key="Thickness">厚度</sys:String>
+    <sys:String x:Key="Position">位置</sys:String>
+    <sys:String x:Key="SplitScreen">分屏</sys:String>
+    <sys:String x:Key="DisplayMode">显示模式</sys:String>
+    <sys:String x:Key="ResetCenter">居中重置</sys:String>
+
+    <!-- Colors -->
+    <sys:String x:Key="Color_Red">红色</sys:String>
+    <sys:String x:Key="Color_Green">绿色</sys:String>
+    <sys:String x:Key="Color_Yellow">黄色</sys:String>
+    <sys:String x:Key="Color_Custom">自定义</sys:String>
+
+    <!-- Shapes -->
+    <sys:String x:Key="Shape_Box">方框</sys:String>
+    <sys:String x:Key="Shape_Dome">圆顶</sys:String>
+    <sys:String x:Key="Shape_Flag">旗帜</sys:String>
+    <sys:String x:Key="Shape_Circle">圆形</sys:String>
+    <sys:String x:Key="Shape_Cross">十字</sys:String>
+    <sys:String x:Key="Shape_Diamond">菱形</sys:String>
+
+    <!-- Display Modes -->
+    <sys:String x:Key="Mode_Window">窗口模式</sys:String>
+    <sys:String x:Key="Mode_Stretch">拉伸</sys:String>
+
+    <!-- Split -->
+    <sys:String x:Key="Split_None">无</sys:String>
+    <sys:String x:Key="Split_Vertical">垂直</sys:String>
+    <sys:String x:Key="Split_Horizontal">水平</sys:String>
+
+    <!-- Size labels -->
+    <sys:String x:Key="Size_2XS">2XS</sys:String>
+    <sys:String x:Key="Size_XS">XS</sys:String>
+    <sys:String x:Key="Size_S">S</sys:String>
+    <sys:String x:Key="Size_M">M</sys:String>
+    <sys:String x:Key="Size_L">L</sys:String>
+    <sys:String x:Key="Size_XL">XL</sys:String>
+    <sys:String x:Key="Size_2XL">2XL</sys:String>
+
+    <!-- Overlay Page -->
+    <sys:String x:Key="Overlay_Title">边缘叠加</sys:String>
+    <sys:String x:Key="Overlay_Desc">在屏幕边缘绘制参考框线，为大脑提供视觉稳定锚点</sys:String>
+    <sys:String x:Key="Overlay_ShapeCard">形状选择</sys:String>
+    <sys:String x:Key="Overlay_SizeCard">尺寸与比例</sys:String>
+    <sys:String x:Key="Overlay_DisplayCard">显示与分屏</sys:String>
+    <sys:String x:Key="Overlay_ColorCard">色彩与透明度</sys:String>
+
+    <!-- Crosshair Page -->
+    <sys:String x:Key="Crosshair_Title">中心准星</sys:String>
+    <sys:String x:Key="Crosshair_Desc">在屏幕中心绘制准星，提供视觉焦点</sys:String>
+    <sys:String x:Key="Crosshair_PositionCard">位置调整</sys:String>
+    <sys:String x:Key="Crosshair_PosX">X 偏移</sys:String>
+    <sys:String x:Key="Crosshair_PosY">Y 偏移</sys:String>
+
+    <!-- Clock Page -->
+    <sys:String x:Key="Clock_Title">悬浮时钟</sys:String>
+    <sys:String x:Key="Clock_Desc">在屏幕上显示实时时钟</sys:String>
+    <sys:String x:Key="Clock_FormatCard">时间格式</sys:String>
+    <sys:String x:Key="Clock_FontCard">字体样式</sys:String>
+    <sys:String x:Key="Clock_PositionCard">位置</sys:String>
+    <sys:String x:Key="Clock_UnlockDrag">解锁拖动</sys:String>
+    <sys:String x:Key="Clock_LockDrag">锁定位置</sys:String>
+    <sys:String x:Key="Clock_FontFamily">字体</sys:String>
+    <sys:String x:Key="Clock_FontSize">字号</sys:String>
+    <sys:String x:Key="Clock_OutlineFont">描边字体</sys:String>
+
+    <!-- Hotkeys Page -->
+    <sys:String x:Key="Hotkeys_Title">快捷键绑定</sys:String>
+    <sys:String x:Key="Hotkeys_Desc">设置全局快捷键，在游戏中随时切换设置</sys:String>
+    <sys:String x:Key="Hotkeys_DisplaySection">显示模式热键</sys:String>
+    <sys:String x:Key="Hotkeys_ColorSection">颜色切换热键</sys:String>
+    <sys:String x:Key="Hotkeys_PressKeys">请按下组合键…</sys:String>
+    <sys:String x:Key="Hotkeys_Conflict">热键冲突！</sys:String>
+    <sys:String x:Key="Hotkeys_Unbound">已解除绑定</sys:String>
+    <sys:String x:Key="Hotkeys_Hint">点击快捷键输入框，然后按下所需的组合键（支持 Ctrl / Shift）。按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="HK_ToggleOverlay">开关边缘叠加</sys:String>
+    <sys:String x:Key="HK_ToggleCrosshair">开关中心准星</sys:String>
+    <sys:String x:Key="HK_ToggleClock">开关悬浮时钟</sys:String>
+    <sys:String x:Key="HK_CycleDisplayMode">切换显示模式</sys:String>
+    <sys:String x:Key="HK_CycleSplitScreen">切换分屏</sys:String>
+    <sys:String x:Key="HK_CycleOverlayShape">切换叠加形状</sys:String>
+    <sys:String x:Key="HK_CycleCrosshairShape">切换准星形状</sys:String>
+    <sys:String x:Key="HK_CycleAspectRatio">切换宽高比</sys:String>
+    <sys:String x:Key="HK_ColorRed">颜色：红色</sys:String>
+    <sys:String x:Key="HK_ColorGreen">颜色：绿色</sys:String>
+    <sys:String x:Key="HK_ColorYellow">颜色：黄色</sys:String>
+    <sys:String x:Key="HK_ColorCustom">颜色：自定义</sys:String>
+
+    <!-- Options Page -->
+    <sys:String x:Key="Options_Title">全局选项</sys:String>
+    <sys:String x:Key="Options_Desc">应用程序行为与界面设置</sys:String>
+    <sys:String x:Key="Options_BehaviorCard">行为设置</sys:String>
+    <sys:String x:Key="Options_MinimizeToTray">首次运行时最小化到托盘</sys:String>
+    <sys:String x:Key="Options_AutoSave">程序关闭时自动保存设置</sys:String>
+    <sys:String x:Key="Options_ConfirmClose">程序关闭前显示确认消息</sys:String>
+    <sys:String x:Key="Options_UICard">界面定制</sys:String>
+    <sys:String x:Key="Options_UIScale">UI 缩放</sys:String>
+    <sys:String x:Key="Options_Language">语言</sys:String>
+    <sys:String x:Key="Options_ProfileCard">配置文件</sys:String>
+    <sys:String x:Key="Options_ProfileDesc">将叠加层 / 准星 / 时钟设置保存为命名的配置文件。快捷键不包含在内。</sys:String>
+    <sys:String x:Key="Options_SaveProfile">保存配置文件</sys:String>
+    <sys:String x:Key="Options_LoadProfile">加载配置文件</sys:String>
+    <sys:String x:Key="Options_DeleteProfile">删除配置文件</sys:String>
+    <sys:String x:Key="Options_ProfileName">配置名称</sys:String>
+    <sys:String x:Key="Options_ResetCard">重置</sys:String>
+    <sys:String x:Key="Options_ResetDefaults">重置全局默认设置</sys:String>
+    <sys:String x:Key="Options_ResetDesc">将所有设置（叠加层、准星、时钟、快捷键、全局选项）恢复为默认值。此操作不可撤销。</sys:String>
+    <sys:String x:Key="Options_ResetConfirmTitle">确认重置</sys:String>
+    <sys:String x:Key="Options_ResetConfirmMsg">确定要恢复默认设置吗？所有自定义配置将被清除，且无法恢复。</sys:String>
+    <sys:String x:Key="Options_ResetConfirmYes">恢复默认</sys:String>
+    <sys:String x:Key="Options_ResetConfirmNo">取消</sys:String>
+
+    <!-- Tray -->
+    <sys:String x:Key="Tray_Show">显示主窗口</sys:String>
+    <sys:String x:Key="Tray_Hide">隐藏到托盘</sys:String>
+    <sys:String x:Key="Tray_Exit">退出</sys:String>
+    <sys:String x:Key="Tray_Tooltip">Motion Stabilizer - 防晕动症叠加层</sys:String>
+
+    <!-- About -->
+    <sys:String x:Key="About_Title">关于</sys:String>
+    <sys:String x:Key="About_Version">Motion Stabilizer v1.0.0</sys:String>
+    <sys:String x:Key="About_Desc">安全、零侵入的视觉稳定叠加层，缓解 3D 游戏晕动症。</sys:String>
+    <sys:String x:Key="About_Feature1">✓ 纯外部桌面叠加层 — 无 DLL 注入</sys:String>
+    <sys:String x:Key="About_Feature2">✓ 兼容所有反作弊系统（Vanguard、EAC、BattlEye）</sys:String>
+    <sys:String x:Key="About_Feature3">✓ 不修改游戏文件，不访问内存</sys:String>
+    <sys:String x:Key="About_Author">作者：shsr07</sys:String>
+    <sys:String x:Key="About_GitHub">GitHub：https://github.com/shsr07</sys:String>
+
+    <!-- Profile delete dialog -->
+    <sys:String x:Key="ProfileDelete_Title">删除配置文件</sys:String>
+    <sys:String x:Key="ProfileDelete_Confirm">删除</sys:String>
+    <sys:String x:Key="ProfileDelete_ConfirmYes">确认</sys:String>
+    <sys:String x:Key="ProfileDelete_Msg">确定要删除配置文件 "{0}" 吗？此操作不可撤销。</sys:String>
+
+    <!-- Confirm dialog -->
+    <sys:String x:Key="ConfirmClose_Title">确认关闭</sys:String>
+    <sys:String x:Key="ConfirmClose_Msg">确定要关闭 Motion Stabilizer 吗？叠加层将被移除。</sys:String>
+    <sys:String x:Key="ConfirmClose_Yes">确定关闭</sys:String>
+    <sys:String x:Key="ConfirmClose_No">最小化到托盘</sys:String>
+
+</ResourceDictionary>

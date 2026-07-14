@@ -1,0 +1,87 @@
+<Page x:Class="MotionStabilizer.Views.HotkeysPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+        <StackPanel Margin="24,0,24,24">
+
+            <!-- Title -->
+            <TextBlock Text="{DynamicResource Hotkeys_Title}" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="{DynamicResource Hotkeys_Desc}" Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
+                       Margin="0,0,0,24" TextWrapping="Wrap" />
+
+            <!-- ═══════ Display Mode Hotkeys ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Hotkeys_DisplaySection}" Style="{StaticResource CardTitle}" />
+
+                    <ItemsControl x:Name="DisplayHotkeyList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="220" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
+                                               Foreground="{StaticResource BrushTextPrimary}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1" x:Name="HotkeyField"
+                                             IsReadOnly="True" Focusable="True"
+                                             Text="{Binding HotkeyText, Mode=OneWay}"
+                                             Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
+                                             Background="#E8E8E8" BorderBrush="{StaticResource BrushBorderSubtle}"
+                                             MinHeight="34" Padding="8,5"
+                                             HorizontalContentAlignment="Center"
+                                             VerticalContentAlignment="Center"
+                                             CaretBrush="Transparent"
+                                             GotFocus="HotkeyField_GotFocus"
+                                             LostFocus="HotkeyField_LostFocus"
+                                             PreviewKeyDown="HotkeyField_PreviewKeyDown" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Color Switch Hotkeys ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Hotkeys_ColorSection}" Style="{StaticResource CardTitle}" />
+
+                    <ItemsControl x:Name="ColorHotkeyList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="220" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
+                                               Foreground="{StaticResource BrushTextPrimary}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1" x:Name="HotkeyField"
+                                             IsReadOnly="True" Focusable="True"
+                                             Text="{Binding HotkeyText, Mode=OneWay}"
+                                             Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
+                                             Background="#E8E8E8" BorderBrush="{StaticResource BrushBorderSubtle}"
+                                             MinHeight="34" Padding="8,5"
+                                             HorizontalContentAlignment="Center"
+                                             VerticalContentAlignment="Center"
+                                             CaretBrush="Transparent"
+                                             GotFocus="HotkeyField_GotFocus"
+                                             LostFocus="HotkeyField_LostFocus"
+                                             PreviewKeyDown="HotkeyField_PreviewKeyDown" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Hint -->
+            <TextBlock Text="{DynamicResource Hotkeys_Hint}"
+                       Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

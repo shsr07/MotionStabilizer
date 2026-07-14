@@ -1,0 +1,160 @@
+<Page x:Class="MotionStabilizer.Views.CrosshairPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+        <StackPanel Margin="24,0,24,24">
+
+            <!-- Title -->
+            <TextBlock Text="{DynamicResource Crosshair_Title}" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="{DynamicResource Crosshair_Desc}" Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
+                       Margin="0,0,0,24" TextWrapping="Wrap" />
+
+            <!-- ═══════ Toggle Switch ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox x:Name="ToggleCrosshair" Style="{StaticResource ToggleSwitch}"
+                              Content="{DynamicResource Nav_Crosshair}"
+                              Checked="ToggleCrosshair_Changed"
+                              Unchecked="ToggleCrosshair_Changed" />
+                    <TextBlock x:Name="HotkeyLabel" Text="" Foreground="{StaticResource BrushTextSecondary}" FontSize="12"
+                               VerticalAlignment="Center" Margin="24,0,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Shape Selection ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_ShapeCard}" Style="{StaticResource CardTitle}" />
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Circle -->
+                        <Button x:Name="BtnShapeCircle" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Ellipse Width="28" Height="28" Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="2" />
+                                <TextBlock Text="{DynamicResource Shape_Circle}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Button>
+                        <!-- Cross -->
+                        <Button x:Name="BtnShapeCross" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="2"
+                                      Data="M16,4 L16,28 M4,16 L28,16" />
+                                <TextBlock Text="{DynamicResource Shape_Cross}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
+                        <!-- Diamond -->
+                        <Button x:Name="BtnShapeDiamond" Style="{StaticResource ShapeButton}"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="2"
+                                      Data="M16,4 L28,16 L16,28 L4,16 Z" />
+                                <TextBlock Text="{DynamicResource Shape_Diamond}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Size & Thickness ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_SizeCard}" Style="{StaticResource CardTitle}" />
+
+                    <!-- Aspect Ratio -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource AspectRatio}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbAspectRatio" Width="120" Height="32"
+                                  SelectionChanged="AspectRatio_Changed">
+                            <ComboBoxItem Content="16:9" />
+                            <ComboBoxItem Content="21:9" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Size Slider -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource Size}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Slider x:Name="SliderSize" Width="300" Minimum="0" Maximum="6"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="Size_Changed" />
+                        <TextBlock x:Name="SizeLabel" Text="S" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+
+                    <!-- Thickness Slider -->
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource Thickness}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Slider x:Name="SliderThickness" Width="300" Minimum="0" Maximum="6"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="Thickness_Changed" />
+                        <TextBlock x:Name="ThicknessLabel" Text="+0" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Position ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Crosshair_PositionCard}" Style="{StaticResource CardTitle}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource Crosshair_PosX}" Style="{StaticResource FieldLabel}" Width="60" />
+                        <TextBox x:Name="TxtPosX" Width="80" Margin="0,0,24,0"
+                                 TextChanged="PosX_Changed" />
+                        <TextBlock Text="{DynamicResource Crosshair_PosY}" Style="{StaticResource FieldLabel}" Width="60" />
+                        <TextBox x:Name="TxtPosY" Width="80" Margin="0,0,24,0"
+                                 TextChanged="PosY_Changed" />
+                        <Button Style="{StaticResource SecondaryButton}" Content="{DynamicResource ResetCenter}"
+                                Click="ResetCenter_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Display & Split ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_DisplayCard}" Style="{StaticResource CardTitle}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource SplitScreen}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbSplit" Width="140" Height="32"
+                                  SelectionChanged="Split_Changed">
+                            <ComboBoxItem Content="{DynamicResource Split_None}" />
+                            <ComboBoxItem Content="{DynamicResource Split_Vertical}" />
+                            <ComboBoxItem Content="{DynamicResource Split_Horizontal}" />
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Color & Opacity ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_ColorCard}" Style="{StaticResource CardTitle}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource Color}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Button x:Name="SwatchRed" Style="{StaticResource ColorSwatchButton}"
+                                Background="#FF0000" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchGreen" Style="{StaticResource ColorSwatchButton}"
+                                Background="#00FF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchYellow" Style="{StaticResource ColorSwatchButton}"
+                                Background="#FFFF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchCustom" Style="{StaticResource ColorSwatchButton}"
+                                Background="#888888" Click="CustomColor_Click" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource Opacity}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Slider x:Name="SliderOpacity" Width="300" Minimum="0" Maximum="100"
+                                ValueChanged="Opacity_Changed" />
+                        <TextBlock x:Name="OpacityLabel" Text="80%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

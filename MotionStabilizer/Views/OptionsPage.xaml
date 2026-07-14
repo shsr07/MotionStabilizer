@@ -1,0 +1,107 @@
+<Page x:Class="MotionStabilizer.Views.OptionsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+        <StackPanel Margin="24,0,24,24">
+
+            <!-- Title -->
+            <TextBlock Text="{DynamicResource Options_Title}" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="{DynamicResource Options_Desc}" Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
+                       Margin="0,0,0,24" TextWrapping="Wrap" />
+
+            <!-- ═══════ Behavior ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Options_BehaviorCard}" Style="{StaticResource CardTitle}" />
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox x:Name="ChkMinimizeToTray" Margin="0,0,0,12"
+                                  Content="{DynamicResource Options_MinimizeToTray}"
+                                  Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                  Checked="MinimizeToTray_Changed" Unchecked="MinimizeToTray_Changed" />
+                        <CheckBox x:Name="ChkAutoSave" Margin="0,0,0,12"
+                                  Content="{DynamicResource Options_AutoSave}"
+                                  Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                  Checked="AutoSave_Changed" Unchecked="AutoSave_Changed" />
+                        <CheckBox x:Name="ChkConfirmClose" Margin="0,0,0,12"
+                                  Content="{DynamicResource Options_ConfirmClose}"
+                                  Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                  Checked="ConfirmClose_Changed" Unchecked="ConfirmClose_Changed" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Interface ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Options_UICard}" Style="{StaticResource CardTitle}" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="{DynamicResource Options_UIScale}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbUIScale" Width="140" Height="32"
+                                  SelectionChanged="UIScale_Changed">
+                            <ComboBoxItem Content="Auto (OS)" />
+                            <ComboBoxItem Content="100%" />
+                            <ComboBoxItem Content="125%" />
+                            <ComboBoxItem Content="150%" />
+                            <ComboBoxItem Content="200%" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource Options_Language}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbLanguage" Width="140" Height="32"
+                                  SelectionChanged="Language_Changed">
+                            <ComboBoxItem Content="中文" />
+                            <ComboBoxItem Content="English" />
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Profile Management ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Options_ProfileCard}" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{DynamicResource Options_ProfileDesc}"
+                               Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,0,0,12" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SecondaryButton}" Content="{DynamicResource Options_SaveProfile}"
+                                Margin="0,0,12,0" Click="SaveProfile_Click" />
+                        <Button Style="{StaticResource SecondaryButton}" Content="{DynamicResource Options_LoadProfile}"
+                                Margin="0,0,12,0" Click="LoadProfile_Click" />
+                        <Button Style="{StaticResource SecondaryButton}" Content="{DynamicResource Options_DeleteProfile}"
+                                Click="DeleteProfile_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Reset to Defaults ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Options_ResetCard}" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{DynamicResource Options_ResetDesc}"
+                               Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,0,0,12" TextWrapping="Wrap" />
+                    <Button Style="{StaticResource SecondaryButton}" Content="{DynamicResource Options_ResetDefaults}"
+                            Click="ResetDefaults_Click" />
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ About ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About_Title}" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{DynamicResource About_Version}" Foreground="{StaticResource BrushTextPrimary}" FontSize="13" Margin="0,0,0,6" />
+                    <TextBlock Text="{DynamicResource About_Desc}"
+                               Foreground="{StaticResource BrushTextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6" />
+                    <TextBlock Text="{DynamicResource About_Feature1}" Foreground="{StaticResource BrushAccentGreen}" FontSize="12" Margin="0,0,0,4" />
+                    <TextBlock Text="{DynamicResource About_Feature2}" Foreground="{StaticResource BrushAccentGreen}" FontSize="12" Margin="0,0,0,4" />
+                    <TextBlock Text="{DynamicResource About_Feature3}" Foreground="{StaticResource BrushAccentGreen}" FontSize="12" Margin="0,0,0,8" />
+                    <TextBlock Text="{DynamicResource About_Author}" Foreground="{StaticResource BrushTextPrimary}" FontSize="12" Margin="0,0,0,4" />
+                    <TextBlock Text="{DynamicResource About_GitHub}" Foreground="#0078D4" FontSize="12" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

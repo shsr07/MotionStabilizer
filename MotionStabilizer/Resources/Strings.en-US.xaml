@@ -1,0 +1,168 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- App Title -->
+    <sys:String x:Key="AppTitle">Motion Stabilizer · Anti-Motion-Sickness Overlay</sys:String>
+    <sys:String x:Key="AppBrand_Motion">Motion</sys:String>
+    <sys:String x:Key="AppBrand_Stabilizer">Stabilizer</sys:String>
+
+    <!-- Sidebar -->
+    <sys:String x:Key="Nav_Overlay">Edge Overlay</sys:String>
+    <sys:String x:Key="Nav_Crosshair">Crosshair</sys:String>
+    <sys:String x:Key="Nav_Clock">Floating Clock</sys:String>
+    <sys:String x:Key="Nav_Hotkeys">Hotkeys</sys:String>
+    <sys:String x:Key="Nav_Options">Options</sys:String>
+
+    <!-- Common -->
+    <sys:String x:Key="Enable">Enable</sys:String>
+    <sys:String x:Key="Disable">Disable</sys:String>
+    <sys:String x:Key="Enabled">Enabled</sys:String>
+    <sys:String x:Key="Disabled">Disabled</sys:String>
+    <sys:String x:Key="Hotkey">Hotkey</sys:String>
+    <sys:String x:Key="Color">Color</sys:String>
+    <sys:String x:Key="Opacity">Opacity</sys:String>
+    <sys:String x:Key="Shape">Shape</sys:String>
+    <sys:String x:Key="Size">Size</sys:String>
+    <sys:String x:Key="AspectRatio">Aspect Ratio</sys:String>
+    <sys:String x:Key="Length">Length</sys:String>
+    <sys:String x:Key="Thickness">Thickness</sys:String>
+    <sys:String x:Key="Position">Position</sys:String>
+    <sys:String x:Key="SplitScreen">Split Screen</sys:String>
+    <sys:String x:Key="DisplayMode">Display Mode</sys:String>
+    <sys:String x:Key="ResetCenter">Reset to Center</sys:String>
+
+    <!-- Colors -->
+    <sys:String x:Key="Color_Red">Red</sys:String>
+    <sys:String x:Key="Color_Green">Green</sys:String>
+    <sys:String x:Key="Color_Yellow">Yellow</sys:String>
+    <sys:String x:Key="Color_Custom">Custom</sys:String>
+
+    <!-- Shapes -->
+    <sys:String x:Key="Shape_Box">Box</sys:String>
+    <sys:String x:Key="Shape_Dome">Dome</sys:String>
+    <sys:String x:Key="Shape_Flag">Flag</sys:String>
+    <sys:String x:Key="Shape_Circle">Circle</sys:String>
+    <sys:String x:Key="Shape_Cross">Cross</sys:String>
+    <sys:String x:Key="Shape_Diamond">Diamond</sys:String>
+
+    <!-- Display Modes -->
+    <sys:String x:Key="Mode_Window">Window</sys:String>
+    <sys:String x:Key="Mode_Stretch">Stretch</sys:String>
+
+    <!-- Split -->
+    <sys:String x:Key="Split_None">None</sys:String>
+    <sys:String x:Key="Split_Vertical">Vertical</sys:String>
+    <sys:String x:Key="Split_Horizontal">Horizontal</sys:String>
+
+    <!-- Size labels -->
+    <sys:String x:Key="Size_2XS">2XS</sys:String>
+    <sys:String x:Key="Size_XS">XS</sys:String>
+    <sys:String x:Key="Size_S">S</sys:String>
+    <sys:String x:Key="Size_M">M</sys:String>
+    <sys:String x:Key="Size_L">L</sys:String>
+    <sys:String x:Key="Size_XL">XL</sys:String>
+    <sys:String x:Key="Size_2XL">2XL</sys:String>
+
+    <!-- Overlay Page -->
+    <sys:String x:Key="Overlay_Title">Edge Overlay</sys:String>
+    <sys:String x:Key="Overlay_Desc">Draw reference borders at screen edges to provide visual stability anchors</sys:String>
+    <sys:String x:Key="Overlay_ShapeCard">Shape Selection</sys:String>
+    <sys:String x:Key="Overlay_SizeCard">Size &amp; Ratio</sys:String>
+    <sys:String x:Key="Overlay_DisplayCard">Display &amp; Split</sys:String>
+    <sys:String x:Key="Overlay_ColorCard">Color &amp; Opacity</sys:String>
+
+    <!-- Crosshair Page -->
+    <sys:String x:Key="Crosshair_Title">Crosshair</sys:String>
+    <sys:String x:Key="Crosshair_Desc">Draw a crosshair at screen center for visual focus</sys:String>
+    <sys:String x:Key="Crosshair_PositionCard">Position Adjustment</sys:String>
+    <sys:String x:Key="Crosshair_PosX">X Offset</sys:String>
+    <sys:String x:Key="Crosshair_PosY">Y Offset</sys:String>
+
+    <!-- Clock Page -->
+    <sys:String x:Key="Clock_Title">Floating Clock</sys:String>
+    <sys:String x:Key="Clock_Desc">Display a real-time clock on screen</sys:String>
+    <sys:String x:Key="Clock_FormatCard">Time Format</sys:String>
+    <sys:String x:Key="Clock_FontCard">Font Style</sys:String>
+    <sys:String x:Key="Clock_PositionCard">Position</sys:String>
+    <sys:String x:Key="Clock_UnlockDrag">Unlock to Drag</sys:String>
+    <sys:String x:Key="Clock_LockDrag">Lock Position</sys:String>
+    <sys:String x:Key="Clock_FontFamily">Font</sys:String>
+    <sys:String x:Key="Clock_FontSize">Font Size</sys:String>
+    <sys:String x:Key="Clock_OutlineFont">Outline Font</sys:String>
+
+    <!-- Hotkeys Page -->
+    <sys:String x:Key="Hotkeys_Title">Hotkey Bindings</sys:String>
+    <sys:String x:Key="Hotkeys_Desc">Set global hotkeys to toggle settings while in-game</sys:String>
+    <sys:String x:Key="Hotkeys_DisplaySection">Display Mode Hotkeys</sys:String>
+    <sys:String x:Key="Hotkeys_ColorSection">Color Switch Hotkeys</sys:String>
+    <sys:String x:Key="Hotkeys_PressKeys">Press key combination…</sys:String>
+    <sys:String x:Key="Hotkeys_Conflict">Hotkey conflict!</sys:String>
+    <sys:String x:Key="Hotkeys_Unbound">Unbound</sys:String>
+    <sys:String x:Key="Hotkeys_Hint">Click a hotkey field, then press your desired key combination (supports Ctrl / Shift). Press Esc to unbind.</sys:String>
+    <sys:String x:Key="HK_ToggleOverlay">Toggle Overlay</sys:String>
+    <sys:String x:Key="HK_ToggleCrosshair">Toggle Crosshair</sys:String>
+    <sys:String x:Key="HK_ToggleClock">Toggle Clock</sys:String>
+    <sys:String x:Key="HK_CycleDisplayMode">Cycle Display Mode</sys:String>
+    <sys:String x:Key="HK_CycleSplitScreen">Cycle Split Screen</sys:String>
+    <sys:String x:Key="HK_CycleOverlayShape">Cycle Overlay Shape</sys:String>
+    <sys:String x:Key="HK_CycleCrosshairShape">Cycle Crosshair Shape</sys:String>
+    <sys:String x:Key="HK_CycleAspectRatio">Cycle Aspect Ratio</sys:String>
+    <sys:String x:Key="HK_ColorRed">Color: Red</sys:String>
+    <sys:String x:Key="HK_ColorGreen">Color: Green</sys:String>
+    <sys:String x:Key="HK_ColorYellow">Color: Yellow</sys:String>
+    <sys:String x:Key="HK_ColorCustom">Color: Custom</sys:String>
+
+    <!-- Options Page -->
+    <sys:String x:Key="Options_Title">Options</sys:String>
+    <sys:String x:Key="Options_Desc">Application behavior and UI settings</sys:String>
+    <sys:String x:Key="Options_BehaviorCard">Behavior</sys:String>
+    <sys:String x:Key="Options_MinimizeToTray">Minimize to tray on first run</sys:String>
+    <sys:String x:Key="Options_AutoSave">Auto-save settings on close</sys:String>
+    <sys:String x:Key="Options_ConfirmClose">Show confirmation before closing</sys:String>
+    <sys:String x:Key="Options_UICard">Interface</sys:String>
+    <sys:String x:Key="Options_UIScale">UI Scale</sys:String>
+    <sys:String x:Key="Options_Language">Language</sys:String>
+    <sys:String x:Key="Options_ProfileCard">Profiles</sys:String>
+    <sys:String x:Key="Options_ProfileDesc">Save and load overlay / crosshair / clock settings as named profiles. Hotkeys are not included.</sys:String>
+    <sys:String x:Key="Options_SaveProfile">Save Profile</sys:String>
+    <sys:String x:Key="Options_LoadProfile">Load Profile</sys:String>
+    <sys:String x:Key="Options_DeleteProfile">Delete Profile</sys:String>
+    <sys:String x:Key="Options_ProfileName">Profile Name</sys:String>
+    <sys:String x:Key="Options_ResetCard">Reset</sys:String>
+    <sys:String x:Key="Options_ResetDefaults">Reset to Default Settings</sys:String>
+    <sys:String x:Key="Options_ResetDesc">Restore all settings (overlay, crosshair, clock, hotkeys, global options) to their defaults. This cannot be undone.</sys:String>
+    <sys:String x:Key="Options_ResetConfirmTitle">Confirm Reset</sys:String>
+    <sys:String x:Key="Options_ResetConfirmMsg">Are you sure you want to restore default settings? All custom configurations will be cleared and cannot be recovered.</sys:String>
+    <sys:String x:Key="Options_ResetConfirmYes">Reset</sys:String>
+    <sys:String x:Key="Options_ResetConfirmNo">Cancel</sys:String>
+
+    <!-- Tray -->
+    <sys:String x:Key="Tray_Show">Show Main Window</sys:String>
+    <sys:String x:Key="Tray_Hide">Hide to Tray</sys:String>
+    <sys:String x:Key="Tray_Exit">Exit</sys:String>
+    <sys:String x:Key="Tray_Tooltip">Motion Stabilizer - Anti-Motion-Sickness Overlay</sys:String>
+
+    <!-- About -->
+    <sys:String x:Key="About_Title">About</sys:String>
+    <sys:String x:Key="About_Version">Motion Stabilizer v1.0.0</sys:String>
+    <sys:String x:Key="About_Desc">A safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief.</sys:String>
+    <sys:String x:Key="About_Feature1">✓ Pure external desktop overlay — no DLL injection</sys:String>
+    <sys:String x:Key="About_Feature2">✓ Safe under all anti-cheat systems (Vanguard, EAC, BattlEye)</sys:String>
+    <sys:String x:Key="About_Feature3">✓ No game files modified, no memory access</sys:String>
+    <sys:String x:Key="About_Author">Author: shsr07</sys:String>
+    <sys:String x:Key="About_GitHub">GitHub: https://github.com/shsr07</sys:String>
+
+    <!-- Profile delete dialog -->
+    <sys:String x:Key="ProfileDelete_Title">Delete Profile</sys:String>
+    <sys:String x:Key="ProfileDelete_Confirm">Delete</sys:String>
+    <sys:String x:Key="ProfileDelete_ConfirmYes">Confirm</sys:String>
+    <sys:String x:Key="ProfileDelete_Msg">Are you sure you want to delete profile "{0}"? This cannot be undone.</sys:String>
+
+    <!-- Confirm dialog -->
+    <sys:String x:Key="ConfirmClose_Title">Confirm Close</sys:String>
+    <sys:String x:Key="ConfirmClose_Msg">Are you sure you want to close Motion Stabilizer? The overlay will be removed.</sys:String>
+    <sys:String x:Key="ConfirmClose_Yes">Close</sys:String>
+    <sys:String x:Key="ConfirmClose_No">Minimize to Tray</sys:String>
+
+</ResourceDictionary>

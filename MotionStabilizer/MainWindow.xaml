@@ -1,0 +1,115 @@
+﻿<Window x:Class="MotionStabilizer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Motion Stabilizer"
+        Width="960" Height="640"
+        MinWidth="800" MinHeight="560"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="#E8E8E8"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen">
+
+    <Border Background="#F3F3F3" CornerRadius="10" MouseLeftButtonDown="Border_MouseLeftButtonDown">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ═══════════════ Left Sidebar ═══════════════ -->
+            <Border Grid.Column="0" Background="#E8E8E8" CornerRadius="10,0,0,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- App Logo / Title -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20,20,20,24">
+                        <Border Width="36" Height="36" CornerRadius="8" Background="#0078D4">
+                            <TextBlock Text="◎" FontSize="20" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource AppBrand_Motion}" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A1A" />
+                            <TextBlock Text="{DynamicResource AppBrand_Stabilizer}" FontSize="13" Foreground="#6E6E6E" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Navigation -->
+                    <StackPanel Grid.Row="1" Margin="12,0">
+                        <RadioButton x:Name="NavOverlay" Style="{StaticResource NavButton}"
+                                     Tag="🔲" IsChecked="True"
+                                     Content="{DynamicResource Nav_Overlay}"
+                                     Checked="Nav_Checked" />
+                        <RadioButton x:Name="NavCrosshair" Style="{StaticResource NavButton}"
+                                     Tag="➕"
+                                     Content="{DynamicResource Nav_Crosshair}"
+                                     Checked="Nav_Checked" />
+                        <RadioButton x:Name="NavClock" Style="{StaticResource NavButton}"
+                                     Tag="🕒"
+                                     Content="{DynamicResource Nav_Clock}"
+                                     Checked="Nav_Checked" />
+                        <RadioButton x:Name="NavHotkeys" Style="{StaticResource NavButton}"
+                                     Tag="⌨️"
+                                     Content="{DynamicResource Nav_Hotkeys}"
+                                     Checked="Nav_Checked" />
+                        <RadioButton x:Name="NavOptions" Style="{StaticResource NavButton}"
+                                     Tag="⚙️"
+                                     Content="{DynamicResource Nav_Options}"
+                                     Checked="Nav_Checked" />
+                    </StackPanel>
+
+                    <!-- Save / Load -->
+                    <StackPanel Grid.Row="2" Margin="12,0,12,16">
+                        <TextBlock Text="{DynamicResource Options_ProfileCard}"
+                                   FontSize="12" Foreground="#6E6E6E" Margin="8,0,0,8" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Content="{DynamicResource Options_SaveProfile}"
+                                Margin="0,0,0,8" Click="SaveProfile_Click" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Content="{DynamicResource Options_LoadProfile}"
+                                Margin="0,0,0,8" Click="LoadProfile_Click" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Content="{DynamicResource Options_DeleteProfile}"
+                                Click="DeleteProfile_Click" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════ Right Content Area ═══════════════ -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="48" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Custom Title Bar -->
+                <Border Grid.Row="0" Background="#F3F3F3">
+                    <Grid>
+                        <TextBlock x:Name="TitleLabel" Text="{DynamicResource AppTitle}"
+                                   FontSize="13" Foreground="#6E6E6E"
+                                   VerticalAlignment="Center" Margin="16,0,0,0" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,8,0">
+                            <Button x:Name="BtnMinimize" Width="36" Height="32"
+                                    Background="Transparent" BorderThickness="0"
+                                    Foreground="#6E6E6E" Content="—" FontSize="14"
+                                    Click="BtnMinimize_Click" />
+                            <Button x:Name="BtnClose" Width="36" Height="32"
+                                    Background="Transparent" BorderThickness="0"
+                                    Foreground="#6E6E6E" Content="✕" FontSize="13"
+                                    Click="BtnClose_Click" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Page Content Host -->
+                <Frame Grid.Row="1" x:Name="ContentFrame"
+                       NavigationUIVisibility="Hidden"
+                       Background="Transparent" />
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,15 @@
+﻿<Application x:Class="MotionStabilizer.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Theme -->
+                <ResourceDictionary Source="Themes/FluentLight.xaml" />
+                <!-- Default language: Chinese -->
+                <ResourceDictionary Source="Resources/Strings.zh-CN.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

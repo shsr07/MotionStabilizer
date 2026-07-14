@@ -1,0 +1,170 @@
+<Page x:Class="MotionStabilizer.Views.OverlayPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+        <StackPanel Margin="24,0,24,24">
+
+            <!-- Title -->
+            <TextBlock Text="{DynamicResource Overlay_Title}" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="{DynamicResource Overlay_Desc}" Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
+                       Margin="0,0,0,24" TextWrapping="Wrap" />
+
+            <!-- ═══════ Toggle Switch ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox x:Name="ToggleOverlay" Style="{StaticResource ToggleSwitch}"
+                              Content="{DynamicResource Nav_Overlay}"
+                              Checked="ToggleOverlay_Changed"
+                              Unchecked="ToggleOverlay_Changed" />
+                    <TextBlock x:Name="HotkeyLabel" Text="" Foreground="{StaticResource BrushTextSecondary}" FontSize="12"
+                               VerticalAlignment="Center" Margin="24,0,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Shape Selection ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_ShapeCard}" Style="{StaticResource CardTitle}" />
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Box: four discrete centered rectangles -->
+                        <Button x:Name="BtnShapeBox" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
+                                Click="Shape_Click" Tag="">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="1.5" Fill="{StaticResource BrushTextSecondary}"
+                                      Data="M12,2 L24,2 L24,6 L12,6 Z
+                                            M12,22 L24,22 L24,26 L12,26 Z
+                                            M2,8 L6,8 L6,20 L2,20 Z
+                                            M30,8 L34,8 L34,20 L30,20 Z"
+                                      Opacity="0.5" />
+                                <TextBlock Text="{DynamicResource Shape_Box}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
+                        <!-- Dome: four semicircular half-discs -->
+                        <Button x:Name="BtnShapeDome" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="1.5" Fill="{StaticResource BrushTextSecondary}"
+                                      Data="M12,2 A6,6 0 0 1 24,2 Z
+                                            M12,26 A6,6 0 0 0 24,26 Z
+                                            M2,8 A6,6 0 0 0 2,20 Z
+                                            M34,8 A6,6 0 0 1 34,20 Z"
+                                      Opacity="0.5" />
+                                <TextBlock Text="{DynamicResource Shape_Dome}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
+                        <!-- Flag: four inward-pointing triangles -->
+                        <Button x:Name="BtnShapeFlag" Style="{StaticResource ShapeButton}"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="1.5" Fill="{StaticResource BrushTextSecondary}"
+                                      Data="M12,2 L24,2 L18,14 Z
+                                            M12,26 L24,26 L18,14 Z
+                                            M2,8 L2,20 L14,14 Z
+                                            M34,8 L34,20 L22,14 Z"
+                                      Opacity="0.5" />
+                                <TextBlock Text="{DynamicResource Shape_Flag}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Size & Ratio ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_SizeCard}" Style="{StaticResource CardTitle}" />
+
+                    <!-- Aspect Ratio -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource AspectRatio}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbAspectRatio" Width="120" Height="32"
+                                  SelectionChanged="AspectRatio_Changed">
+                            <ComboBoxItem Content="16:9" />
+                            <ComboBoxItem Content="21:9" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Size Slider -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource Size}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Slider x:Name="SliderSize" Width="300" Minimum="0" Maximum="6"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="Size_Changed" />
+                        <TextBlock x:Name="SizeLabel" Text="M" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+
+                    <!-- Length Slider -->
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource Length}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Slider x:Name="SliderLength" Width="300" Minimum="0" Maximum="6"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="Length_Changed" />
+                        <TextBlock x:Name="LengthLabel" Text="+0" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Display & Split ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_DisplayCard}" Style="{StaticResource CardTitle}" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="{DynamicResource DisplayMode}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbDisplayMode" Width="140" Height="32"
+                                  SelectionChanged="DisplayMode_Changed">
+                            <ComboBoxItem Content="{DynamicResource Mode_Window}" />
+                            <ComboBoxItem Content="{DynamicResource Mode_Stretch}" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource SplitScreen}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbSplit" Width="140" Height="32"
+                                  SelectionChanged="Split_Changed">
+                            <ComboBoxItem Content="{DynamicResource Split_None}" />
+                            <ComboBoxItem Content="{DynamicResource Split_Vertical}" />
+                            <ComboBoxItem Content="{DynamicResource Split_Horizontal}" />
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════ Color & Opacity ═══════ -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay_ColorCard}" Style="{StaticResource CardTitle}" />
+
+                    <!-- Color Swatches -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource Color}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Button x:Name="SwatchRed" Style="{StaticResource ColorSwatchButton}"
+                                Background="#FF0000" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchGreen" Style="{StaticResource ColorSwatchButton}"
+                                Background="#00FF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchYellow" Style="{StaticResource ColorSwatchButton}"
+                                Background="#FFFF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchCustom" Style="{StaticResource ColorSwatchButton}"
+                                Background="#888888" Click="CustomColor_Click" />
+                    </StackPanel>
+
+                    <!-- Opacity -->
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource Opacity}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <Slider x:Name="SliderOpacity" Width="300" Minimum="0" Maximum="100"
+                                ValueChanged="Opacity_Changed" />
+                        <TextBlock x:Name="OpacityLabel" Text="60%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
