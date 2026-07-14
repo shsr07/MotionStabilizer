@@ -62,3 +62,11 @@ PublishProfiles/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+## Release zip
+*.zip
+MotionStabilizer-v*.zip
+
+## Design docs & screenshots originals
+演示图/
+具体页面设计与视觉呈现方案.txt
