@@ -4,6 +4,27 @@
 >
 > A safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief.
 
+## 📸 界面演示 / Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>边缘叠加 / Edge Overlay</b></td>
+    <td align="center"><b>中心准星 / Crosshair</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/边缘叠加界面.png" width="480" alt="边缘叠加界面" /></td>
+    <td><img src="docs/screenshots/中心准心界面.png" width="480" alt="中心准心界面" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>悬浮时钟 / Floating Clock</b></td>
+    <td align="center"><b>游戏实测 / In-Game Test</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/悬浮时钟界面.png" width="480" alt="悬浮时钟界面" /></td>
+    <td><img src="docs/screenshots/游戏测试截图.png" width="480" alt="游戏测试截图" /></td>
+  </tr>
+</table>
+
 ## ✨ 功能特性 / Features
 
 - **边缘叠加 (Edge Overlay)** — 在屏幕边缘绘制参考框线（方框 / 圆顶 / 旗帜三种形状），为大脑提供视觉稳定锚点
