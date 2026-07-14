@@ -43,11 +43,21 @@
 ## 📋 系统要求 / Requirements
 
 - Windows 10/11 (64-bit)
-- .NET 8.0 Desktop Runtime
+- 直接下载版无需安装 .NET 运行时（已内置）
+- 从源码构建需要 [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ## 🚀 快速开始 / Getting Started
 
-### 从源码构建 / Build from Source
+### 方式一：直接下载（推荐）/ Download (Recommended)
+
+1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
+2. 下载 `MotionStabilizer-v1.0.0-win-x64.zip`
+3. 解压到任意目录
+4. 双击 `MotionStabilizer.exe` 即可运行
+
+> 无需安装 .NET 运行时，已内置。
+
+### 方式二：从源码构建 / Build from Source
 
 ```bash
 git clone https://github.com/shsr07/MotionStabilizer.git
@@ -56,10 +66,6 @@ dotnet build -c Release
 ```
 
 构建产物位于 `MotionStabilizer/bin/Release/net8.0-windows/`。
-
-### 运行 / Run
-
-直接双击 `MotionStabilizer.exe` 即可运行，无需安装。
 
 ## 📖 使用说明 / Usage
 
