@@ -10,8 +10,8 @@ public class CrosshairConfig
     public bool IsVisible { get; set; } = false;
     public CrosshairShape Shape { get; set; } = CrosshairShape.Cross;
     public AspectRatio AspectRatio { get; set; } = AspectRatio.Ratio16x9;
-    public SizePreset Size { get; set; } = SizePreset.S;
-    public OffsetLevel Thickness { get; set; } = OffsetLevel.Plus0;
+    public SizePreset Size { get; set; } = SizePreset.M;
+    public OffsetLevel Thickness { get; set; } = OffsetLevel.Plus3;
     public int PositionX { get; set; } = 0;  // offset from center, 0 = dead center
     public int PositionY { get; set; } = 0;
     public SplitScreen Split { get; set; } = SplitScreen.None;

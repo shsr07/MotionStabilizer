@@ -31,7 +31,9 @@ public partial class OverlayWindow : Window
     private DispatcherTimer? _clockTimer;
     private TextBlock? _clockText;
     private bool _isClockDragging;
+    private DispatcherTimer? _dragTimer;
     private Point _clockDragOffset;
+    private bool _wasLeftButtonDown;
 
     public OverlayWindow()
     {
@@ -124,7 +126,12 @@ public partial class OverlayWindow : Window
                 RenderHelper.OpacityToByte(_clockConfig.Opacity),
                 _clockConfig.GetColor().R,
                 _clockConfig.GetColor().G,
-                _clockConfig.GetColor().B))
+                _clockConfig.GetColor().B)),
+            // Nearly-invisible background (alpha=1) so the entire TextBlock bounding box
+            // is hit-testable by the OS compositor on AllowsTransparency windows.
+            // Without this, only the text glyphs themselves receive mouse clicks.
+            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)),
+            Padding = new Thickness(8)
         };
 
         // Apply built-in outline effect when the Outline pseudo-font is selected
@@ -162,67 +169,112 @@ public partial class OverlayWindow : Window
         _clockText.Text = text;
     }
 
-    /// <summary>Enable mouse dragging of the clock element.</summary>
+    /// <summary>
+    /// Enable clock dragging via cursor tracking.
+    /// The clock follows the mouse cursor; left-click confirms the position.
+    /// The overlay stays fully click-through — no UI is blocked.
+    /// </summary>
     public void EnableClockDrag()
     {
         _isClockDragging = true;
-        // When dragging is enabled, we temporarily disable click-through
-        // so the overlay can receive mouse events
-        var helper = new WindowInteropHelper(this);
-        int style = Win32Interop.GetWindowLong(helper.Handle, Win32Interop.GWL_EXSTYLE);
-        style &= ~Win32Interop.WS_EX_TRANSPARENT; // Remove click-through
-        Win32Interop.SetWindowLong(helper.Handle, Win32Interop.GWL_EXSTYLE, style);
+        _wasLeftButtonDown = true; // ignore the initial click that started dragging
+
+        // Set offset to zero so the clock teleports to the cursor position
+        _clockDragOffset = new Point(0, 0);
+
+        // Immediately move the clock to the current cursor position
+        if (_clockText != null && Win32Interop.GetCursorPos(out var pt))
+        {
+            double x = pt.X, y = pt.Y;
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null)
+            {
+                var m = source.CompositionTarget.TransformFromDevice;
+                var logical = m.Transform(new Point(pt.X, pt.Y));
+                x = logical.X;
+                y = logical.Y;
+            }
+            _clockConfig.PositionX = (int)x;
+            _clockConfig.PositionY = (int)y;
+            Canvas.SetLeft(_clockText, _clockConfig.PositionX);
+            Canvas.SetTop(_clockText, _clockConfig.PositionY);
+        }
+
+        _dragTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+        _dragTimer.Tick += DragTimer_Tick;
+        _dragTimer.Start();
     }
 
-    /// <summary>Disable mouse dragging and restore click-through.</summary>
+    private void DragTimer_Tick(object? sender, EventArgs e)
+    {
+        if (!_isClockDragging || _clockText == null) return;
+
+        // Check for left mouse button click to confirm
+        bool leftDown = (Win32Interop.GetAsyncKeyState(Win32Interop.VK_LBUTTON) & 0x8000) != 0;
+        if (!leftDown && _wasLeftButtonDown)
+        {
+            // Left button was released → this is a click → confirm position
+            _wasLeftButtonDown = false;
+            // Slight delay to avoid immediate re-trigger
+            return;
+        }
+        if (leftDown && !_wasLeftButtonDown)
+        {
+            // New left click → confirm
+            DisableClockDrag();
+            return;
+        }
+        _wasLeftButtonDown = leftDown;
+
+        // Check Escape to cancel
+        if ((Win32Interop.GetAsyncKeyState(Win32Interop.VK_ESCAPE) & 0x8000) != 0)
+        {
+            DisableClockDrag();
+            return;
+        }
+
+        // Move clock to follow cursor
+        if (Win32Interop.GetCursorPos(out var pt))
+        {
+            double x = pt.X, y = pt.Y;
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget != null)
+            {
+                var m = source.CompositionTarget.TransformFromDevice;
+                var logical = m.Transform(new Point(pt.X, pt.Y));
+                x = logical.X;
+                y = logical.Y;
+            }
+            _clockConfig.PositionX = (int)(x - _clockDragOffset.X);
+            _clockConfig.PositionY = (int)(y - _clockDragOffset.Y);
+            Canvas.SetLeft(_clockText, _clockConfig.PositionX);
+            Canvas.SetTop(_clockText, _clockConfig.PositionY);
+        }
+    }
+
+    /// <summary>Disable clock dragging and stop the tracking timer.</summary>
     public void DisableClockDrag()
     {
         _isClockDragging = false;
-        // Restore click-through
-        var helper = new WindowInteropHelper(this);
-        Win32Interop.MakeOverlayWindow(helper.Handle);
+        _dragTimer?.Stop();
+        _dragTimer = null;
+
+        // Notify the MainWindow to restore the ClockPage button state
+        App.MainWin?.NotifyClockDragConfirmed();
     }
 
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
-        // Add hook for mouse events when dragging
+        // Hook is no longer needed for dragging (uses cursor tracking instead)
+        // but kept for potential future use
         var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
         source?.AddHook(WndProc);
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        // Handle WM_LBUTTONDOWN (0x201), WM_MOUSEMOVE (0x200), WM_LBUTTONUP (0x202)
-        // for clock dragging
-        if (_isClockDragging && _clockText != null)
-        {
-            const int WM_LBUTTONDOWN = 0x201;
-            const int WM_MOUSEMOVE = 0x200;
-            const int WM_LBUTTONUP = 0x202;
-
-            long lVal = lParam.ToInt64();
-            int x = (int)(short)(lVal & 0xFFFF);
-            int y = (int)(short)((lVal >> 16) & 0xFFFF);
-
-            if (msg == WM_LBUTTONDOWN)
-            {
-                _clockDragOffset = new Point(x - _clockConfig.PositionX, y - _clockConfig.PositionY);
-                handled = true;
-            }
-            else if (msg == WM_MOUSEMOVE)
-            {
-                _clockConfig.PositionX = (int)(x - _clockDragOffset.X);
-                _clockConfig.PositionY = (int)(y - _clockDragOffset.Y);
-                Canvas.SetLeft(_clockText, _clockConfig.PositionX);
-                Canvas.SetTop(_clockText, _clockConfig.PositionY);
-                handled = true;
-            }
-            else if (msg == WM_LBUTTONUP)
-            {
-                handled = true;
-            }
-        }
+        // Dragging is now handled via cursor tracking timer, not Win32 messages
         return IntPtr.Zero;
     }
 

@@ -85,6 +85,8 @@
                                   SelectionChanged="AspectRatio_Changed">
                             <ComboBoxItem Content="16:9" />
                             <ComboBoxItem Content="21:9" />
+                            <ComboBoxItem Content="4:3" />
+                            <ComboBoxItem Content="5:4" />
                         </ComboBox>
                     </StackPanel>
 
@@ -141,7 +143,6 @@
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Overlay_ColorCard}" Style="{StaticResource CardTitle}" />
 
-                    <!-- Color Swatches -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <TextBlock Text="{DynamicResource Color}" Style="{StaticResource FieldLabel}" Width="80" />
                         <Button x:Name="SwatchRed" Style="{StaticResource ColorSwatchButton}"
@@ -150,8 +151,10 @@
                                 Background="#00FF00" Click="Color_Click" Margin="0,0,12,0" />
                         <Button x:Name="SwatchYellow" Style="{StaticResource ColorSwatchButton}"
                                 Background="#FFFF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <TextBlock Text="{DynamicResource CustomColorHint}"
+                                   Foreground="{StaticResource BrushTextSecondary}" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" />
                         <Button x:Name="SwatchCustom" Style="{StaticResource ColorSwatchButton}"
-                                Background="#888888" Click="CustomColor_Click" />
+                                Background="#888888" Click="CustomColor_Click" Margin="8,0,0,0" />
                     </StackPanel>
 
                     <!-- Opacity -->

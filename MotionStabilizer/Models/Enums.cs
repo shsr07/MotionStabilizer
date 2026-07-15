@@ -20,7 +20,9 @@ public enum CrosshairShape
 public enum AspectRatio
 {
     Ratio16x9,
-    Ratio21x9
+    Ratio21x9,
+    Ratio4x3,
+    Ratio5x4
 }
 
 /// <summary>Size presets (2XS through 2XL)</summary>
@@ -82,11 +84,10 @@ public enum ClockFormat
 /// <summary>UI scale options</summary>
 public enum UIScale
 {
-    Auto,
+    Percent75,
     Percent100,
     Percent125,
-    Percent150,
-    Percent200
+    Auto
 }
 
 /// <summary>Supported languages</summary>

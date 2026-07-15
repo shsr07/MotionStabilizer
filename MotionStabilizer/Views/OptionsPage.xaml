@@ -40,11 +40,10 @@
                         <TextBlock Text="{DynamicResource Options_UIScale}" Style="{StaticResource FieldLabel}" Width="80" />
                         <ComboBox x:Name="CbUIScale" Width="140" Height="32"
                                   SelectionChanged="UIScale_Changed">
-                            <ComboBoxItem Content="Auto (OS)" />
+                            <ComboBoxItem Content="75%" />
                             <ComboBoxItem Content="100%" />
                             <ComboBoxItem Content="125%" />
-                            <ComboBoxItem Content="150%" />
-                            <ComboBoxItem Content="200%" />
+                            <ComboBoxItem Content="Auto (OS)" />
                         </ComboBox>
                     </StackPanel>
 

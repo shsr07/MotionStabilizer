@@ -75,6 +75,9 @@
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Clock_PositionCard}" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{DynamicResource Clock_PositionHint}"
+                               Foreground="{StaticResource BrushTextSecondary}" FontSize="12" TextWrapping="Wrap"
+                               Margin="0,0,0,12" />
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <TextBlock Text="X" Style="{StaticResource FieldLabel}" Width="60" />
                         <TextBox x:Name="TxtPosX" Width="80" Margin="0,0,24,0"

@@ -84,17 +84,49 @@ public static class RenderHelper
         {
             return new Rect(0, 0, screenW, screenH);
         }
-        // 21:9 → keep width, reduce height to maintain 21:9 aspect
-        double targetH = screenW * 9.0 / 21.0;
-        if (targetH <= screenH)
+        if (ar == AspectRatio.Ratio21x9)
         {
+            // 21:9 → keep width, reduce height to maintain 21:9 aspect
+            double targetH = screenW * 9.0 / 21.0;
+            if (targetH <= screenH)
+            {
+                double yOffset = (screenH - targetH) / 2;
+                return new Rect(0, yOffset, screenW, targetH);
+            }
+            // Screen is narrower than 21:9 → reduce width instead
+            double targetW = screenH * 21.0 / 9.0;
+            double xOffset = (screenW - targetW) / 2;
+            return new Rect(xOffset, 0, targetW, screenH);
+        }
+        if (ar == AspectRatio.Ratio4x3)
+        {
+            // 4:3 → pillarbox: reduce width to maintain 4:3 aspect
+            double targetW = screenH * 4.0 / 3.0;
+            if (targetW <= screenW)
+            {
+                double xOffset = (screenW - targetW) / 2;
+                return new Rect(xOffset, 0, targetW, screenH);
+            }
+            // Screen is narrower than 4:3 → reduce height instead
+            double targetH = screenW * 3.0 / 4.0;
             double yOffset = (screenH - targetH) / 2;
             return new Rect(0, yOffset, screenW, targetH);
         }
-        // Screen is narrower than 21:9 → reduce width instead
-        double targetW = screenH * 21.0 / 9.0;
-        double xOffset = (screenW - targetW) / 2;
-        return new Rect(xOffset, 0, targetW, screenH);
+        if (ar == AspectRatio.Ratio5x4)
+        {
+            // 5:4 → pillarbox: reduce width to maintain 5:4 aspect
+            double targetW = screenH * 5.0 / 4.0;
+            if (targetW <= screenW)
+            {
+                double xOffset = (screenW - targetW) / 2;
+                return new Rect(xOffset, 0, targetW, screenH);
+            }
+            // Screen is narrower than 5:4 → reduce height instead
+            double targetH = screenW * 4.0 / 5.0;
+            double yOffset = (screenH - targetH) / 2;
+            return new Rect(0, yOffset, screenW, targetH);
+        }
+        return new Rect(0, 0, screenW, screenH);
     }
 
     // ── Overlay shape builders ─────────────────────────────────────────
@@ -172,8 +204,9 @@ public static class RenderHelper
                 // ── Four centered rectangular bars, one on each edge ──
                 // Size  → thickness (perpendicular to edge)
                 // Length → length along edge
-                double boxThick = Math.Max(sizePx, 2);
-                double boxLen = Math.Max(sizePx * 2 + lengthPx * 8, boxThick * 2);
+                // Box is scaled 1.5× to match Flag visual size
+                double boxThick = Math.Max(sizePx * 1.5, 2);
+                double boxLen = Math.Max(sizePx * 2 * 1.5 + lengthPx * 8 * 1.5, boxThick * 2);
 
                 // Top edge — horizontal rectangle centered on top
                 var topRect = new Rectangle { Fill = brush, Width = boxLen, Height = boxThick };
@@ -204,8 +237,9 @@ public static class RenderHelper
                 // ── Four half-ellipses, one centered on each edge ──
                 // Size   → bulge depth (perpendicular to edge, into screen)
                 // Length → width along edge (flat side length)
-                double domeDepth = Math.Max(sizePx, 8);
-                double domeWidth = Math.Max(sizePx + lengthPx * 5, domeDepth);
+                // Dome is scaled 1.5× to match Flag visual size
+                double domeDepth = Math.Max(sizePx * 1.5, 8);
+                double domeWidth = Math.Max(sizePx * 1.5 + lengthPx * 5 * 1.5, domeDepth);
 
                 // Top edge — half-ellipse bulging downward (into screen)
                 result.Add(MakeHalfEllipse(brush, cx, y, domeWidth, domeDepth,
@@ -358,7 +392,7 @@ public static class RenderHelper
         double cy = screenH / 2 + cfg.PositionY;
 
         // Apply aspect ratio adjustment for position
-        if (cfg.AspectRatio == AspectRatio.Ratio21x9)
+        if (cfg.AspectRatio != AspectRatio.Ratio16x9)
         {
             var safe = GetSafeArea(screenW, screenH, cfg.AspectRatio);
             cx = safe.X + safe.Width / 2 + cfg.PositionX;

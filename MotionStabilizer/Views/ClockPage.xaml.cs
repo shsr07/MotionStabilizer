@@ -51,8 +51,8 @@ public partial class ClockPage : Page
         {
             ClockFormat.HHmm => now.ToString("HH:mm"),
             ClockFormat.HHmmss => now.ToString("HH:mm:ss"),
-            // am/pm h:mm — hour displayed as 0-11 (00-11) instead of 1-12
-            ClockFormat.hmmAmPm => $"{now.ToString("tt")} {now.Hour % 12:00}:{now:mm}",
+            // am/pm h:mm — 12-hour clock, midnight/noon shown as 12
+            ClockFormat.hmmAmPm => $"{now:tt} {now:hh}:{now:mm}",
             _ => now.ToString("HH:mm")
         };
     }
@@ -215,10 +215,24 @@ public partial class ClockPage : Page
         {
             BtnDrag.Content = FindResource("Clock_UnlockDrag");
             App.OverlayWin?.DisableClockDrag();
-            // Update text boxes with final position
             TxtPosX.Text = App.ClockConfig.PositionX.ToString();
             TxtPosY.Text = App.ClockConfig.PositionY.ToString();
         }
+    }
+
+    /// <summary>
+    /// Called by overlay window when clock drag is confirmed via left-click.
+    /// Restores the button to "Unlock" state and updates position text boxes.
+    /// </summary>
+    public void OnClockDragConfirmed()
+    {
+        _isDragging = false;
+        if (BtnDrag != null)
+            BtnDrag.Content = FindResource("Clock_UnlockDrag");
+        if (TxtPosX != null)
+            TxtPosX.Text = App.ClockConfig.PositionX.ToString();
+        if (TxtPosY != null)
+            TxtPosY.Text = App.ClockConfig.PositionY.ToString();
     }
 
     private void Opacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

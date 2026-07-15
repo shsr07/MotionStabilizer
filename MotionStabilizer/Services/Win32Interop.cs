@@ -167,4 +167,24 @@ internal static class Win32Interop
     }
 
     #endregion
+
+    #region Cursor Tracking
+
+    [DllImport("user32.dll")]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+    }
+
+    [DllImport("user32.dll")]
+    public static extern short GetAsyncKeyState(int vKey);
+
+    public const int VK_LBUTTON = 0x01;
+    public const int VK_ESCAPE = 0x1B;
+
+    #endregion
 }

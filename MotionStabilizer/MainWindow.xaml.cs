@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -124,6 +124,9 @@ public partial class MainWindow : Window
 
         NotifyConfigChanged();
     }
+
+    /// <summary>Called when clock drag is confirmed via left-click.</summary>
+    public void NotifyClockDragConfirmed() => _clockPage.OnClockDragConfirmed();
 
     /// <summary>Called when configs change (via hotkey or UI) to refresh pages.</summary>
     public void NotifyConfigChanged()

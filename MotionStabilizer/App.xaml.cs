@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using MotionStabilizer.Models;
 using MotionStabilizer.Overlay;
@@ -102,6 +103,9 @@ public partial class App : Application
 
         // Create main settings window
         MainWin = new MainWindow();
+
+        // Apply saved UI scale
+        ApplyUIScale(AppConfig.Scale);
 
         // Initialize hotkeys with the main window
         try
@@ -208,9 +212,9 @@ public partial class App : Application
     {
         var cfg = MainWin?.CurrentPage == "Crosshair" ? (object)CrosshairConfig : OverlayConfig;
         if (cfg is OverlayConfig oc)
-            oc.AspectRatio = oc.AspectRatio == AspectRatio.Ratio16x9 ? AspectRatio.Ratio21x9 : AspectRatio.Ratio16x9;
+            oc.AspectRatio = (AspectRatio)(((int)oc.AspectRatio + 1) % 4);
         else if (cfg is CrosshairConfig cc)
-            cc.AspectRatio = cc.AspectRatio == AspectRatio.Ratio16x9 ? AspectRatio.Ratio21x9 : AspectRatio.Ratio16x9;
+            cc.AspectRatio = (AspectRatio)(((int)cc.AspectRatio + 1) % 4);
         RefreshOverlay();
     }
 
@@ -226,6 +230,29 @@ public partial class App : Application
     public static void RefreshOverlay()
     {
         OverlayWin?.UpdateConfigs(OverlayConfig, CrosshairConfig, ClockConfig);
+    }
+
+    /// <summary>
+    /// Apply UI scale to the main window's root content.
+    /// Works with AllowsTransparency=True windows by applying LayoutTransform
+    /// to the root FrameworkElement instead of the Window itself.
+    /// </summary>
+    public static void ApplyUIScale(UIScale scale)
+    {
+        double factor = scale switch
+        {
+            UIScale.Percent75 => 0.75,
+            UIScale.Percent100 => 1.0,
+            UIScale.Percent125 => 1.25,
+            _ => 1.0 // Auto
+        };
+
+        if (MainWin?.Content is FrameworkElement root)
+        {
+            root.LayoutTransform = scale != UIScale.Auto
+                ? new ScaleTransform(factor, factor)
+                : null;
+        }
     }
 
     /// <summary>
@@ -254,6 +281,9 @@ public partial class App : Application
 
         // Apply language (may have changed)
         ApplyLanguage(AppConfig.Language);
+
+        // Apply UI scale (may have changed)
+        ApplyUIScale(AppConfig.Scale);
 
         // Re-register hotkeys with new defaults
         RegisterAllHotkeys();

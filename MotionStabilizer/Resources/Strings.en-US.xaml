@@ -21,6 +21,7 @@
     <sys:String x:Key="Disabled">Disabled</sys:String>
     <sys:String x:Key="Hotkey">Hotkey</sys:String>
     <sys:String x:Key="Color">Color</sys:String>
+    <sys:String x:Key="CustomColorHint">Custom color: click the swatch to the right</sys:String>
     <sys:String x:Key="Opacity">Opacity</sys:String>
     <sys:String x:Key="Shape">Shape</sys:String>
     <sys:String x:Key="Size">Size</sys:String>
@@ -85,6 +86,7 @@
     <sys:String x:Key="Clock_FormatCard">Time Format</sys:String>
     <sys:String x:Key="Clock_FontCard">Font Style</sys:String>
     <sys:String x:Key="Clock_PositionCard">Position</sys:String>
+    <sys:String x:Key="Clock_PositionHint">The top-left corner of the screen is the origin (0,0). After unlocking, move the mouse to drag the clock. Left-click to confirm the position. Press Esc to cancel.</sys:String>
     <sys:String x:Key="Clock_UnlockDrag">Unlock to Drag</sys:String>
     <sys:String x:Key="Clock_LockDrag">Lock Position</sys:String>
     <sys:String x:Key="Clock_FontFamily">Font</sys:String>

@@ -21,6 +21,7 @@
     <sys:String x:Key="Disabled">已禁用</sys:String>
     <sys:String x:Key="Hotkey">热键</sys:String>
     <sys:String x:Key="Color">颜色</sys:String>
+    <sys:String x:Key="CustomColorHint">自定义颜色：点击右方色块</sys:String>
     <sys:String x:Key="Opacity">不透明度</sys:String>
     <sys:String x:Key="Shape">形状</sys:String>
     <sys:String x:Key="Size">尺寸</sys:String>
@@ -85,6 +86,7 @@
     <sys:String x:Key="Clock_FormatCard">时间格式</sys:String>
     <sys:String x:Key="Clock_FontCard">字体样式</sys:String>
     <sys:String x:Key="Clock_PositionCard">位置</sys:String>
+    <sys:String x:Key="Clock_PositionHint">屏幕左上角为零坐标点。解除锁定后移动鼠标即可拖动时钟，按左键确认位置，按 Esc 取消。</sys:String>
     <sys:String x:Key="Clock_UnlockDrag">解锁拖动</sys:String>
     <sys:String x:Key="Clock_LockDrag">锁定位置</sys:String>
     <sys:String x:Key="Clock_FontFamily">字体</sys:String>

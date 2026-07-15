@@ -64,7 +64,7 @@ public partial class OptionsPage : Page
         if (_isLoading) return;
         App.AppConfig.Scale = (UIScale)CbUIScale.SelectedIndex;
         ConfigManager.SaveAppConfig(App.AppConfig);
-        ApplyUIScale(App.AppConfig.Scale);
+        App.ApplyUIScale(App.AppConfig.Scale);
     }
 
     private void Language_Changed(object sender, SelectionChangedEventArgs e)
@@ -73,27 +73,6 @@ public partial class OptionsPage : Page
         App.AppConfig.Language = (Language)CbLanguage.SelectedIndex;
         App.ApplyLanguage(App.AppConfig.Language);
         ConfigManager.SaveAppConfig(App.AppConfig);
-    }
-
-    private void ApplyUIScale(UIScale scale)
-    {
-        double factor = scale switch
-        {
-            UIScale.Percent100 => 1.0,
-            UIScale.Percent125 => 1.25,
-            UIScale.Percent150 => 1.5,
-            UIScale.Percent200 => 2.0,
-            _ => 1.0 // Auto
-        };
-
-        if (App.MainWin != null && scale != UIScale.Auto)
-        {
-            App.MainWin.LayoutTransform = new ScaleTransform(factor, factor);
-        }
-        else if (App.MainWin != null)
-        {
-            App.MainWin.LayoutTransform = null;
-        }
     }
 
     private void SaveProfile_Click(object sender, RoutedEventArgs e)
