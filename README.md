@@ -51,7 +51,7 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v1.0.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v1.1.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 
