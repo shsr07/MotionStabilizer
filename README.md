@@ -13,7 +13,7 @@
   </tr>
   <tr>
     <td><img src="docs/screenshots/边缘叠加界面.png" width="480" alt="边缘叠加界面" /></td>
-    <td><img src="docs/screenshots/中心准心界面.png" width="480" alt="中心准心界面" /></td>
+    <td><img src="docs/screenshots/中心准星界面.png" width="480" alt="中心准星界面" /></td>
   </tr>
   <tr>
     <td align="center"><b>悬浮时钟 / Floating Clock</b></td>
