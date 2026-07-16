@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Windows;
 using MotionStabilizer.Views;
 
@@ -12,21 +11,15 @@ namespace MotionStabilizer.Services;
 public class TrayService : IDisposable
 {
     private readonly NotifyIcon _notifyIcon;
-    private bool _disposed;
-
-    // Track GDI resources for proper cleanup
     private Icon? _customIcon;
-    private IntPtr _iconHandle = IntPtr.Zero;
-
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool DestroyIcon(IntPtr hIcon);
+    private bool _disposed;
 
     public TrayService()
     {
+        _customIcon = AppIcon.CreateIcon();
         _notifyIcon = new NotifyIcon
         {
-            Icon = CreateDefaultIcon(),
+            Icon = _customIcon,
             Visible = false,
             Text = "Motion Stabilizer"
         };
@@ -73,61 +66,14 @@ public class TrayService : IDisposable
         }
     }
 
-    /// <summary>Create a simple icon programmatically (green circle with crosshair).</summary>
-    private Icon CreateDefaultIcon()
-    {
-        try
-        {
-            using var bitmap = new Bitmap(32, 32);
-            using (var g = Graphics.FromImage(bitmap))
-            {
-                g.Clear(System.Drawing.Color.Transparent);
-                // Dark circle background
-                using var bgBrush = new SolidBrush(System.Drawing.Color.FromArgb(28, 28, 30));
-                g.FillEllipse(bgBrush, 2, 2, 28, 28);
-                // Green ring
-                using var greenPen = new Pen(System.Drawing.Color.FromArgb(0, 230, 118), 2);
-                g.DrawEllipse(greenPen, 4, 4, 24, 24);
-                // Crosshair
-                using var whitePen = new Pen(System.Drawing.Color.White, 1);
-                g.DrawLine(whitePen, 16, 10, 16, 22);
-                g.DrawLine(whitePen, 10, 16, 22, 16);
-            }
-
-            // GetHicon() allocates an unmanaged GDI icon handle that MUST be freed with DestroyIcon.
-            // We clone the icon from the handle so the Icon object owns its own copy,
-            // then immediately destroy the original handle to prevent leakage.
-            _iconHandle = bitmap.GetHicon();
-            _customIcon = (Icon)Icon.FromHandle(_iconHandle).Clone();
-            // The cloned Icon is independent; we can safely destroy the original handle now.
-            DestroyIcon(_iconHandle);
-            _iconHandle = IntPtr.Zero;
-            return _customIcon;
-        }
-        catch
-        {
-            return SystemIcons.Application;
-        }
-    }
-
     public void Dispose()
     {
         if (!_disposed)
         {
             _notifyIcon.Visible = false;
             _notifyIcon.Dispose();
-
-            // Clean up the custom icon GDI resource
             _customIcon?.Dispose();
             _customIcon = null;
-
-            // If the handle wasn't destroyed during Clone (edge case), clean it up now
-            if (_iconHandle != IntPtr.Zero)
-            {
-                DestroyIcon(_iconHandle);
-                _iconHandle = IntPtr.Zero;
-            }
-
             _disposed = true;
         }
     }

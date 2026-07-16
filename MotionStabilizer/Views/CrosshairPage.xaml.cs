@@ -67,7 +67,7 @@ public partial class CrosshairPage : Page
     {
         SwatchRed.Tag = color == ColorPreset.Red ? "Selected" : "";
         SwatchGreen.Tag = color == ColorPreset.Green ? "Selected" : "";
-        SwatchYellow.Tag = color == ColorPreset.Yellow ? "Selected" : "";
+        SwatchBlue.Tag = color == ColorPreset.Blue ? "Selected" : "";
         SwatchCustom.Tag = color == ColorPreset.Custom ? "Selected" : "";
     }
 
@@ -159,7 +159,7 @@ public partial class CrosshairPage : Page
         if (_isLoading) return;
         if (sender == SwatchRed) App.CrosshairConfig.ColorPreset = ColorPreset.Red;
         else if (sender == SwatchGreen) App.CrosshairConfig.ColorPreset = ColorPreset.Green;
-        else if (sender == SwatchYellow) App.CrosshairConfig.ColorPreset = ColorPreset.Yellow;
+        else if (sender == SwatchBlue) App.CrosshairConfig.ColorPreset = ColorPreset.Blue;
         UpdateColorSelection(App.CrosshairConfig.ColorPreset);
         App.RefreshOverlay();
     }

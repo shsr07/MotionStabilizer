@@ -136,7 +136,6 @@ public static class RenderHelper
     {
         var shapes = new List<Shape>();
         var color = cfg.GetColor();
-        var brush = new SolidColorBrush(Color.FromArgb(OpacityToByte(cfg.Opacity), color.R, color.G, color.B));
         double sizePx = OverlayBarWidth(cfg.Size);
         double lengthPx = LengthOffsetPx(cfg.Length);
 
@@ -169,26 +168,26 @@ public static class RenderHelper
             double halfW = drawArea.Width / 2;
             var leftRect = new Rect(drawArea.X, drawArea.Y, halfW, drawArea.Height);
             var rightRect = new Rect(drawArea.X + halfW, drawArea.Y, halfW, drawArea.Height);
-            shapes.AddRange(BuildSingleOverlay(cfg.Shape, leftRect, sizePx, lengthPx, brush));
-            shapes.AddRange(BuildSingleOverlay(cfg.Shape, rightRect, sizePx, lengthPx, brush));
+            shapes.AddRange(BuildSingleOverlay(cfg, leftRect, sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, rightRect, sizePx, lengthPx, color));
         }
         else if (cfg.Split == SplitScreen.Horizontal)
         {
             double halfH = drawArea.Height / 2;
             var topRect = new Rect(drawArea.X, drawArea.Y, drawArea.Width, halfH);
             var botRect = new Rect(drawArea.X, drawArea.Y + halfH, drawArea.Width, halfH);
-            shapes.AddRange(BuildSingleOverlay(cfg.Shape, topRect, sizePx, lengthPx, brush));
-            shapes.AddRange(BuildSingleOverlay(cfg.Shape, botRect, sizePx, lengthPx, brush));
+            shapes.AddRange(BuildSingleOverlay(cfg, topRect, sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, botRect, sizePx, lengthPx, color));
         }
         else
         {
-            shapes.AddRange(BuildSingleOverlay(cfg.Shape, drawArea, sizePx, lengthPx, brush));
+            shapes.AddRange(BuildSingleOverlay(cfg, drawArea, sizePx, lengthPx, color));
         }
 
         return shapes;
     }
 
-    private static List<Shape> BuildSingleOverlay(OverlayShape shape, Rect area, double sizePx, double lengthPx, Brush brush)
+    private static List<Shape> BuildSingleOverlay(OverlayConfig cfg, Rect area, double sizePx, double lengthPx, Color color)
     {
         var result = new List<Shape>();
         double x = area.X;
@@ -198,7 +197,10 @@ public static class RenderHelper
         double cx = x + w / 2;
         double cy = y + h / 2;
 
-        switch (shape)
+        Brush brushFor(EdgeSide side) => new SolidColorBrush(
+            Color.FromArgb(OpacityToByte(cfg.GetEdgeOpacity(side)), color.R, color.G, color.B));
+
+        switch (cfg.Shape)
         {
             case OverlayShape.Box:
                 // ── Four centered rectangular bars, one on each edge ──
@@ -209,28 +211,40 @@ public static class RenderHelper
                 double boxLen = Math.Max(sizePx * 2 * 1.5 + lengthPx * 8 * 1.5, boxThick * 2);
 
                 // Top edge — horizontal rectangle centered on top
-                var topRect = new Rectangle { Fill = brush, Width = boxLen, Height = boxThick };
-                Canvas.SetLeft(topRect, cx - boxLen / 2);
-                Canvas.SetTop(topRect, y);
-                result.Add(topRect);
+                if (cfg.IsEdgeVisible(EdgeSide.Top))
+                {
+                    var topRect = new Rectangle { Fill = brushFor(EdgeSide.Top), Width = boxLen, Height = boxThick };
+                    Canvas.SetLeft(topRect, cx - boxLen / 2);
+                    Canvas.SetTop(topRect, y);
+                    result.Add(topRect);
+                }
 
                 // Bottom edge — horizontal rectangle centered on bottom
-                var botRect = new Rectangle { Fill = brush, Width = boxLen, Height = boxThick };
-                Canvas.SetLeft(botRect, cx - boxLen / 2);
-                Canvas.SetTop(botRect, y + h - boxThick);
-                result.Add(botRect);
+                if (cfg.IsEdgeVisible(EdgeSide.Bottom))
+                {
+                    var botRect = new Rectangle { Fill = brushFor(EdgeSide.Bottom), Width = boxLen, Height = boxThick };
+                    Canvas.SetLeft(botRect, cx - boxLen / 2);
+                    Canvas.SetTop(botRect, y + h - boxThick);
+                    result.Add(botRect);
+                }
 
                 // Left edge — vertical rectangle centered on left
-                var leftRect = new Rectangle { Fill = brush, Width = boxThick, Height = boxLen };
-                Canvas.SetLeft(leftRect, x);
-                Canvas.SetTop(leftRect, cy - boxLen / 2);
-                result.Add(leftRect);
+                if (cfg.IsEdgeVisible(EdgeSide.Left))
+                {
+                    var leftRect = new Rectangle { Fill = brushFor(EdgeSide.Left), Width = boxThick, Height = boxLen };
+                    Canvas.SetLeft(leftRect, x);
+                    Canvas.SetTop(leftRect, cy - boxLen / 2);
+                    result.Add(leftRect);
+                }
 
                 // Right edge — vertical rectangle centered on right
-                var rightRect = new Rectangle { Fill = brush, Width = boxThick, Height = boxLen };
-                Canvas.SetLeft(rightRect, x + w - boxThick);
-                Canvas.SetTop(rightRect, cy - boxLen / 2);
-                result.Add(rightRect);
+                if (cfg.IsEdgeVisible(EdgeSide.Right))
+                {
+                    var rightRect = new Rectangle { Fill = brushFor(EdgeSide.Right), Width = boxThick, Height = boxLen };
+                    Canvas.SetLeft(rightRect, x + w - boxThick);
+                    Canvas.SetTop(rightRect, cy - boxLen / 2);
+                    result.Add(rightRect);
+                }
                 break;
 
             case OverlayShape.Dome:
@@ -242,20 +256,24 @@ public static class RenderHelper
                 double domeWidth = Math.Max(sizePx * 1.5 + lengthPx * 5 * 1.5, domeDepth);
 
                 // Top edge — half-ellipse bulging downward (into screen)
-                result.Add(MakeHalfEllipse(brush, cx, y, domeWidth, domeDepth,
-                    SweepDirection.Counterclockwise, false));
+                if (cfg.IsEdgeVisible(EdgeSide.Top))
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Top), cx, y, domeWidth, domeDepth,
+                        SweepDirection.Counterclockwise, false));
 
                 // Bottom edge — half-ellipse bulging upward (into screen)
-                result.Add(MakeHalfEllipse(brush, cx, y + h, domeWidth, domeDepth,
-                    SweepDirection.Clockwise, false));
+                if (cfg.IsEdgeVisible(EdgeSide.Bottom))
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Bottom), cx, y + h, domeWidth, domeDepth,
+                        SweepDirection.Clockwise, false));
 
                 // Left edge — half-ellipse bulging rightward (into screen)
-                result.Add(MakeHalfEllipse(brush, x, cy, domeWidth, domeDepth,
-                    SweepDirection.Clockwise, true));
+                if (cfg.IsEdgeVisible(EdgeSide.Left))
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Left), x, cy, domeWidth, domeDepth,
+                        SweepDirection.Clockwise, true));
 
                 // Right edge — half-ellipse bulging leftward (into screen)
-                result.Add(MakeHalfEllipse(brush, x + w, cy, domeWidth, domeDepth,
-                    SweepDirection.Counterclockwise, true));
+                if (cfg.IsEdgeVisible(EdgeSide.Right))
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Right), x + w, cy, domeWidth, domeDepth,
+                        SweepDirection.Counterclockwise, true));
                 break;
 
             case OverlayShape.Flag:
@@ -266,28 +284,32 @@ public static class RenderHelper
                 double triBase = Math.Max(sizePx * 2.5 + lengthPx * 8, 40);
 
                 // Top edge triangle — base on top edge, apex pointing down toward center
-                result.Add(MakeTriangle(brush,
-                    cx - triBase / 2, y,
-                    cx + triBase / 2, y,
-                    cx, y + triHeight));
+                if (cfg.IsEdgeVisible(EdgeSide.Top))
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Top),
+                        cx - triBase / 2, y,
+                        cx + triBase / 2, y,
+                        cx, y + triHeight));
 
                 // Bottom edge triangle — base on bottom edge, apex pointing up toward center
-                result.Add(MakeTriangle(brush,
-                    cx - triBase / 2, y + h,
-                    cx + triBase / 2, y + h,
-                    cx, y + h - triHeight));
+                if (cfg.IsEdgeVisible(EdgeSide.Bottom))
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Bottom),
+                        cx - triBase / 2, y + h,
+                        cx + triBase / 2, y + h,
+                        cx, y + h - triHeight));
 
                 // Left edge triangle — base on left edge, apex pointing right toward center
-                result.Add(MakeTriangle(brush,
-                    x, cy - triBase / 2,
-                    x, cy + triBase / 2,
-                    x + triHeight, cy));
+                if (cfg.IsEdgeVisible(EdgeSide.Left))
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Left),
+                        x, cy - triBase / 2,
+                        x, cy + triBase / 2,
+                        x + triHeight, cy));
 
                 // Right edge triangle — base on right edge, apex pointing left toward center
-                result.Add(MakeTriangle(brush,
-                    x + w, cy - triBase / 2,
-                    x + w, cy + triBase / 2,
-                    x + w - triHeight, cy));
+                if (cfg.IsEdgeVisible(EdgeSide.Right))
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Right),
+                        x + w, cy - triBase / 2,
+                        x + w, cy + triBase / 2,
+                        x + w - triHeight, cy));
                 break;
         }
         return result;

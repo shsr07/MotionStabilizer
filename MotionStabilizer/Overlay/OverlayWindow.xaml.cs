@@ -162,8 +162,8 @@ public partial class OverlayWindow : Window
         {
             ClockFormat.HHmm => now.ToString("HH:mm"),
             ClockFormat.HHmmss => now.ToString("HH:mm:ss"),
-            // am/pm h:mm — hour displayed as 0-11 (00-11) instead of 1-12
-            ClockFormat.hmmAmPm => $"{now.ToString("tt")} {now.Hour % 12:00}:{now:mm}",
+            // am/pm h:mm — 12-hour clock, midnight/noon shown as 12
+            ClockFormat.HhMmAmPm => $"{now:tt} {now:hh}:{now:mm}",
             _ => now.ToString("HH:mm")
         };
         _clockText.Text = text;

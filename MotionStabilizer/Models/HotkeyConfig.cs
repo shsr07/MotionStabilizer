@@ -56,12 +56,13 @@ public class HotkeyConfig
     public HotkeyBinding CycleOverlayShape { get; set; } = new() { Name = "CycleOverlayShape", Key = "F4" };
     public HotkeyBinding CycleCrosshairShape { get; set; } = new() { Name = "CycleCrosshairShape", Key = "F5" };
     public HotkeyBinding CycleAspectRatio { get; set; } = new() { Name = "CycleAspectRatio" };
+    public HotkeyBinding CycleOpacityMode { get; set; } = new() { Name = "CycleOpacityMode", Key = "F7" };
 
     // 4 color switch hotkeys
-    public HotkeyBinding ColorRed { get; set; } = new() { Name = "ColorRed", Key = "F7" };
-    public HotkeyBinding ColorGreen { get; set; } = new() { Name = "ColorGreen", Key = "F8" };
-    public HotkeyBinding ColorYellow { get; set; } = new() { Name = "ColorYellow", Key = "F9" };
-    public HotkeyBinding ColorCustom { get; set; } = new() { Name = "ColorCustom", Key = "F10" };
+    public HotkeyBinding ColorRed { get; set; } = new() { Name = "ColorRed", Key = "F8" };
+    public HotkeyBinding ColorGreen { get; set; } = new() { Name = "ColorGreen", Key = "F9" };
+    public HotkeyBinding ColorBlue { get; set; } = new() { Name = "ColorBlue", Key = "F10" };
+    public HotkeyBinding ColorCustom { get; set; } = new() { Name = "ColorCustom", Key = "F11" };
 
     public List<HotkeyBinding> AllBindings => new()
     {
@@ -73,9 +74,10 @@ public class HotkeyConfig
         CycleOverlayShape,
         CycleCrosshairShape,
         CycleAspectRatio,
+        CycleOpacityMode,
         ColorRed,
         ColorGreen,
-        ColorYellow,
+        ColorBlue,
         ColorCustom
     };
 }

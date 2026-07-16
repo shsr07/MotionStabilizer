@@ -52,7 +52,7 @@ public partial class ClockPage : Page
             ClockFormat.HHmm => now.ToString("HH:mm"),
             ClockFormat.HHmmss => now.ToString("HH:mm:ss"),
             // am/pm h:mm — 12-hour clock, midnight/noon shown as 12
-            ClockFormat.hmmAmPm => $"{now:tt} {now:hh}:{now:mm}",
+            ClockFormat.HhMmAmPm => $"{now:tt} {now:hh}:{now:mm}",
             _ => now.ToString("HH:mm")
         };
     }
@@ -93,7 +93,7 @@ public partial class ClockPage : Page
         {
             case ClockFormat.HHmm: RbFormat1.IsChecked = true; break;
             case ClockFormat.HHmmss: RbFormat2.IsChecked = true; break;
-            case ClockFormat.hmmAmPm: RbFormat3.IsChecked = true; break;
+            case ClockFormat.HhMmAmPm: RbFormat3.IsChecked = true; break;
         }
 
         // Select font family in combo
@@ -142,7 +142,7 @@ public partial class ClockPage : Page
         if (_isLoading) return;
         if (RbFormat1.IsChecked == true) App.ClockConfig.Format = ClockFormat.HHmm;
         else if (RbFormat2.IsChecked == true) App.ClockConfig.Format = ClockFormat.HHmmss;
-        else if (RbFormat3.IsChecked == true) App.ClockConfig.Format = ClockFormat.hmmAmPm;
+        else if (RbFormat3.IsChecked == true) App.ClockConfig.Format = ClockFormat.HhMmAmPm;
         App.RefreshOverlay();
         UpdatePreview();
     }

@@ -36,7 +36,7 @@
     <!-- Colors -->
     <sys:String x:Key="Color_Red">Red</sys:String>
     <sys:String x:Key="Color_Green">Green</sys:String>
-    <sys:String x:Key="Color_Yellow">Yellow</sys:String>
+    <sys:String x:Key="Color_Blue">Blue</sys:String>
     <sys:String x:Key="Color_Custom">Custom</sys:String>
 
     <!-- Shapes -->
@@ -72,6 +72,14 @@
     <sys:String x:Key="Overlay_SizeCard">Size &amp; Ratio</sys:String>
     <sys:String x:Key="Overlay_DisplayCard">Display &amp; Split</sys:String>
     <sys:String x:Key="Overlay_ColorCard">Color &amp; Opacity</sys:String>
+    <sys:String x:Key="EdgeVisibility">Edge Visibility</sys:String>
+    <sys:String x:Key="Edge_Top">Top</sys:String>
+    <sys:String x:Key="Edge_Bottom">Bottom</sys:String>
+    <sys:String x:Key="Edge_Left">Left</sys:String>
+    <sys:String x:Key="Edge_Right">Right</sys:String>
+    <sys:String x:Key="OpacityMode">Opacity Mode</sys:String>
+    <sys:String x:Key="OpacityMode_Uniform">Uniform</sys:String>
+    <sys:String x:Key="OpacityMode_PerEdge">Per Edge</sys:String>
 
     <!-- Crosshair Page -->
     <sys:String x:Key="Crosshair_Title">Crosshair</sys:String>
@@ -110,9 +118,10 @@
     <sys:String x:Key="HK_CycleOverlayShape">Cycle Overlay Shape</sys:String>
     <sys:String x:Key="HK_CycleCrosshairShape">Cycle Crosshair Shape</sys:String>
     <sys:String x:Key="HK_CycleAspectRatio">Cycle Aspect Ratio</sys:String>
+    <sys:String x:Key="HK_CycleOpacityMode">Cycle Opacity Mode</sys:String>
     <sys:String x:Key="HK_ColorRed">Color: Red</sys:String>
     <sys:String x:Key="HK_ColorGreen">Color: Green</sys:String>
-    <sys:String x:Key="HK_ColorYellow">Color: Yellow</sys:String>
+    <sys:String x:Key="HK_ColorBlue">Color: Blue</sys:String>
     <sys:String x:Key="HK_ColorCustom">Color: Custom</sys:String>
 
     <!-- Options Page -->

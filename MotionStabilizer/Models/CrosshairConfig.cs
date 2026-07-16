@@ -25,7 +25,7 @@ public class CrosshairConfig
         {
             ColorPreset.Red => Color.FromRgb(0xFF, 0x00, 0x00),
             ColorPreset.Green => Color.FromRgb(0x00, 0xFF, 0x00),
-            ColorPreset.Yellow => Color.FromRgb(0xFF, 0xFF, 0x00),
+            ColorPreset.Blue => Color.FromRgb(0x00, 0x99, 0xFF),
             ColorPreset.Custom => TryParseColor(CustomColorHex, Color.FromRgb(0xFF, 0x00, 0x00)),
             _ => Color.FromRgb(0xFF, 0x00, 0x00)
         };

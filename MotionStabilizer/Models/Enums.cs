@@ -69,7 +69,7 @@ public enum ColorPreset
 {
     Red,
     Green,
-    Yellow,
+    Blue,
     Custom
 }
 
@@ -78,7 +78,7 @@ public enum ClockFormat
 {
     HHmm,
     HHmmss,
-    hmmAmPm
+    HhMmAmPm
 }
 
 /// <summary>UI scale options</summary>
@@ -95,4 +95,20 @@ public enum Language
 {
     Chinese,
     English
+}
+
+/// <summary>Edge sides of the overlay</summary>
+public enum EdgeSide
+{
+    Top,
+    Bottom,
+    Left,
+    Right
+}
+
+/// <summary>Edge opacity control mode</summary>
+public enum EdgeOpacityMode
+{
+    Uniform,
+    PerEdge
 }

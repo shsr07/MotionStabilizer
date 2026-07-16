@@ -407,7 +407,6 @@
         <Setter Property="FontSize" Value="13" />
         <Setter Property="Padding" Value="12,8" />
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="TextBlock.Effect" Value="{StaticResource BlackTextOutline}" />
     </Style>
 
 </ResourceDictionary>

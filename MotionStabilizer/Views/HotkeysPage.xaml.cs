@@ -54,11 +54,12 @@ public partial class HotkeysPage : Page
         AddItem(_displayItems, hk.CycleDisplayMode, "HK_CycleDisplayMode");
         AddItem(_displayItems, hk.CycleAspectRatio, "HK_CycleAspectRatio");
         AddItem(_displayItems, hk.CycleSplitScreen, "HK_CycleSplitScreen");
+        AddItem(_displayItems, hk.CycleOpacityMode, "HK_CycleOpacityMode");
 
         // Color hotkeys (4)
         AddItem(_colorItems, hk.ColorRed, "HK_ColorRed");
         AddItem(_colorItems, hk.ColorGreen, "HK_ColorGreen");
-        AddItem(_colorItems, hk.ColorYellow, "HK_ColorYellow");
+        AddItem(_colorItems, hk.ColorBlue, "HK_ColorBlue");
         AddItem(_colorItems, hk.ColorCustom, "HK_ColorCustom");
     }
 

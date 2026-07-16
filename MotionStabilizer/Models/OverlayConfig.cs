@@ -18,6 +18,17 @@ public class OverlayConfig
     public string CustomColorHex { get; set; } = "#00FF00";
     public int Opacity { get; set; } = 60;
 
+    // ── Per-edge visibility & opacity ──
+    public EdgeOpacityMode OpacityMode { get; set; } = EdgeOpacityMode.Uniform;
+    public bool EdgeTopVisible { get; set; } = true;
+    public bool EdgeBottomVisible { get; set; } = true;
+    public bool EdgeLeftVisible { get; set; } = true;
+    public bool EdgeRightVisible { get; set; } = true;
+    public int EdgeTopOpacity { get; set; } = 60;
+    public int EdgeBottomOpacity { get; set; } = 60;
+    public int EdgeLeftOpacity { get; set; } = 60;
+    public int EdgeRightOpacity { get; set; } = 60;
+
     /// <summary>Returns the actual Color based on preset or custom value.</summary>
     public Color GetColor()
     {
@@ -25,7 +36,7 @@ public class OverlayConfig
         {
             ColorPreset.Red => Color.FromRgb(0xFF, 0x00, 0x00),
             ColorPreset.Green => Color.FromRgb(0x00, 0xFF, 0x00),
-            ColorPreset.Yellow => Color.FromRgb(0xFF, 0xFF, 0x00),
+            ColorPreset.Blue => Color.FromRgb(0x00, 0x99, 0xFF),
             ColorPreset.Custom => TryParseColor(CustomColorHex, Color.FromRgb(0x00, 0xFF, 0x00)),
             _ => Color.FromRgb(0x00, 0xFF, 0x00)
         };
@@ -42,5 +53,29 @@ public class OverlayConfig
         {
             return fallback;
         }
+    }
+
+    /// <summary>Whether the given edge shape should be drawn.</summary>
+    public bool IsEdgeVisible(EdgeSide side) => side switch
+    {
+        EdgeSide.Top => EdgeTopVisible,
+        EdgeSide.Bottom => EdgeBottomVisible,
+        EdgeSide.Left => EdgeLeftVisible,
+        EdgeSide.Right => EdgeRightVisible,
+        _ => true
+    };
+
+    /// <summary>Effective opacity for an edge, considering the opacity mode.</summary>
+    public int GetEdgeOpacity(EdgeSide side)
+    {
+        if (OpacityMode == EdgeOpacityMode.Uniform) return Opacity;
+        return side switch
+        {
+            EdgeSide.Top => EdgeTopOpacity,
+            EdgeSide.Bottom => EdgeBottomOpacity,
+            EdgeSide.Left => EdgeLeftOpacity,
+            EdgeSide.Right => EdgeRightOpacity,
+            _ => Opacity
+        };
     }
 }

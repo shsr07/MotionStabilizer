@@ -149,21 +149,73 @@
                                 Background="#FF0000" Click="Color_Click" Margin="0,0,12,0" />
                         <Button x:Name="SwatchGreen" Style="{StaticResource ColorSwatchButton}"
                                 Background="#00FF00" Click="Color_Click" Margin="0,0,12,0" />
-                        <Button x:Name="SwatchYellow" Style="{StaticResource ColorSwatchButton}"
-                                Background="#FFFF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchBlue" Style="{StaticResource ColorSwatchButton}"
+                                Background="#0099FF" Click="Color_Click" Margin="0,0,12,0" />
                         <TextBlock Text="{DynamicResource CustomColorHint}"
                                    Foreground="{StaticResource BrushTextSecondary}" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" />
                         <Button x:Name="SwatchCustom" Style="{StaticResource ColorSwatchButton}"
                                 Background="#888888" Click="CustomColor_Click" Margin="8,0,0,0" />
                     </StackPanel>
 
-                    <!-- Opacity -->
-                    <StackPanel Orientation="Horizontal">
+                    <!-- Edge Visibility -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource EdgeVisibility}" Style="{StaticResource CardTitle}" FontSize="13" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox x:Name="ChkEdgeTop" Content="{DynamicResource Edge_Top}" Margin="0,0,16,0"
+                                      Checked="EdgeVisible_Changed" Unchecked="EdgeVisible_Changed" />
+                            <CheckBox x:Name="ChkEdgeBottom" Content="{DynamicResource Edge_Bottom}" Margin="0,0,16,0"
+                                      Checked="EdgeVisible_Changed" Unchecked="EdgeVisible_Changed" />
+                            <CheckBox x:Name="ChkEdgeLeft" Content="{DynamicResource Edge_Left}" Margin="0,0,16,0"
+                                      Checked="EdgeVisible_Changed" Unchecked="EdgeVisible_Changed" />
+                            <CheckBox x:Name="ChkEdgeRight" Content="{DynamicResource Edge_Right}"
+                                      Checked="EdgeVisible_Changed" Unchecked="EdgeVisible_Changed" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Opacity Mode -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="{DynamicResource OpacityMode}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbOpacityMode" Width="140" Height="32" SelectionChanged="OpacityMode_Changed">
+                            <ComboBoxItem Content="{DynamicResource OpacityMode_Uniform}" />
+                            <ComboBoxItem Content="{DynamicResource OpacityMode_PerEdge}" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Uniform Opacity -->
+                    <StackPanel x:Name="PanelUniformOpacity" Orientation="Horizontal" Margin="0,0,0,16">
                         <TextBlock Text="{DynamicResource Opacity}" Style="{StaticResource FieldLabel}" Width="80" />
                         <Slider x:Name="SliderOpacity" Width="300" Minimum="0" Maximum="100"
                                 ValueChanged="Opacity_Changed" />
                         <TextBlock x:Name="OpacityLabel" Text="60%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
                                    VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                    </StackPanel>
+
+                    <!-- Per-Edge Opacity -->
+                    <StackPanel x:Name="PanelPerEdgeOpacity" Orientation="Vertical" Visibility="Collapsed" Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource Edge_Top}" Style="{StaticResource FieldLabel}" Width="80" />
+                            <Slider x:Name="SliderOpacityTop" Width="300" Minimum="0" Maximum="100" ValueChanged="EdgeOpacity_Changed" />
+                            <TextBlock x:Name="OpacityTopLabel" Text="60%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource Edge_Bottom}" Style="{StaticResource FieldLabel}" Width="80" />
+                            <Slider x:Name="SliderOpacityBottom" Width="300" Minimum="0" Maximum="100" ValueChanged="EdgeOpacity_Changed" />
+                            <TextBlock x:Name="OpacityBottomLabel" Text="60%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource Edge_Left}" Style="{StaticResource FieldLabel}" Width="80" />
+                            <Slider x:Name="SliderOpacityLeft" Width="300" Minimum="0" Maximum="100" ValueChanged="EdgeOpacity_Changed" />
+                            <TextBlock x:Name="OpacityLeftLabel" Text="60%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{DynamicResource Edge_Right}" Style="{StaticResource FieldLabel}" Width="80" />
+                            <Slider x:Name="SliderOpacityRight" Width="300" Minimum="0" Maximum="100" ValueChanged="EdgeOpacity_Changed" />
+                            <TextBlock x:Name="OpacityRightLabel" Text="60%" Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" Width="40" />
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Border>

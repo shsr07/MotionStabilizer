@@ -142,8 +142,8 @@
                                 Background="#FF0000" Click="Color_Click" Margin="0,0,12,0" />
                         <Button x:Name="SwatchGreen" Style="{StaticResource ColorSwatchButton}"
                                 Background="#00FF00" Click="Color_Click" Margin="0,0,12,0" />
-                        <Button x:Name="SwatchYellow" Style="{StaticResource ColorSwatchButton}"
-                                Background="#FFFF00" Click="Color_Click" Margin="0,0,12,0" />
+                        <Button x:Name="SwatchBlue" Style="{StaticResource ColorSwatchButton}"
+                                Background="#0099FF" Click="Color_Click" Margin="0,0,12,0" />
                         <TextBlock Text="{DynamicResource CustomColorHint}"
                                    Foreground="{StaticResource BrushTextSecondary}" FontSize="12" VerticalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" />
                         <Button x:Name="SwatchCustom" Style="{StaticResource ColorSwatchButton}"

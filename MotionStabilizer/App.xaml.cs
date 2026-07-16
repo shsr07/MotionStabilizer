@@ -186,9 +186,10 @@ public partial class App : Application
         Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 3); RefreshOverlay(); });
         Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); RefreshOverlay(); });
         Hotkeys.Register(hk.CycleAspectRatio, CycleAspectRatio);
+        Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); RefreshOverlay(); });
         Hotkeys.Register(hk.ColorRed, () => SetColor(ColorPreset.Red));
         Hotkeys.Register(hk.ColorGreen, () => SetColor(ColorPreset.Green));
-        Hotkeys.Register(hk.ColorYellow, () => SetColor(ColorPreset.Yellow));
+        Hotkeys.Register(hk.ColorBlue, () => SetColor(ColorPreset.Blue));
         Hotkeys.Register(hk.ColorCustom, () => SetColor(ColorPreset.Custom));
     }
 

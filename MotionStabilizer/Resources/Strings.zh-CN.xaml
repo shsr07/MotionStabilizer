@@ -36,7 +36,7 @@
     <!-- Colors -->
     <sys:String x:Key="Color_Red">红色</sys:String>
     <sys:String x:Key="Color_Green">绿色</sys:String>
-    <sys:String x:Key="Color_Yellow">黄色</sys:String>
+    <sys:String x:Key="Color_Blue">蓝色</sys:String>
     <sys:String x:Key="Color_Custom">自定义</sys:String>
 
     <!-- Shapes -->
@@ -72,6 +72,14 @@
     <sys:String x:Key="Overlay_SizeCard">尺寸与比例</sys:String>
     <sys:String x:Key="Overlay_DisplayCard">显示与分屏</sys:String>
     <sys:String x:Key="Overlay_ColorCard">色彩与透明度</sys:String>
+    <sys:String x:Key="EdgeVisibility">边缘显示</sys:String>
+    <sys:String x:Key="Edge_Top">上</sys:String>
+    <sys:String x:Key="Edge_Bottom">下</sys:String>
+    <sys:String x:Key="Edge_Left">左</sys:String>
+    <sys:String x:Key="Edge_Right">右</sys:String>
+    <sys:String x:Key="OpacityMode">透明度模式</sys:String>
+    <sys:String x:Key="OpacityMode_Uniform">统一</sys:String>
+    <sys:String x:Key="OpacityMode_PerEdge">单独</sys:String>
 
     <!-- Crosshair Page -->
     <sys:String x:Key="Crosshair_Title">中心准星</sys:String>
@@ -110,9 +118,10 @@
     <sys:String x:Key="HK_CycleOverlayShape">切换叠加形状</sys:String>
     <sys:String x:Key="HK_CycleCrosshairShape">切换准星形状</sys:String>
     <sys:String x:Key="HK_CycleAspectRatio">切换宽高比</sys:String>
+    <sys:String x:Key="HK_CycleOpacityMode">切换透明度模式</sys:String>
     <sys:String x:Key="HK_ColorRed">颜色：红色</sys:String>
     <sys:String x:Key="HK_ColorGreen">颜色：绿色</sys:String>
-    <sys:String x:Key="HK_ColorYellow">颜色：黄色</sys:String>
+    <sys:String x:Key="HK_ColorBlue">颜色：蓝色</sys:String>
     <sys:String x:Key="HK_ColorCustom">颜色：自定义</sys:String>
 
     <!-- Options Page -->

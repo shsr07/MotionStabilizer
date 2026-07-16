@@ -1,4 +1,4 @@
-﻿﻿using System.ComponentModel;
+﻿﻿﻿﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -29,6 +29,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        try { Icon = AppIcon.CreateImageSource(); }
+        catch { /* icon generation is non-critical */ }
         ContentFrame.Navigate(_overlayPage);
 
         Loaded += (_, _) =>
