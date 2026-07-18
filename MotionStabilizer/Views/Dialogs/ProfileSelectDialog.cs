@@ -17,6 +17,12 @@ public class ProfileSelectDialog : Window
 
     public ProfileSelectDialog(List<string> profiles, string dialogTitle = "Load Profile", string confirmText = "Load")
     {
+        // Ensure theme styles are available on this Window instance.
+        Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/Themes/FluentLight.xaml", UriKind.Absolute)
+        });
+
         Title = dialogTitle;
         Width = 360;
         Height = 320;

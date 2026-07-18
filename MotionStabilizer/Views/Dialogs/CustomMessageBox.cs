@@ -30,6 +30,13 @@ public class CustomMessageBox : Window
             FontFamily = new FontFamily(FontFam)
         };
 
+        // Ensure theme styles are available even if Application.Resources lookup
+        // has any edge-case issue on this Window instance.
+        win.Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/Themes/FluentLight.xaml", UriKind.Absolute)
+        });
+
         var border = new Border
         {
             Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xFF, 0xFF)),

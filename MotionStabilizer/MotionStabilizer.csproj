@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>MotionStabilizer</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <RootNamespace>MotionStabilizer</RootNamespace>
     <Version>1.0.0</Version>
     <Company>3D Motion Stabilizer</Company>

@@ -15,6 +15,12 @@ public class InputDialog : Window
 
     public InputDialog(string title, string label, string defaultValue = "")
     {
+        // Ensure theme styles are available on this Window instance.
+        Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/Themes/FluentLight.xaml", UriKind.Absolute)
+        });
+
         Title = title;
         Width = 380;
         Height = 200;
