@@ -150,8 +150,10 @@ public static class RenderHelper
             var fwRect = Win32Interop.GetForegroundWindowRect();
             if (fwRect.HasValue)
             {
+                double scale = Win32Interop.GetDpiScale();
                 var r = fwRect.Value;
-                drawArea = new Rect(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top);
+                drawArea = new Rect(r.Left / scale, r.Top / scale,
+                    (r.Right - r.Left) / scale, (r.Bottom - r.Top) / scale);
             }
             else
             {

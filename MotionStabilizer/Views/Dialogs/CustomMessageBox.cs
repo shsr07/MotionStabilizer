@@ -30,11 +30,6 @@ public class CustomMessageBox : Window
             FontFamily = new FontFamily(FontFam)
         };
 
-        win.Resources.MergedDictionaries.Add(new ResourceDictionary
-        {
-            Source = new Uri("pack://application:,,,/Themes/FluentLight.xaml", UriKind.Absolute)
-        });
-
         var border = new Border
         {
             Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xFF, 0xFF)),

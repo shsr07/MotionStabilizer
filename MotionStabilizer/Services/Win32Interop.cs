@@ -119,13 +119,27 @@ internal static class Win32Interop
     [DllImport("gdi32.dll")]
     public static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
 
+    [DllImport("user32.dll")]
+    public static extern uint GetDpiForSystem();
+
     public const int HORZRES = 8;
     public const int VERTRES = 10;
+    public const int DESKTOPHORZRES = 118;
+    public const int DESKTOPVERTRES = 117;
 
+    /// <summary>System DPI scale factor (1.0 at 100%, 1.25 at 125%, etc.).</summary>
+    public static double GetDpiScale()
+    {
+        uint dpi = GetDpiForSystem();
+        return dpi == 0 ? 1.0 : dpi / 96.0;
+    }
+
+    /// <summary>Physical screen width in pixels (correct under DPI scaling).</summary>
     public static int GetScreenWidth()
     {
         IntPtr hdc = GetDC(IntPtr.Zero);
-        int w = GetDeviceCaps(hdc, HORZRES);
+        int w = GetDeviceCaps(hdc, DESKTOPHORZRES);
+        if (w == 0) w = GetDeviceCaps(hdc, HORZRES);
         ReleaseDC(IntPtr.Zero, hdc);
         return w;
     }
@@ -133,7 +147,8 @@ internal static class Win32Interop
     public static int GetScreenHeight()
     {
         IntPtr hdc = GetDC(IntPtr.Zero);
-        int h = GetDeviceCaps(hdc, VERTRES);
+        int h = GetDeviceCaps(hdc, DESKTOPVERTRES);
+        if (h == 0) h = GetDeviceCaps(hdc, VERTRES);
         ReleaseDC(IntPtr.Zero, hdc);
         return h;
     }

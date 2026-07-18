@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 
 namespace MotionStabilizer.Views;
 
@@ -28,14 +27,6 @@ public class ProfileSelectDialog : Window
         ResizeMode = ResizeMode.NoResize;
         FontFamily = new FontFamily(FontFam);
 
-        var outlineEffect = new DropShadowEffect
-        {
-            Color = Colors.Black,
-            BlurRadius = 3,
-            ShadowDepth = 0,
-            Opacity = 1
-        };
-
         var border = new Border
         {
             Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xFF, 0xFF)),
@@ -54,7 +45,6 @@ public class ProfileSelectDialog : Window
             FontSize = 16,
             FontWeight = FontWeights.SemiBold,
             Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1A, 0x1A, 0x1A)),
-            Effect = outlineEffect,
             Margin = new Thickness(0, 0, 0, 12)
         };
         stack.Children.Add(titleBlock);
@@ -84,6 +74,7 @@ public class ProfileSelectDialog : Window
             HorizontalAlignment = HorizontalAlignment.Right
         };
 
+        var primaryStyle = this.TryFindResource("PrimaryButton") as Style;
         var btnLoad = new Button
         {
             Content = confirmText,
@@ -91,9 +82,7 @@ public class ProfileSelectDialog : Window
             Width = 80,
             Height = 36,
             Margin = new Thickness(0, 0, 12, 0),
-            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0x78, 0xD4)),
-            Foreground = System.Windows.Media.Brushes.White,
-            BorderThickness = new Thickness(0)
+            Style = primaryStyle
         };
         btnLoad.Click += (_, _) =>
         {
@@ -105,16 +94,14 @@ public class ProfileSelectDialog : Window
         };
         btnPanel.Children.Add(btnLoad);
 
+        var secondaryStyle = this.TryFindResource("SecondaryButton") as Style;
         var btnCancel = new Button
         {
             Content = "Cancel",
             FontFamily = new FontFamily(FontFam),
             Width = 80,
             Height = 36,
-            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xFF, 0xFF)),
-            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1A, 0x1A, 0x1A)),
-            BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xD1, 0xD1, 0xD1)),
-            BorderThickness = new Thickness(1)
+            Style = secondaryStyle
         };
         btnCancel.Click += (_, _) => { DialogResult = false; };
         btnPanel.Children.Add(btnCancel);

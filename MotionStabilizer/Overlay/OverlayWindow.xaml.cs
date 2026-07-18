@@ -64,8 +64,11 @@ public partial class OverlayWindow : Window
     /// <summary>Update window bounds to cover the full screen.</summary>
     public void UpdateScreenBounds()
     {
-        int w = Win32Interop.GetScreenWidth();
-        int h = Win32Interop.GetScreenHeight();
+        // GetScreenWidth/Height return physical pixels; WPF Window.Width is in DIP.
+        // Convert physical → DIP so the window covers the full physical screen.
+        double scale = Win32Interop.GetDpiScale();
+        double w = Win32Interop.GetScreenWidth() / scale;
+        double h = Win32Interop.GetScreenHeight() / scale;
         this.Left = 0;
         this.Top = 0;
         this.Width = w;
@@ -89,8 +92,8 @@ public partial class OverlayWindow : Window
         OverlayCanvas.Children.Clear();
         _clockText = null;
 
-        double sw = this.Width > 0 ? this.Width : Win32Interop.GetScreenWidth();
-        double sh = this.Height > 0 ? this.Height : Win32Interop.GetScreenHeight();
+        double sw = this.Width > 0 ? this.Width : Win32Interop.GetScreenWidth() / Win32Interop.GetDpiScale();
+        double sh = this.Height > 0 ? this.Height : Win32Interop.GetScreenHeight() / Win32Interop.GetDpiScale();
 
         // Render edge overlay
         if (_overlayConfig.IsVisible)
@@ -261,21 +264,6 @@ public partial class OverlayWindow : Window
 
         // Notify the MainWindow to restore the ClockPage button state
         App.MainWin?.NotifyClockDragConfirmed();
-    }
-
-    protected override void OnSourceInitialized(EventArgs e)
-    {
-        base.OnSourceInitialized(e);
-        // Hook is no longer needed for dragging (uses cursor tracking instead)
-        // but kept for potential future use
-        var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
-        source?.AddHook(WndProc);
-    }
-
-    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-    {
-        // Dragging is now handled via cursor tracking timer, not Win32 messages
-        return IntPtr.Zero;
     }
 
     /// <summary>Called when the screen resolution may have changed.</summary>

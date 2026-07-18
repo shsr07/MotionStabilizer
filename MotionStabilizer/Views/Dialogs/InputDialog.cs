@@ -74,6 +74,7 @@ public class InputDialog : Window
             HorizontalAlignment = HorizontalAlignment.Right
         };
 
+        var primaryStyle = this.TryFindResource("PrimaryButton") as Style;
         var btnOk = new Button
         {
             Content = "OK",
@@ -81,23 +82,19 @@ public class InputDialog : Window
             Width = 80,
             Height = 36,
             Margin = new Thickness(0, 0, 12, 0),
-            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0x78, 0xD4)),
-            Foreground = System.Windows.Media.Brushes.White,
-            BorderThickness = new Thickness(0)
+            Style = primaryStyle
         };
         btnOk.Click += (_, _) => { InputText = _textBox.Text; DialogResult = true; };
         btnPanel.Children.Add(btnOk);
 
+        var secondaryStyle = this.TryFindResource("SecondaryButton") as Style;
         var btnCancel = new Button
         {
             Content = "Cancel",
             FontFamily = new FontFamily(FontFam),
             Width = 80,
             Height = 36,
-            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xFF, 0xFF)),
-            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1A, 0x1A, 0x1A)),
-            BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xD1, 0xD1, 0xD1)),
-            BorderThickness = new Thickness(1)
+            Style = secondaryStyle
         };
         btnCancel.Click += (_, _) => { DialogResult = false; };
         btnPanel.Children.Add(btnCancel);
