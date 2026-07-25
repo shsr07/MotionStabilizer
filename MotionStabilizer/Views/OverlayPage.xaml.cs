@@ -31,6 +31,25 @@ public partial class OverlayPage : Page
 
         // Shape buttons
         UpdateShapeSelection(cfg.Shape);
+        PanelMotionSettings.Visibility = cfg.Shape == OverlayShape.MotionDots
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        // Dynamic motion cue settings
+        SliderMotionDotColumns.Value = Math.Clamp(cfg.MotionDotColumns, 1, 6);
+        MotionDotColumnsLabel.Text = cfg.MotionDotColumns.ToString();
+        SliderMotionDotSpacingV.Value = Math.Clamp(cfg.MotionDotSpacingV, 0.5, 3.0);
+        MotionDotSpacingVLabel.Text = cfg.MotionDotSpacingV.ToString("0.0") + "x";
+        SliderMotionDotSpacingH.Value = Math.Clamp(cfg.MotionDotSpacingH, 0.5, 3.0);
+        MotionDotSpacingHLabel.Text = cfg.MotionDotSpacingH.ToString("0.0") + "x";
+        SliderMotionSensitivity.Value = cfg.MotionSensitivity;
+        MotionSensitivityLabel.Text = cfg.MotionSensitivity.ToString("0.0") + "x";
+        SliderMotionKeyboardSensitivity.Value = Math.Clamp(cfg.MotionKeyboardSensitivity, 0.1, 3.0);
+        MotionKeyboardSensitivityLabel.Text = cfg.MotionKeyboardSensitivity.ToString("0.0") + "x";
+        PanelKeyboardSensitivity.Visibility = cfg.MotionKeyboardEnabled ? Visibility.Visible : Visibility.Collapsed;
+        SliderMotionRefreshRate.Value = Math.Clamp(cfg.MotionRefreshRate, 30, 360);
+        MotionRefreshRateLabel.Text = Math.Clamp(cfg.MotionRefreshRate, 30, 360) + " Hz";
+        ChkMotionKeyboard.IsChecked = cfg.MotionKeyboardEnabled;
 
         // Aspect ratio
         CbAspectRatio.SelectedIndex = (int)cfg.AspectRatio;
@@ -61,6 +80,9 @@ public partial class OverlayPage : Page
         OpacityLabel.Text = cfg.Opacity + "%";
 
         // Edge visibility
+        bool isMotion = cfg.Shape == OverlayShape.MotionDots;
+        ChkEdgeTop.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
+        ChkEdgeBottom.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
         ChkEdgeTop.IsChecked = cfg.EdgeTopVisible;
         ChkEdgeBottom.IsChecked = cfg.EdgeBottomVisible;
         ChkEdgeLeft.IsChecked = cfg.EdgeLeftVisible;
@@ -92,6 +114,7 @@ public partial class OverlayPage : Page
         BtnShapeBox.Tag = shape == OverlayShape.Box ? "Selected" : "";
         BtnShapeDome.Tag = shape == OverlayShape.Dome ? "Selected" : "";
         BtnShapeFlag.Tag = shape == OverlayShape.Flag ? "Selected" : "";
+        BtnShapeMotion.Tag = shape == OverlayShape.MotionDots ? "Selected" : "";
     }
 
     private void UpdateColorSelection(ColorPreset color)
@@ -122,7 +145,93 @@ public partial class OverlayPage : Page
         if (sender == BtnShapeBox) App.OverlayConfig.Shape = OverlayShape.Box;
         else if (sender == BtnShapeDome) App.OverlayConfig.Shape = OverlayShape.Dome;
         else if (sender == BtnShapeFlag) App.OverlayConfig.Shape = OverlayShape.Flag;
+        else if (sender == BtnShapeMotion) App.OverlayConfig.Shape = OverlayShape.MotionDots;
         UpdateShapeSelection(App.OverlayConfig.Shape);
+        bool isMotion = App.OverlayConfig.Shape == OverlayShape.MotionDots;
+        PanelMotionSettings.Visibility = isMotion ? Visibility.Visible : Visibility.Collapsed;
+        ChkEdgeTop.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
+        ChkEdgeBottom.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
+        // In per-edge opacity mode, hide Top/Bottom sliders for MotionDots
+        UpdateOpacityPanels();
+        App.RefreshOverlay();
+    }
+
+    private void MotionDotColumns_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionDotColumnsLabel == null) return;
+        App.OverlayConfig.MotionDotColumns = (int)SliderMotionDotColumns.Value;
+        MotionDotColumnsLabel.Text = App.OverlayConfig.MotionDotColumns.ToString();
+        App.RefreshOverlay();
+    }
+
+    private void MotionDotSpacingV_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionDotSpacingVLabel == null) return;
+        App.OverlayConfig.MotionDotSpacingV = Math.Round(SliderMotionDotSpacingV.Value, 1);
+        MotionDotSpacingVLabel.Text = App.OverlayConfig.MotionDotSpacingV.ToString("0.0") + "x";
+        App.RefreshOverlay();
+    }
+
+    private void MotionDotSpacingH_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionDotSpacingHLabel == null) return;
+        App.OverlayConfig.MotionDotSpacingH = Math.Round(SliderMotionDotSpacingH.Value, 1);
+        MotionDotSpacingHLabel.Text = App.OverlayConfig.MotionDotSpacingH.ToString("0.0") + "x";
+        App.RefreshOverlay();
+    }
+
+    private void MotionSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionSensitivityLabel == null) return;
+        App.OverlayConfig.MotionSensitivity = Math.Round(SliderMotionSensitivity.Value, 1);
+        MotionSensitivityLabel.Text = App.OverlayConfig.MotionSensitivity.ToString("0.0") + "x";
+        App.RefreshOverlay();
+    }
+
+    private void MotionKeyboardSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionKeyboardSensitivityLabel == null) return;
+        App.OverlayConfig.MotionKeyboardSensitivity = Math.Round(SliderMotionKeyboardSensitivity.Value, 1);
+        MotionKeyboardSensitivityLabel.Text = App.OverlayConfig.MotionKeyboardSensitivity.ToString("0.0") + "x";
+        App.RefreshOverlay();
+    }
+
+    private void MotionRefreshRate_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionRefreshRateLabel == null) return;
+        App.OverlayConfig.MotionRefreshRate = (int)SliderMotionRefreshRate.Value;
+        MotionRefreshRateLabel.Text = App.OverlayConfig.MotionRefreshRate + " Hz";
+        App.RefreshOverlay();
+    }
+
+    private void MotionKeyboard_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+
+        bool wantEnabled = ChkMotionKeyboard.IsChecked == true;
+
+        // If trying to enable, show the mandatory red warning
+        if (wantEnabled && !App.OverlayConfig.MotionKeyboardEnabled)
+        {
+            var title = (string)FindResource("Motion_WarningTitle");
+            var msg = (string)FindResource("Motion_WarningMsg");
+            var yesText = (string)FindResource("Motion_WarningYes");
+            var noText = (string)FindResource("Motion_WarningNo");
+
+            var result = CustomMessageBox.Show(title, msg, yesText, noText);
+
+            if (result == CustomMessageBox.Result.Option2)
+            {
+                // User declined — keep disabled
+                _isLoading = true;
+                ChkMotionKeyboard.IsChecked = false;
+                _isLoading = false;
+                return;
+            }
+        }
+
+        App.OverlayConfig.MotionKeyboardEnabled = wantEnabled;
+        PanelKeyboardSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
         App.RefreshOverlay();
     }
 
@@ -201,8 +310,29 @@ public partial class OverlayPage : Page
     private void UpdateOpacityPanels()
     {
         bool perEdge = App.OverlayConfig.OpacityMode == EdgeOpacityMode.PerEdge;
+        bool isMotion = App.OverlayConfig.Shape == OverlayShape.MotionDots;
         PanelUniformOpacity.Visibility = perEdge ? Visibility.Collapsed : Visibility.Visible;
         PanelPerEdgeOpacity.Visibility = perEdge ? Visibility.Visible : Visibility.Collapsed;
+        // For MotionDots, hide Top/Bottom opacity sliders
+        if (perEdge && isMotion)
+        {
+            // Hide top and bottom rows within PanelPerEdgeOpacity
+            if (PanelPerEdgeOpacity.Children.Count > 0 &&
+                PanelPerEdgeOpacity.Children[0] is StackPanel sp0)
+                sp0.Visibility = Visibility.Collapsed;
+            if (PanelPerEdgeOpacity.Children.Count > 1 &&
+                PanelPerEdgeOpacity.Children[1] is StackPanel sp1)
+                sp1.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            if (PanelPerEdgeOpacity.Children.Count > 0 &&
+                PanelPerEdgeOpacity.Children[0] is StackPanel sp0)
+                sp0.Visibility = Visibility.Visible;
+            if (PanelPerEdgeOpacity.Children.Count > 1 &&
+                PanelPerEdgeOpacity.Children[1] is StackPanel sp1)
+                sp1.Visibility = Visibility.Visible;
+        }
     }
 
     private void EdgeVisible_Changed(object sender, RoutedEventArgs e)

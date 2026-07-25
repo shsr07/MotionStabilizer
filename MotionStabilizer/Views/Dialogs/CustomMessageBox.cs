@@ -20,8 +20,8 @@ public class CustomMessageBox : Window
         var win = new Window
         {
             Title = title,
-            Width = 420,
-            Height = 200,
+            Width = 600,
+            Height = 240,
             WindowStyle = WindowStyle.None,
             AllowsTransparency = true,
             Background = System.Windows.Media.Brushes.Transparent,
@@ -61,7 +61,7 @@ public class CustomMessageBox : Window
 
         var msgBlock = new TextBlock
         {
-            Text = message,
+            Text = message.Replace("\\n", "\n"),
             FontFamily = new FontFamily(FontFam),
             FontSize = 13,
             Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x6E, 0x6E, 0x6E)),
@@ -83,10 +83,13 @@ public class CustomMessageBox : Window
         {
             Content = option1Text,
             FontFamily = new FontFamily(FontFam),
-            Width = 100,
-            Height = 36,
+            FontSize = 13,
+            Padding = new Thickness(24, 10, 24, 10),
             Margin = new Thickness(0, 0, 12, 0),
-            Style = secondaryStyle
+            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xF5, 0xF5, 0xF5)),
+            BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xD1, 0xD1, 0xD1)),
+            BorderThickness = new Thickness(1),
+            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1A, 0x1A, 0x1A))
         };
         btn1.Click += (_, _) => { result = Result.Option1; win.Close(); };
         btnPanel.Children.Add(btn1);
@@ -95,9 +98,11 @@ public class CustomMessageBox : Window
         {
             Content = option2Text,
             FontFamily = new FontFamily(FontFam),
-            Width = 140,
-            Height = 36,
-            Style = primaryStyle
+            FontSize = 13,
+            Padding = new Thickness(24, 10, 24, 10),
+            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0x78, 0xD4)),
+            BorderThickness = new Thickness(0),
+            Foreground = System.Windows.Media.Brushes.White
         };
         btn2.Click += (_, _) => { result = Result.Option2; win.Close(); };
         btnPanel.Children.Add(btn2);

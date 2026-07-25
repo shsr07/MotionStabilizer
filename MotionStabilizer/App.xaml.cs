@@ -183,7 +183,7 @@ public partial class App : Application
         Hotkeys.Register(hk.ToggleClock, () => { ClockConfig.IsVisible = !ClockConfig.IsVisible; RefreshOverlay(); });
         Hotkeys.Register(hk.CycleDisplayMode, () => { OverlayConfig.Mode = OverlayConfig.Mode == DisplayMode.Window ? DisplayMode.Stretch : DisplayMode.Window; RefreshOverlay(); });
         Hotkeys.Register(hk.CycleSplitScreen, CycleSplitScreen);
-        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 3); RefreshOverlay(); });
+        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 4); RefreshOverlay(); });
         Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); RefreshOverlay(); });
         Hotkeys.Register(hk.CycleAspectRatio, CycleAspectRatio);
         Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); RefreshOverlay(); });

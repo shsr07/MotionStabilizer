@@ -18,6 +18,15 @@ internal static class Win32Interop
     public const int WS_EX_TOOLWINDOW = 0x00000080;
     public const int WS_EX_TOPMOST = 0x00000008;
 
+    // SetWindowPos flags
+    public static readonly IntPtr HWND_TOPMOST = new(-1);
+    public const uint SWP_NOMOVE = 0x0002;
+    public const uint SWP_NOSIZE = 0x0001;
+    public const uint SWP_NOACTIVATE = 0x0010;
+    public const uint SWP_SHOWWINDOW = 0x0040;
+    public const uint SWP_NOOWNERZORDER = 0x0200;
+    public const uint SWP_NOREDRAW = 0x0008;
+
     [DllImport("user32.dll")]
     public static extern int GetWindowLong(IntPtr hwnd, int index);
 
@@ -41,7 +50,26 @@ internal static class Win32Interop
         // WPF when AllowsTransparency="True", but OR-ing it again is harmless.
         extendedStyle |= WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
         SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle);
+        // Explicitly set z-order to topmost — setting WS_EX_TOPMOST via
+        // SetWindowLong alone is not always sufficient, especially after
+        // a fullscreen game has changed the z-order.
+        ReassertTopmost(hwnd);
     }
+
+    /// <summary>
+    /// Re-assert the window's z-order to HWND_TOPMOST. Games like Cyberpunk 2077
+    /// continuously push their own window to the top, so the overlay must
+    /// periodically re-assert its topmost position.
+    /// </summary>
+    public static void ReassertTopmost(IntPtr hwnd)
+    {
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
     #endregion
 
@@ -122,10 +150,19 @@ internal static class Win32Interop
     [DllImport("user32.dll")]
     public static extern uint GetDpiForSystem();
 
+    [DllImport("user32.dll")]
+    public static extern int GetSystemMetrics(int nIndex);
+
     public const int HORZRES = 8;
     public const int VERTRES = 10;
     public const int DESKTOPHORZRES = 118;
     public const int DESKTOPVERTRES = 117;
+
+    // Virtual screen metrics (span all monitors)
+    public const int SM_XVIRTUALSCREEN = 76;
+    public const int SM_YVIRTUALSCREEN = 77;
+    public const int SM_CXVIRTUALSCREEN = 78;
+    public const int SM_CYVIRTUALSCREEN = 79;
 
     /// <summary>System DPI scale factor (1.0 at 100%, 1.25 at 125%, etc.).</summary>
     public static double GetDpiScale()
@@ -134,24 +171,37 @@ internal static class Win32Interop
         return dpi == 0 ? 1.0 : dpi / 96.0;
     }
 
-    /// <summary>Physical screen width in pixels (correct under DPI scaling).</summary>
+    /// <summary>Virtual screen width in pixels (covers all monitors).</summary>
     public static int GetScreenWidth()
     {
+        int w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+        if (w > 0) return w;
+        // Fallback to GDI for older systems or single-monitor
         IntPtr hdc = GetDC(IntPtr.Zero);
-        int w = GetDeviceCaps(hdc, DESKTOPHORZRES);
+        w = GetDeviceCaps(hdc, DESKTOPHORZRES);
         if (w == 0) w = GetDeviceCaps(hdc, HORZRES);
         ReleaseDC(IntPtr.Zero, hdc);
         return w;
     }
 
+    /// <summary>Virtual screen height in pixels (covers all monitors).</summary>
     public static int GetScreenHeight()
     {
+        int h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+        if (h > 0) return h;
+        // Fallback to GDI for older systems or single-monitor
         IntPtr hdc = GetDC(IntPtr.Zero);
-        int h = GetDeviceCaps(hdc, DESKTOPVERTRES);
+        h = GetDeviceCaps(hdc, DESKTOPVERTRES);
         if (h == 0) h = GetDeviceCaps(hdc, VERTRES);
         ReleaseDC(IntPtr.Zero, hdc);
         return h;
     }
+
+    /// <summary>Virtual screen origin X in pixels (can be negative if secondary monitors are to the left).</summary>
+    public static int GetVirtualScreenX() => GetSystemMetrics(SM_XVIRTUALSCREEN);
+
+    /// <summary>Virtual screen origin Y in pixels (can be negative if secondary monitors are above).</summary>
+    public static int GetVirtualScreenY() => GetSystemMetrics(SM_YVIRTUALSCREEN);
 
     #endregion
 
@@ -200,6 +250,134 @@ internal static class Win32Interop
 
     public const int VK_LBUTTON = 0x01;
     public const int VK_ESCAPE = 0x1B;
+    public const int VK_W = 0x57;
+    public const int VK_S = 0x53;
+    public const int VK_A = 0x41;
+    public const int VK_D = 0x44;
+
+    #endregion
+
+    #region Raw Mouse Input
+
+    public const int WM_INPUT = 0x00FF;
+    public const uint RID_INPUT = 0x10000003;
+    public const uint RIM_TYPEMOUSE = 0;
+    public const uint RIDEV_INPUTSINK = 0x00000100;
+    public const uint RIDEV_REMOVE = 0x00000001;
+    public const ushort MOUSE_MOVE_ABSOLUTE = 0x0001;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RAWINPUTDEVICE
+    {
+        public ushort UsagePage;
+        public ushort Usage;
+        public uint Flags;
+        public IntPtr Target;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RAWINPUTHEADER
+    {
+        public uint Type;
+        public uint Size;
+        public IntPtr Device;
+        public IntPtr WParam;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct RAWMOUSE
+    {
+        [FieldOffset(0)] public ushort Flags;
+        [FieldOffset(4)] public uint Buttons;
+        [FieldOffset(8)] public uint RawButtons;
+        [FieldOffset(12)] public int LastX;
+        [FieldOffset(16)] public int LastY;
+        [FieldOffset(20)] public uint ExtraInformation;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RAWINPUT
+    {
+        public RAWINPUTHEADER Header;
+        public RAWMOUSE Mouse;
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool RegisterRawInputDevices(
+        [In] RAWINPUTDEVICE[] devices,
+        uint numberDevices,
+        uint size);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint GetRawInputData(
+        IntPtr rawInput,
+        uint command,
+        out RAWINPUT data,
+        ref uint size,
+        uint headerSize);
+
+    public static bool RegisterRawMouseInput(IntPtr target)
+    {
+        var devices = new[]
+        {
+            new RAWINPUTDEVICE
+            {
+                UsagePage = 0x01,
+                Usage = 0x02,
+                Flags = RIDEV_INPUTSINK,
+                Target = target
+            }
+        };
+
+        return RegisterRawInputDevices(
+            devices,
+            1,
+            (uint)Marshal.SizeOf<RAWINPUTDEVICE>());
+    }
+
+    /// <summary>
+    /// Unregister raw mouse input. Should be called before the target window
+    /// is destroyed to ensure clean system-level cleanup.
+    /// </summary>
+    public static bool UnregisterRawMouseInput()
+    {
+        var devices = new[]
+        {
+            new RAWINPUTDEVICE
+            {
+                UsagePage = 0x01,
+                Usage = 0x02,
+                Flags = RIDEV_REMOVE,
+                Target = IntPtr.Zero
+            }
+        };
+
+        return RegisterRawInputDevices(
+            devices,
+            1,
+            (uint)Marshal.SizeOf<RAWINPUTDEVICE>());
+    }
+
+    public static bool TryGetRawMouseDelta(IntPtr lParam, out int deltaX, out int deltaY)
+    {
+        deltaX = 0;
+        deltaY = 0;
+
+        uint size = (uint)Marshal.SizeOf<RAWINPUT>();
+        uint headerSize = (uint)Marshal.SizeOf<RAWINPUTHEADER>();
+        uint copied = GetRawInputData(lParam, RID_INPUT, out var input, ref size, headerSize);
+        if (copied == uint.MaxValue || copied == 0)
+            return false;
+
+        if (input.Header.Type != RIM_TYPEMOUSE ||
+            (input.Mouse.Flags & MOUSE_MOVE_ABSOLUTE) != 0)
+            return false;
+
+        deltaX = input.Mouse.LastX;
+        deltaY = input.Mouse.LastY;
+        return deltaX != 0 || deltaY != 0;
+    }
 
     #endregion
 }

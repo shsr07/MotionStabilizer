@@ -56,7 +56,7 @@
                             </StackPanel>
                         </Button>
                         <!-- Flag: four inward-pointing triangles -->
-                        <Button x:Name="BtnShapeFlag" Style="{StaticResource ShapeButton}"
+                        <Button x:Name="BtnShapeFlag" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
                                 Click="Shape_Click">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="1.5" Fill="{StaticResource BrushTextSecondary}"
@@ -69,6 +69,91 @@
                                            HorizontalAlignment="Center" Margin="0,6,0,0" />
                             </StackPanel>
                         </Button>
+                        <!-- Motion dots: side-zone dots driven by mouse/keyboard -->
+                        <Button x:Name="BtnShapeMotion" Style="{StaticResource ShapeButton}"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Fill="{StaticResource BrushTextSecondary}"
+                                      Data="M4,4 C4,2.9 4.9,2 6,2 C7.1,2 8,2.9 8,4 C8,5.1 7.1,6 6,6 C4.9,6 4,5.1 4,4 Z
+                                            M4,13 C4,11.9 4.9,11 6,11 C7.1,11 8,11.9 8,13 C8,14.1 7.1,15 6,15 C4.9,15 4,14.1 4,13 Z
+                                            M4,22 C4,20.9 4.9,20 6,20 C7.1,20 8,20.9 8,22 C8,23.1 7.1,24 6,24 C4.9,24 4,23.1 4,22 Z
+                                            M28,4 C28,2.9 28.9,2 30,2 C31.1,2 32,2.9 32,4 C32,5.1 31.1,6 30,6 C28.9,6 28,5.1 28,4 Z
+                                            M28,13 C28,11.9 28.9,11 30,11 C31.1,11 32,11.9 32,13 C32,14.1 31.1,15 30,15 C28.9,15 28,14.1 28,13 Z
+                                            M28,22 C28,20.9 28.9,20 30,20 C31.1,20 32,20.9 32,22 C32,23.1 31.1,24 30,24 C28.9,24 28,23.1 28,22 Z"
+                                      Opacity="0.5" />
+                                <TextBlock Text="{DynamicResource Shape_MotionDots}" FontSize="11"
+                                           Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Dynamic motion cue settings -->
+            <Border x:Name="PanelMotionSettings" Style="{StaticResource SettingsCard}" Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Motion_SettingsCard}" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{DynamicResource Motion_Desc}" Foreground="{StaticResource BrushTextSecondary}"
+                               FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+                    <!-- Keyboard enable (safety-gated) -->
+                    <Border Background="#1AFF4444" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox x:Name="ChkMotionKeyboard" Content="{DynamicResource Motion_KeyboardEnable}"
+                                      Checked="MotionKeyboard_Changed" Unchecked="MotionKeyboard_Changed"
+                                      FontWeight="SemiBold" Foreground="#FF4444" />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource Motion_DotColumns}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionDotColumns" Width="280" Minimum="1" Maximum="6"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="MotionDotColumns_Changed" />
+                        <TextBlock x:Name="MotionDotColumnsLabel" Width="40" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource Motion_DotSpacingV}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionDotSpacingV" Width="280" Minimum="0.5" Maximum="3.0"
+                                TickFrequency="0.1" ValueChanged="MotionDotSpacingV_Changed" />
+                        <TextBlock x:Name="MotionDotSpacingVLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource Motion_DotSpacingH}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionDotSpacingH" Width="280" Minimum="0.5" Maximum="3.0"
+                                TickFrequency="0.1" ValueChanged="MotionDotSpacingH_Changed" />
+                        <TextBlock x:Name="MotionDotSpacingHLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource Motion_MouseSensitivity}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionSensitivity" Width="280" Minimum="0.1" Maximum="2.0"
+                                TickFrequency="0.1" ValueChanged="MotionSensitivity_Changed" />
+                        <TextBlock x:Name="MotionSensitivityLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="PanelKeyboardSensitivity" Orientation="Horizontal" Margin="0,0,0,14" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource Motion_KeyboardSensitivity}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionKeyboardSensitivity" Width="280" Minimum="0.1" Maximum="3.0"
+                                TickFrequency="0.1" ValueChanged="MotionKeyboardSensitivity_Changed" />
+                        <TextBlock x:Name="MotionKeyboardSensitivityLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource Motion_RefreshRate}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionRefreshRate" Width="280" Minimum="30" Maximum="360"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="MotionRefreshRate_Changed" />
+                        <TextBlock x:Name="MotionRefreshRateLabel" Width="64" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

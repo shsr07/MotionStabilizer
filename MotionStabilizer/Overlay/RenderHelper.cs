@@ -33,6 +33,19 @@ public static class RenderHelper
     public static double OverlayTotalWidth(SizePreset s, OffsetLevel len) =>
         OverlayBarWidth(s) + LengthOffsetPx(len);
 
+    /// <summary>Diameter of each motion cue dot in device-independent pixels.</summary>
+    public static double MotionDotDiameter(SizePreset s) => s switch
+    {
+        SizePreset.XXS => 12,
+        SizePreset.XS => 20,
+        SizePreset.S => 29,
+        SizePreset.M => 41,
+        SizePreset.L => 53,
+        SizePreset.XL => 73,
+        SizePreset.XXL => 94,
+        _ => 41
+    };
+
     /// <summary>Length offset in px.</summary>
     public static double LengthOffsetPx(OffsetLevel l) => l switch
     {
@@ -151,8 +164,11 @@ public static class RenderHelper
             if (fwRect.HasValue)
             {
                 double scale = Win32Interop.GetDpiScale();
+                // Translate from absolute screen coords to window-relative coords
+                double vsX = Win32Interop.GetVirtualScreenX() / scale;
+                double vsY = Win32Interop.GetVirtualScreenY() / scale;
                 var r = fwRect.Value;
-                drawArea = new Rect(r.Left / scale, r.Top / scale,
+                drawArea = new Rect(r.Left / scale - vsX, r.Top / scale - vsY,
                     (r.Right - r.Left) / scale, (r.Bottom - r.Top) / scale);
             }
             else

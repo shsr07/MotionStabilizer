@@ -46,6 +46,7 @@
     <sys:String x:Key="Shape_Circle">圆形</sys:String>
     <sys:String x:Key="Shape_Cross">十字</sys:String>
     <sys:String x:Key="Shape_Diamond">菱形</sys:String>
+    <sys:String x:Key="Shape_MotionDots">动态圆点</sys:String>
 
     <!-- Display Modes -->
     <sys:String x:Key="Mode_Window">窗口模式</sys:String>
@@ -80,6 +81,21 @@
     <sys:String x:Key="OpacityMode">透明度模式</sys:String>
     <sys:String x:Key="OpacityMode_Uniform">统一</sys:String>
     <sys:String x:Key="OpacityMode_PerEdge">单独</sys:String>
+
+    <!-- Motion Dots -->
+    <sys:String x:Key="Motion_SettingsCard">动态圆点设置</sys:String>
+    <sys:String x:Key="Motion_Desc">在屏幕两侧显示根据鼠标移动而变化的动态圆点，提供视觉运动错点。功能生效期间会占用 GPU。</sys:String>
+    <sys:String x:Key="Motion_KeyboardEnable">启用键盘 WASD 控制动态圆点（禁止联机游戏使用）</sys:String>
+    <sys:String x:Key="Motion_DotColumns">圆点列数</sys:String>
+    <sys:String x:Key="Motion_DotSpacingV">圆点上下间距</sys:String>
+    <sys:String x:Key="Motion_DotSpacingH">圆点左右间距</sys:String>
+    <sys:String x:Key="Motion_MouseSensitivity">鼠标灵敏度</sys:String>
+    <sys:String x:Key="Motion_KeyboardSensitivity">键盘灵敏度</sys:String>
+    <sys:String x:Key="Motion_RefreshRate">刷新率</sys:String>
+    <sys:String x:Key="Motion_WarningTitle">⚠ 安全警告 — 封号风险</sys:String>
+    <sys:String x:Key="Motion_WarningMsg">开启此功能会使用高频按键轮询（GetAsyncKeyState），绝对禁止在带有 Vanguard、EAC、BattlEye 等反作弊系统的多人游戏中使用，否则可能导致封号。仅限单机游戏开启！\n\n确定要继续吗？</sys:String>
+    <sys:String x:Key="Motion_WarningYes">我已了解风险，确认开启</sys:String>
+    <sys:String x:Key="Motion_WarningNo">取消</sys:String>
 
     <!-- Crosshair Page -->
     <sys:String x:Key="Crosshair_Title">中心准星</sys:String>

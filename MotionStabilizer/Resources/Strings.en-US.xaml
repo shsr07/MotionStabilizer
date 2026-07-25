@@ -46,6 +46,7 @@
     <sys:String x:Key="Shape_Circle">Circle</sys:String>
     <sys:String x:Key="Shape_Cross">Cross</sys:String>
     <sys:String x:Key="Shape_Diamond">Diamond</sys:String>
+    <sys:String x:Key="Shape_MotionDots">Motion Dots</sys:String>
 
     <!-- Display Modes -->
     <sys:String x:Key="Mode_Window">Window</sys:String>
@@ -80,6 +81,21 @@
     <sys:String x:Key="OpacityMode">Opacity Mode</sys:String>
     <sys:String x:Key="OpacityMode_Uniform">Uniform</sys:String>
     <sys:String x:Key="OpacityMode_PerEdge">Per Edge</sys:String>
+
+    <!-- Motion Dots -->
+    <sys:String x:Key="Motion_SettingsCard">Motion Dots Settings</sys:String>
+    <sys:String x:Key="Motion_Desc">Displays dynamic dots on both sides of the screen that respond to mouse movement, providing visual motion anchors. GPU usage occurs while active.</sys:String>
+    <sys:String x:Key="Motion_KeyboardEnable">Enable keyboard WASD to control motion dots (do not use in online games)</sys:String>
+    <sys:String x:Key="Motion_DotColumns">Dot Columns</sys:String>
+    <sys:String x:Key="Motion_DotSpacingV">Vertical Spacing</sys:String>
+    <sys:String x:Key="Motion_DotSpacingH">Horizontal Spacing</sys:String>
+    <sys:String x:Key="Motion_MouseSensitivity">Mouse Sensitivity</sys:String>
+    <sys:String x:Key="Motion_KeyboardSensitivity">Keyboard Sensitivity</sys:String>
+    <sys:String x:Key="Motion_RefreshRate">Refresh Rate</sys:String>
+    <sys:String x:Key="Motion_WarningTitle">⚠ Safety Warning — Ban Risk</sys:String>
+    <sys:String x:Key="Motion_WarningMsg">Enabling this feature uses high-frequency key polling (GetAsyncKeyState). It is strictly prohibited to use in multiplayer games with Vanguard, EAC, BattlEye or other anti-cheat systems — it may result in a ban. Only enable for single-player games!\n\nDo you wish to continue?</sys:String>
+    <sys:String x:Key="Motion_WarningYes">I understand the risk, enable</sys:String>
+    <sys:String x:Key="Motion_WarningNo">Cancel</sys:String>
 
     <!-- Crosshair Page -->
     <sys:String x:Key="Crosshair_Title">Crosshair</sys:String>

@@ -5,7 +5,8 @@ public enum OverlayShape
 {
     Box,
     Dome,
-    Flag
+    Flag,
+    MotionDots
 }
 
 /// <summary>Crosshair shape types</summary>
