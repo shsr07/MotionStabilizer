@@ -21,7 +21,7 @@
   </tr>
   <tr>
     <td><img src="docs/screenshots/悬浮时钟界面.png" width="480" alt="悬浮时钟界面" /></td>
-    <td><img src="docs/screenshots/游戏测试截图.png" width="480" alt="游戏测试截图" /></td>
+    <td><img src="docs/screenshots/运行测试画面.gif" width="480" alt="游戏测试截图" /></td>
   </tr>
 </table>
 
