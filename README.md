@@ -99,7 +99,9 @@ dotnet build -c Release
 ## 🛠️ 技术栈 / Tech Stack
 
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
-- **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘
+- **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — 硬件加速渲染动态圆点
+- **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕
+- **RawInput API** — 原始鼠标增量捕获
 - **C# 12** — 最新 C# 特性
 
 ## 📁 项目结构 / Project Structure
@@ -107,7 +109,10 @@ dotnet build -c Release
 ```
 MotionStabilizer/
 ├── Models/              # 数据模型 (配置、枚举)
-├── Overlay/             # 叠加层渲染窗口与逻辑
+├── Overlay/             # 叠加层渲染
+│   ├── DirectCompositionMotionRenderer.cs  # 动态圆点 DirectComposition 渲染器
+│   ├── OverlayWindow.xaml(.cs)             # 透明覆盖窗口
+│   └── RenderHelper.cs                     # 形状构建辅助类
 ├── Resources/           # 多语言字符串资源
 ├── Services/            # 配置管理、热键管理、托盘服务、Win32 互操作
 ├── Themes/              # WPF 全局样式
