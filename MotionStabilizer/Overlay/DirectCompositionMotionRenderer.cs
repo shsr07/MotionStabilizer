@@ -309,9 +309,9 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     {
         if (!IsVisible) return;
         float sensitivity = (float)Math.Clamp(_config.MotionSensitivity, 0.05, 3.0);
-        // Inverted: mouse left → dots right, mouse up → dots down
-        _pendingMouseDeltaX += -deltaX * sensitivity * MouseSpeedScale;
-        _pendingMouseDeltaY += -deltaY * sensitivity * MouseSpeedScale;
+        // Mouse right → dots move right, mouse up → dots move up
+        _pendingMouseDeltaX += deltaX * sensitivity * MouseSpeedScale;
+        _pendingMouseDeltaY += deltaY * sensitivity * MouseSpeedScale;
         _lastMouseInput = _clock.Elapsed;
         EnsureTimer();
     }
@@ -441,10 +441,10 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
             bool sDown = (Win32Interop.GetAsyncKeyState(Win32Interop.VK_S) & 0x8000) != 0;
             bool aDown = (Win32Interop.GetAsyncKeyState(Win32Interop.VK_A) & 0x8000) != 0;
             bool dDown = (Win32Interop.GetAsyncKeyState(Win32Interop.VK_D) & 0x8000) != 0;
-            // A → dots move right (positive X), D → dots move left (negative X)
-            float dirX = (aDown ? 1f : 0f) - (dDown ? 1f : 0f);
-            // W → dots move down (positive Y), S → dots move up (negative Y)
-            float dirY = (wDown ? 1f : 0f) - (sDown ? 1f : 0f);
+            // A → dots move left (negative X), D → dots move right (positive X)
+            float dirX = (dDown ? 1f : 0f) - (aDown ? 1f : 0f);
+            // W → dots move up (negative Y), S → dots move down (positive Y)
+            float dirY = (sDown ? 1f : 0f) - (wDown ? 1f : 0f);
             if (dirX != 0)
                 keyboardVelX = dirX * KeyboardBaseSpeed * (float)Math.Clamp(_config.MotionKeyboardSensitivity, 0.05, 3.0);
             if (dirY != 0)
