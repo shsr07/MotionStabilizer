@@ -50,6 +50,7 @@ public partial class OverlayPage : Page
         SliderMotionRefreshRate.Value = Math.Clamp(cfg.MotionRefreshRate, 30, 360);
         MotionRefreshRateLabel.Text = Math.Clamp(cfg.MotionRefreshRate, 30, 360) + " Hz";
         ChkMotionKeyboard.IsChecked = cfg.MotionKeyboardEnabled;
+        ChkMotionInverted.IsChecked = cfg.MotionInverted;
 
         // Aspect ratio
         CbAspectRatio.SelectedIndex = (int)cfg.AspectRatio;
@@ -232,6 +233,13 @@ public partial class OverlayPage : Page
 
         App.OverlayConfig.MotionKeyboardEnabled = wantEnabled;
         PanelKeyboardSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
+        App.RefreshOverlay();
+    }
+
+    private void MotionInverted_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.OverlayConfig.MotionInverted = ChkMotionInverted.IsChecked == true;
         App.RefreshOverlay();
     }
 

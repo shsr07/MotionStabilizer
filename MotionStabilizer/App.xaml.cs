@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using MotionStabilizer.Models;
@@ -304,6 +304,9 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Always reset keyboard motion control on exit for safety
+        OverlayConfig.MotionKeyboardEnabled = false;
+
         // Auto-save if enabled
         if (AppConfig.AutoSaveOnClose)
         {

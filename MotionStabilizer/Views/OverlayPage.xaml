@@ -106,6 +106,12 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Motion direction inversion -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <CheckBox x:Name="ChkMotionInverted" Content="{DynamicResource Motion_InvertDirection}"
+                                  Checked="MotionInverted_Changed" Unchecked="MotionInverted_Changed" />
+                    </StackPanel>
+
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                         <TextBlock Text="{DynamicResource Motion_DotColumns}" Style="{StaticResource FieldLabel}" Width="100" />
                         <Slider x:Name="SliderMotionDotColumns" Width="280" Minimum="1" Maximum="6"

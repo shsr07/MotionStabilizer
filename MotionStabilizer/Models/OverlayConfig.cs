@@ -33,13 +33,14 @@ public class OverlayConfig
     /// <summary>Safety gate: when false, GetAsyncKeyState is never called.</summary>
     public bool MotionKeyboardEnabled { get; set; } = false;
     public int MotionDotCount { get; set; } = 6;
-    public int MotionDotColumns { get; set; } = 4;
+    public int MotionDotColumns { get; set; } = 2;
     public double MotionDotSpacingV { get; set; } = 1.0;
-    public double MotionDotSpacingH { get; set; } = 1.0;
+    public double MotionDotSpacingH { get; set; } = 0.7;
     public double MotionSensitivity { get; set; } = 1.5;
     public double MotionKeyboardSensitivity { get; set; } = 1.0;
     public int MotionReturnMs { get; set; } = 260;
     public int MotionRefreshRate { get; set; } = 60;
+    public bool MotionInverted { get; set; } = false;
 
     /// <summary>Returns the actual Color based on preset or custom value.</summary>
     public Color GetColor()

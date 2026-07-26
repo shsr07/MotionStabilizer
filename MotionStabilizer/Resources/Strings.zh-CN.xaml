@@ -86,6 +86,7 @@
     <sys:String x:Key="Motion_SettingsCard">动态圆点设置</sys:String>
     <sys:String x:Key="Motion_Desc">在屏幕两侧显示根据鼠标移动而变化的动态圆点，提供视觉运动错点。功能生效期间会占用 GPU。</sys:String>
     <sys:String x:Key="Motion_KeyboardEnable">启用键盘 WASD 控制动态圆点（禁止联机游戏使用）</sys:String>
+    <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标和键盘控制反向）</sys:String>
     <sys:String x:Key="Motion_DotColumns">圆点列数</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">圆点上下间距</sys:String>
     <sys:String x:Key="Motion_DotSpacingH">圆点左右间距</sys:String>
