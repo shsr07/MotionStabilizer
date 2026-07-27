@@ -39,8 +39,10 @@ public class OverlayConfig
     public double MotionSensitivity { get; set; } = 1.5;
     public double MotionKeyboardSensitivity { get; set; } = 1.0;
     public int MotionReturnMs { get; set; } = 260;
-    public int MotionRefreshRate { get; set; } = 60;
+    public int MotionRefreshRate { get; set; } = 120;
     public bool MotionInverted { get; set; } = false;
+    public bool MotionParallaxScale { get; set; } = true;
+    public double MotionParallaxAmount { get; set; } = 0.8;
 
     /// <summary>Returns the actual Color based on preset or custom value.</summary>
     public Color GetColor()

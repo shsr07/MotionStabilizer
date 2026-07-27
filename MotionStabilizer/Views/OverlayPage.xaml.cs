@@ -51,6 +51,11 @@ public partial class OverlayPage : Page
         MotionRefreshRateLabel.Text = Math.Clamp(cfg.MotionRefreshRate, 30, 360) + " Hz";
         ChkMotionKeyboard.IsChecked = cfg.MotionKeyboardEnabled;
         ChkMotionInverted.IsChecked = cfg.MotionInverted;
+        ChkMotionParallax.IsChecked = cfg.MotionParallaxScale;
+        int parallaxPct = (int)Math.Round(cfg.MotionParallaxAmount * 100);
+        SliderMotionParallaxAmount.Value = Math.Clamp(parallaxPct, 0, 100);
+        MotionParallaxAmountLabel.Text = Math.Clamp(parallaxPct, 0, 100) + "%";
+        PanelParallaxAmount.Visibility = cfg.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
 
         // Aspect ratio
         CbAspectRatio.SelectedIndex = (int)cfg.AspectRatio;
@@ -240,6 +245,23 @@ public partial class OverlayPage : Page
     {
         if (_isLoading) return;
         App.OverlayConfig.MotionInverted = ChkMotionInverted.IsChecked == true;
+        App.RefreshOverlay();
+    }
+
+    private void MotionParallax_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.OverlayConfig.MotionParallaxScale = ChkMotionParallax.IsChecked == true;
+        PanelParallaxAmount.Visibility = App.OverlayConfig.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
+        App.RefreshOverlay();
+    }
+
+    private void MotionParallaxAmount_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionParallaxAmountLabel == null) return;
+        int pct = (int)SliderMotionParallaxAmount.Value;
+        App.OverlayConfig.MotionParallaxAmount = pct / 100.0;
+        MotionParallaxAmountLabel.Text = pct + "%";
         App.RefreshOverlay();
     }
 

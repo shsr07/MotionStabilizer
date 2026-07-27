@@ -87,6 +87,8 @@
     <sys:String x:Key="Motion_Desc">Displays dynamic dots on both sides of the screen that respond to mouse movement, providing visual motion anchors. GPU usage occurs while active.</sys:String>
     <sys:String x:Key="Motion_KeyboardEnable">Enable keyboard WASD to control motion dots (do not use in online games)</sys:String>
     <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse and keyboard reversed)</sys:String>
+    <sys:String x:Key="Motion_ParallaxScale">Parallax scale (dots shrink near screen center)</sys:String>
+    <sys:String x:Key="Motion_ParallaxAmount">Dot Scale Amount</sys:String>
     <sys:String x:Key="Motion_DotColumns">Dot Columns</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">Vertical Spacing</sys:String>
     <sys:String x:Key="Motion_DotSpacingH">Horizontal Spacing</sys:String>

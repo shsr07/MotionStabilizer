@@ -52,6 +52,7 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     private const float FadeMarginX = 0.04f;  // 4% of zone width — narrow wrap gap
     private const float PulseAmplitude = 0.10f;
     private const float PulsePeriod = 2.0f;
+    private const float ParallaxEdgeDeadZone = 80f;
     private const float KeyboardBaseSpeed = 210.0f;
     private const float MouseSpeedScale = 1.575f;
 
@@ -563,6 +564,41 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         float pulse = 1f + PulseAmplitude *
             MathF.Sin(2f * MathF.PI * _pulseTime / PulsePeriod + dot.PulsePhase);
             float radius = dot.BaseRadius * pulse;
+
+            // Parallax scale: shrink dots near screen midline for depth illusion
+            if (_config.MotionParallaxScale)
+            {
+                float midline = _width * 0.5f;
+                float minScale = 1.0f - (float)Math.Clamp(_config.MotionParallaxAmount, 0.0, 1.0);
+                float scaleT = 1f; // default: full scale
+
+                if (zone.IsLeftSide)
+                {
+                    // No scaling within 80px of left screen edge
+                    if (dot.Position.X > ParallaxEdgeDeadZone)
+                    {
+                        float distFromMid = midline - dot.Position.X;
+                        float maxDist = midline - ParallaxEdgeDeadZone;
+                        if (maxDist > 0.001f)
+                            scaleT = Math.Clamp(distFromMid / maxDist, 0f, 1f);
+                    }
+                }
+                else
+                {
+                    // No scaling within 80px of right screen edge
+                    if (dot.Position.X < _width - ParallaxEdgeDeadZone)
+                    {
+                        float distFromMid = dot.Position.X - midline;
+                        float maxDist = (_width - ParallaxEdgeDeadZone) - midline;
+                        if (maxDist > 0.001f)
+                            scaleT = Math.Clamp(distFromMid / maxDist, 0f, 1f);
+                    }
+                }
+
+                // Quadratic curve for more aggressive scaling near midline
+                scaleT = scaleT * scaleT;
+                radius *= minScale + (1f - minScale) * scaleT;
+            }
 
             _brush.Color = new Color4(baseColor.R, baseColor.G, baseColor.B, 1);
             _brush.Opacity = Math.Clamp(finalOpacity, 0, 1);

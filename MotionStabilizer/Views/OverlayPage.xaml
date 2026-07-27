@@ -112,6 +112,22 @@
                                   Checked="MotionInverted_Changed" Unchecked="MotionInverted_Changed" />
                     </StackPanel>
 
+                    <!-- Parallax scale -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <CheckBox x:Name="ChkMotionParallax" Content="{DynamicResource Motion_ParallaxScale}"
+                                  Checked="MotionParallax_Changed" Unchecked="MotionParallax_Changed" />
+                    </StackPanel>
+
+                    <!-- Parallax amount slider -->
+                    <StackPanel x:Name="PanelParallaxAmount" Orientation="Horizontal" Margin="0,0,0,14" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource Motion_ParallaxAmount}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <Slider x:Name="SliderMotionParallaxAmount" Width="280" Minimum="0" Maximum="100"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                ValueChanged="MotionParallaxAmount_Changed" />
+                        <TextBlock x:Name="MotionParallaxAmountLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                         <TextBlock Text="{DynamicResource Motion_DotColumns}" Style="{StaticResource FieldLabel}" Width="100" />
                         <Slider x:Name="SliderMotionDotColumns" Width="280" Minimum="1" Maximum="6"
