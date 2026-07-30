@@ -28,6 +28,7 @@
 ## ✨ 功能特性 / Features
 
 - **边缘叠加 (Edge Overlay)** — 在屏幕边缘绘制参考框线（方框 / 圆顶 / 旗帜三种形状），为大脑提供视觉稳定锚点
+- **多显示器支持 (Multi-Monitor)** — 自动识别所有显示器，边缘叠加、动态圆点和准星在多屏环境下正确定位与渲染
 
 > [!TIP]
 > **核心功能(Core Features)：动态圆点 (Motion Dots)**
@@ -64,7 +65,7 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v2.3.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v2.4.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 

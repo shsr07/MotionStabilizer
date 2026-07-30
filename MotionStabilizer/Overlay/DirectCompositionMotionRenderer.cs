@@ -31,11 +31,14 @@ public readonly struct MotionZone
     public readonly float X, Y, Width, Height;
     public readonly bool IsLeftSide;
     public readonly float Opacity;
+    public readonly float AreaLeftX, AreaRightX;
 
-    public MotionZone(float x, float y, float w, float h, bool isLeft, float opacity)
+    public MotionZone(float x, float y, float w, float h, bool isLeft, float opacity,
+        float areaLeftX, float areaRightX)
     {
         X = x; Y = y; Width = w; Height = h;
         IsLeftSide = isLeft; Opacity = opacity;
+        AreaLeftX = areaLeftX; AreaRightX = areaRightX;
     }
 }
 
@@ -568,28 +571,30 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
             // Parallax scale: shrink dots near screen midline for depth illusion
             if (_config.MotionParallaxScale)
             {
-                float midline = _width * 0.5f;
+                float midline = (zone.AreaLeftX + zone.AreaRightX) * 0.5f;
                 float minScale = 1.0f - (float)Math.Clamp(_config.MotionParallaxAmount, 0.0, 1.0);
                 float scaleT = 1f; // default: full scale
 
                 if (zone.IsLeftSide)
                 {
-                    // No scaling within 80px of left screen edge
-                    if (dot.Position.X > ParallaxEdgeDeadZone)
+                    // No scaling within 80px of area's left edge
+                    float deadZoneRight = zone.AreaLeftX + ParallaxEdgeDeadZone;
+                    if (dot.Position.X > deadZoneRight)
                     {
                         float distFromMid = midline - dot.Position.X;
-                        float maxDist = midline - ParallaxEdgeDeadZone;
+                        float maxDist = midline - deadZoneRight;
                         if (maxDist > 0.001f)
                             scaleT = Math.Clamp(distFromMid / maxDist, 0f, 1f);
                     }
                 }
                 else
                 {
-                    // No scaling within 80px of right screen edge
-                    if (dot.Position.X < _width - ParallaxEdgeDeadZone)
+                    // No scaling within 80px of area's right edge
+                    float deadZoneLeft = zone.AreaRightX - ParallaxEdgeDeadZone;
+                    if (dot.Position.X < deadZoneLeft)
                     {
                         float distFromMid = dot.Position.X - midline;
-                        float maxDist = (_width - ParallaxEdgeDeadZone) - midline;
+                        float maxDist = deadZoneLeft - midline;
                         if (maxDist > 0.001f)
                             scaleT = Math.Clamp(distFromMid / maxDist, 0f, 1f);
                     }

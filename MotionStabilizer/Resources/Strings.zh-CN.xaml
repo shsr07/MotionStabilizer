@@ -175,7 +175,7 @@
 
     <!-- About -->
     <sys:String x:Key="About_Title">关于</sys:String>
-    <sys:String x:Key="About_Version">Motion Stabilizer v1.0.0</sys:String>
+    <sys:String x:Key="About_Version">Motion Stabilizer v2.4.0</sys:String>
     <sys:String x:Key="About_Desc">安全、零侵入的视觉稳定叠加层，缓解 3D 游戏晕动症。</sys:String>
     <sys:String x:Key="About_Feature1">✓ 纯外部桌面叠加层 — 无 DLL 注入</sys:String>
     <sys:String x:Key="About_Feature2">✓ 兼容所有反作弊系统（Vanguard、EAC、BattlEye）</sys:String>

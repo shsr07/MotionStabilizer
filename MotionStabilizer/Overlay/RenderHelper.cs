@@ -144,58 +144,61 @@ public static class RenderHelper
 
     // ── Overlay shape builders ─────────────────────────────────────────
 
-    /// <summary>Build all shapes for the edge overlay within the given area.</summary>
-    public static List<Shape> BuildOverlayShapes(OverlayConfig cfg, Rect area, double screenW, double screenH)
+    /// <summary>Build all shapes for the edge overlay within the given monitor area.</summary>
+    public static List<Shape> BuildOverlayShapes(OverlayConfig cfg, Rect monitorBounds)
     {
         var shapes = new List<Shape>();
         var color = cfg.GetColor();
         double sizePx = OverlayBarWidth(cfg.Size);
         double lengthPx = LengthOffsetPx(cfg.Length);
 
-        // Apply aspect ratio safe area
-        var safe = GetSafeArea(screenW, screenH, cfg.AspectRatio);
+        // Compute safe area within this monitor
+        var safe = GetSafeArea(monitorBounds.Width, monitorBounds.Height, cfg.AspectRatio);
+        Rect drawArea = new Rect(
+            monitorBounds.X + safe.X,
+            monitorBounds.Y + safe.Y,
+            safe.Width,
+            safe.Height
+        );
 
-        // In Window mode, detect the foreground window (the active game) and follow its bounds.
-        // In Stretch mode, use the full screen safe area.
-        Rect drawArea;
+        // In Window mode, follow the foreground window only if it's on this monitor
         if (cfg.Mode == DisplayMode.Window)
         {
             var fwRect = Win32Interop.GetForegroundWindowRect();
             if (fwRect.HasValue)
             {
                 double scale = Win32Interop.GetDpiScale();
-                // Translate from absolute screen coords to window-relative coords
                 double vsX = Win32Interop.GetVirtualScreenX() / scale;
                 double vsY = Win32Interop.GetVirtualScreenY() / scale;
                 var r = fwRect.Value;
-                drawArea = new Rect(r.Left / scale - vsX, r.Top / scale - vsY,
-                    (r.Right - r.Left) / scale, (r.Bottom - r.Top) / scale);
+                double fwCenterX = (r.Left + r.Right) / 2.0 / scale - vsX;
+                double fwCenterY = (r.Top + r.Bottom) / 2.0 / scale - vsY;
+
+                if (fwCenterX >= monitorBounds.X && fwCenterX < monitorBounds.X + monitorBounds.Width &&
+                    fwCenterY >= monitorBounds.Y && fwCenterY < monitorBounds.Y + monitorBounds.Height)
+                {
+                    drawArea = new Rect(r.Left / scale - vsX, r.Top / scale - vsY,
+                        (r.Right - r.Left) / scale, (r.Bottom - r.Top) / scale);
+                }
+                else
+                {
+                    // Foreground window is not on this monitor
+                    return shapes;
+                }
             }
-            else
-            {
-                drawArea = safe;
-            }
-        }
-        else
-        {
-            drawArea = safe;
         }
 
         if (cfg.Split == SplitScreen.Vertical)
         {
             double halfW = drawArea.Width / 2;
-            var leftRect = new Rect(drawArea.X, drawArea.Y, halfW, drawArea.Height);
-            var rightRect = new Rect(drawArea.X + halfW, drawArea.Y, halfW, drawArea.Height);
-            shapes.AddRange(BuildSingleOverlay(cfg, leftRect, sizePx, lengthPx, color));
-            shapes.AddRange(BuildSingleOverlay(cfg, rightRect, sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y, halfW, drawArea.Height), sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X + halfW, drawArea.Y, halfW, drawArea.Height), sizePx, lengthPx, color));
         }
         else if (cfg.Split == SplitScreen.Horizontal)
         {
             double halfH = drawArea.Height / 2;
-            var topRect = new Rect(drawArea.X, drawArea.Y, drawArea.Width, halfH);
-            var botRect = new Rect(drawArea.X, drawArea.Y + halfH, drawArea.Width, halfH);
-            shapes.AddRange(BuildSingleOverlay(cfg, topRect, sizePx, lengthPx, color));
-            shapes.AddRange(BuildSingleOverlay(cfg, botRect, sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y, drawArea.Width, halfH), sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y + halfH, drawArea.Width, halfH), sizePx, lengthPx, color));
         }
         else
         {
@@ -416,8 +419,8 @@ public static class RenderHelper
 
     // ── Crosshair shape builders ───────────────────────────────────────
 
-    /// <summary>Build all shapes for the crosshair at center + offset.</summary>
-    public static List<Shape> BuildCrosshairShapes(CrosshairConfig cfg, double screenW, double screenH)
+    /// <summary>Build all shapes for the crosshair within the given monitor area.</summary>
+    public static List<Shape> BuildCrosshairShapes(CrosshairConfig cfg, Rect monitorBounds)
     {
         var shapes = new List<Shape>();
         if (!cfg.IsVisible) return shapes;
@@ -427,28 +430,30 @@ public static class RenderHelper
         double size = CrosshairSize(cfg.Size);
         double thick = CrosshairThickness(cfg.Thickness);
 
-        // Center + offset
-        double cx = screenW / 2 + cfg.PositionX;
-        double cy = screenH / 2 + cfg.PositionY;
+        double monW = monitorBounds.Width;
+        double monH = monitorBounds.Height;
 
-        // Apply aspect ratio adjustment for position
-        if (cfg.AspectRatio != AspectRatio.Ratio16x9)
-        {
-            var safe = GetSafeArea(screenW, screenH, cfg.AspectRatio);
-            cx = safe.X + safe.Width / 2 + cfg.PositionX;
-            cy = safe.Y + safe.Height / 2 + cfg.PositionY;
-        }
+        // Apply aspect ratio safe area within this monitor
+        var safe = GetSafeArea(monW, monH, cfg.AspectRatio);
+        double safeCx = monitorBounds.X + safe.X + safe.Width / 2;
+        double safeCy = monitorBounds.Y + safe.Y + safe.Height / 2;
+
+        // Center + offset
+        double cx = safeCx + cfg.PositionX;
+        double cy = safeCy + cfg.PositionY;
 
         var positions = new List<(double px, double py)>();
         if (cfg.Split == SplitScreen.Vertical)
         {
-            positions.Add((screenW / 4 + cfg.PositionX, cy));
-            positions.Add((screenW * 3 / 4 + cfg.PositionX, cy));
+            double halfW = safe.Width / 2;
+            positions.Add((monitorBounds.X + safe.X + halfW / 2 + cfg.PositionX, cy));
+            positions.Add((monitorBounds.X + safe.X + halfW + halfW / 2 + cfg.PositionX, cy));
         }
         else if (cfg.Split == SplitScreen.Horizontal)
         {
-            positions.Add((cx, screenH / 4 + cfg.PositionY));
-            positions.Add((cx, screenH * 3 / 4 + cfg.PositionY));
+            double halfH = safe.Height / 2;
+            positions.Add((cx, monitorBounds.Y + safe.Y + halfH / 2 + cfg.PositionY));
+            positions.Add((cx, monitorBounds.Y + safe.Y + halfH + halfH / 2 + cfg.PositionY));
         }
         else
         {

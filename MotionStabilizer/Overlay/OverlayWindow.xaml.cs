@@ -174,21 +174,50 @@ public partial class OverlayWindow : Window
         double sw = this.Width > 0 ? this.Width : Win32Interop.GetScreenWidth() / Win32Interop.GetDpiScale();
         double sh = this.Height > 0 ? this.Height : Win32Interop.GetScreenHeight() / Win32Interop.GetDpiScale();
 
-        // Render edge overlay (non-MotionDots shapes)
+        // Render edge overlay (non-MotionDots shapes) — per monitor
         if (_overlayConfig.IsVisible && _overlayConfig.Shape != OverlayShape.MotionDots)
         {
-            var area = new Rect(0, 0, sw, sh);
-            var overlayShapes = RenderHelper.BuildOverlayShapes(_overlayConfig, area, sw, sh);
-            foreach (var s in overlayShapes)
-                OverlayCanvas.Children.Add(s);
+            double scale = Win32Interop.GetDpiScale();
+            int vsX = Win32Interop.GetVirtualScreenX();
+            int vsY = Win32Interop.GetVirtualScreenY();
+            var monitors = Win32Interop.GetAllMonitors();
+            if (monitors.Count == 0)
+                monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physicalWidth, physicalHeight));
+
+            foreach (var mon in monitors)
+            {
+                double monLogX = (mon.X - vsX) / scale;
+                double monLogY = (mon.Y - vsY) / scale;
+                double monLogW = mon.Width / scale;
+                double monLogH = mon.Height / scale;
+                var monBounds = new Rect(monLogX, monLogY, monLogW, monLogH);
+                var overlayShapes = RenderHelper.BuildOverlayShapes(_overlayConfig, monBounds);
+                foreach (var s in overlayShapes)
+                    OverlayCanvas.Children.Add(s);
+            }
         }
 
-        // Render crosshair
+        // Render crosshair — per monitor
         if (_crosshairConfig.IsVisible)
         {
-            var crosshairShapes = RenderHelper.BuildCrosshairShapes(_crosshairConfig, sw, sh);
-            foreach (var s in crosshairShapes)
-                OverlayCanvas.Children.Add(s);
+            double scale = Win32Interop.GetDpiScale();
+            int vsX = Win32Interop.GetVirtualScreenX();
+            int vsY = Win32Interop.GetVirtualScreenY();
+            var monitors = Win32Interop.GetAllMonitors();
+            if (monitors.Count == 0)
+                monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physicalWidth, physicalHeight));
+
+            foreach (var mon in monitors)
+            {
+                double monLogX = (mon.X - vsX) / scale;
+                double monLogY = (mon.Y - vsY) / scale;
+                double monLogW = mon.Width / scale;
+                double monLogH = mon.Height / scale;
+                var monBounds = new Rect(monLogX, monLogY, monLogW, monLogH);
+                var crosshairShapes = RenderHelper.BuildCrosshairShapes(_crosshairConfig, monBounds);
+                foreach (var s in crosshairShapes)
+                    OverlayCanvas.Children.Add(s);
+            }
         }
 
         // Render clock
@@ -198,75 +227,96 @@ public partial class OverlayWindow : Window
         }
     }
 
-    /// <summary>Compute motion zones based on Window mode, Split, Length, and Edge visibility.</summary>
+    /// <summary>Compute motion zones based on per-monitor edges, Window mode, Split, Length, and Edge visibility.</summary>
     private List<MotionZone> ComputeMotionZones(int physW, int physH)
     {
         var zones = new List<MotionZone>();
         var cfg = _overlayConfig;
         double scale = Win32Interop.GetDpiScale();
+        int vsX = Win32Interop.GetVirtualScreenX();
+        int vsY = Win32Interop.GetVirtualScreenY();
 
-        // Get draw area in physical pixels
-        float drawX = 0, drawY = 0, drawW = physW, drawH = physH;
+        var monitors = Win32Interop.GetAllMonitors();
+        if (monitors.Count == 0)
+            monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physW, physH));
 
-        // Apply aspect ratio safe area
-        var safeLogical = RenderHelper.GetSafeArea(physW / scale, physH / scale, cfg.AspectRatio);
-        drawX = (float)(safeLogical.X * scale);
-        drawY = (float)(safeLogical.Y * scale);
-        drawW = (float)(safeLogical.Width * scale);
-        drawH = (float)(safeLogical.Height * scale);
-
-        // Window mode: follow foreground window
-        if (cfg.Mode == DisplayMode.Window)
+        foreach (var mon in monitors)
         {
-            var fwRect = Win32Interop.GetForegroundWindowRect();
-            if (fwRect.HasValue)
+            // Translate monitor bounds to virtual-screen-relative coordinates
+            float monX = mon.X - vsX;
+            float monY = mon.Y - vsY;
+            float monW = mon.Width;
+            float monH = mon.Height;
+
+            // Apply aspect ratio safe area for this monitor
+            var safeLogical = RenderHelper.GetSafeArea(monW / scale, monH / scale, cfg.AspectRatio);
+            float drawX = monX + (float)(safeLogical.X * scale);
+            float drawY = monY + (float)(safeLogical.Y * scale);
+            float drawW = (float)(safeLogical.Width * scale);
+            float drawH = (float)(safeLogical.Height * scale);
+
+            // Window mode: follow foreground window, only on the monitor it resides on
+            if (cfg.Mode == DisplayMode.Window)
             {
-                var r = fwRect.Value;
-                // Translate from absolute screen coords to window-relative coords
-                int vsX = Win32Interop.GetVirtualScreenX();
-                int vsY = Win32Interop.GetVirtualScreenY();
-                drawX = r.Left - vsX;
-                drawY = r.Top - vsY;
-                drawW = r.Right - r.Left;
-                drawH = r.Bottom - r.Top;
-            }
-        }
+                var fwRect = Win32Interop.GetForegroundWindowRect();
+                if (fwRect.HasValue)
+                {
+                    var r = fwRect.Value;
+                    int fwCenterX = (r.Left + r.Right) / 2;
+                    int fwCenterY = (r.Top + r.Bottom) / 2;
+                    // Skip monitors that don't contain the foreground window center
+                    if (fwCenterX < mon.X || fwCenterX >= mon.X + mon.Width ||
+                        fwCenterY < mon.Y || fwCenterY >= mon.Y + mon.Height)
+                        continue;
 
-        // Build list of draw areas (split if needed)
-        var areas = new List<(float x, float y, float w, float h)> { (drawX, drawY, drawW, drawH) };
-        if (cfg.Split == SplitScreen.Vertical)
-        {
-            var orig = areas; areas = new();
-            foreach (var a in orig)
+                    drawX = r.Left - vsX;
+                    drawY = r.Top - vsY;
+                    drawW = r.Right - r.Left;
+                    drawH = r.Bottom - r.Top;
+                }
+            }
+
+            // Zone width based on individual monitor width (not full virtual screen)
+            float zoneW = monW * 0.12f;
+            float lengthPx = (float)RenderHelper.LengthOffsetPx(cfg.Length) * 8f * (float)scale;
+
+            float leftOpacity = cfg.OpacityMode == EdgeOpacityMode.Uniform
+                ? cfg.Opacity / 100f : cfg.EdgeLeftOpacity / 100f;
+            float rightOpacity = cfg.OpacityMode == EdgeOpacityMode.Uniform
+                ? cfg.Opacity / 100f : cfg.EdgeRightOpacity / 100f;
+
+            // Build list of draw areas (split if needed)
+            var areas = new List<(float x, float y, float w, float h)> { (drawX, drawY, drawW, drawH) };
+            if (cfg.Split == SplitScreen.Vertical)
             {
-                areas.Add((a.x, a.y, a.w / 2, a.h));
-                areas.Add((a.x + a.w / 2, a.y, a.w / 2, a.h));
+                var orig = areas; areas = new();
+                foreach (var a in orig)
+                {
+                    areas.Add((a.x, a.y, a.w / 2, a.h));
+                    areas.Add((a.x + a.w / 2, a.y, a.w / 2, a.h));
+                }
             }
-        }
-        else if (cfg.Split == SplitScreen.Horizontal)
-        {
-            var orig = areas; areas = new();
-            foreach (var a in orig)
+            else if (cfg.Split == SplitScreen.Horizontal)
             {
-                areas.Add((a.x, a.y, a.w, a.h / 2));
-                areas.Add((a.x, a.y + a.h / 2, a.w, a.h / 2));
+                var orig = areas; areas = new();
+                foreach (var a in orig)
+                {
+                    areas.Add((a.x, a.y, a.w, a.h / 2));
+                    areas.Add((a.x, a.y + a.h / 2, a.w, a.h / 2));
+                }
             }
-        }
 
-        float zoneW = physW * 0.12f;
-        float lengthPx = (float)RenderHelper.LengthOffsetPx(cfg.Length) * 8f * (float)scale;
-
-        float leftOpacity = cfg.OpacityMode == EdgeOpacityMode.Uniform
-            ? cfg.Opacity / 100f : cfg.EdgeLeftOpacity / 100f;
-        float rightOpacity = cfg.OpacityMode == EdgeOpacityMode.Uniform
-            ? cfg.Opacity / 100f : cfg.EdgeRightOpacity / 100f;
-
-        foreach (var a in areas)
-        {
-            if (cfg.EdgeLeftVisible)
-                zones.Add(new MotionZone(a.x + lengthPx, a.y, zoneW, a.h, true, leftOpacity));
-            if (cfg.EdgeRightVisible)
-                zones.Add(new MotionZone(a.x + a.w - lengthPx - zoneW, a.y, zoneW, a.h, false, rightOpacity));
+            foreach (var a in areas)
+            {
+                // Parallax center follows each split area's own center,
+                // not the monitor center, so split-boundary zones aren't always at min scale
+                float areaLeftX = a.x;
+                float areaRightX = a.x + a.w;
+                if (cfg.EdgeLeftVisible)
+                    zones.Add(new MotionZone(a.x + lengthPx, a.y, zoneW, a.h, true, leftOpacity, areaLeftX, areaRightX));
+                if (cfg.EdgeRightVisible)
+                    zones.Add(new MotionZone(a.x + a.w - lengthPx - zoneW, a.y, zoneW, a.h, false, rightOpacity, areaLeftX, areaRightX));
+            }
         }
 
         return zones;

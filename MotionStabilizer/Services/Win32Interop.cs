@@ -164,6 +164,25 @@ internal static class Win32Interop
     public const int SM_CXVIRTUALSCREEN = 78;
     public const int SM_CYVIRTUALSCREEN = 79;
 
+    /// <summary>Enumerates all display monitors with their bounds in virtual-screen coordinates.</summary>
+    public static List<MonitorInfo> GetAllMonitors()
+    {
+        var monitors = new List<MonitorInfo>();
+        foreach (var screen in System.Windows.Forms.Screen.AllScreens)
+        {
+            var b = screen.Bounds;
+            monitors.Add(new MonitorInfo(b.X, b.Y, b.Width, b.Height));
+        }
+        return monitors;
+    }
+
+    public readonly struct MonitorInfo
+    {
+        public readonly int X, Y, Width, Height;
+        public MonitorInfo(int x, int y, int w, int h)
+        { X = x; Y = y; Width = w; Height = h; }
+    }
+
     /// <summary>System DPI scale factor (1.0 at 100%, 1.25 at 125%, etc.).</summary>
     public static double GetDpiScale()
     {
