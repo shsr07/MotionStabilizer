@@ -108,10 +108,13 @@ public partial class HotkeysPage : Page
         if (_capturingItem == null || sender is not TextBox tb) return;
 
         e.Handled = true;
-        var key = e.Key;
+        // Alt is a system key: WPF reports e.Key as Key.System,
+        // and the real key is only available via e.SystemKey.
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
 
         // Ignore modifier-only presses
-        if (key == Key.LeftCtrl || key == Key.RightCtrl ||
+        if (key == Key.None || key == Key.System ||
+            key == Key.LeftCtrl || key == Key.RightCtrl ||
             key == Key.LeftAlt || key == Key.RightAlt ||
             key == Key.LeftShift || key == Key.RightShift ||
             key == Key.LWin || key == Key.RWin)

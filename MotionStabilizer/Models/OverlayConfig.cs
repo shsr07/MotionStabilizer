@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Windows.Media;
 
 namespace MotionStabilizer.Models;
@@ -30,7 +31,12 @@ public class OverlayConfig
     public int EdgeRightOpacity { get; set; } = 60;
 
     // ── Dynamic motion cue settings (MotionDots shape) ──
-    /// <summary>Safety gate: when false, GetAsyncKeyState is never called.</summary>
+    /// <summary>
+    /// Safety gate: when false, GetAsyncKeyState is never called.
+    /// Deliberately never persisted ([JsonIgnore]) — keyboard control must be
+    /// re-confirmed after every restart, so a crash can never leave it enabled.
+    /// </summary>
+    [JsonIgnore]
     public bool MotionKeyboardEnabled { get; set; } = false;
     public int MotionDotCount { get; set; } = 6;
     public int MotionDotColumns { get; set; } = 2;
