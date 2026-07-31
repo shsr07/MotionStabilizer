@@ -177,7 +177,6 @@ public partial class OverlayWindow : Window
         // Render edge overlay (non-MotionDots shapes) — per monitor
         if (_overlayConfig.IsVisible && _overlayConfig.Shape != OverlayShape.MotionDots)
         {
-            double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             var monitors = Win32Interop.GetAllMonitors();
@@ -186,12 +185,13 @@ public partial class OverlayWindow : Window
 
             foreach (var mon in monitors)
             {
+                double scale = mon.DpiScale;
                 double monLogX = (mon.X - vsX) / scale;
                 double monLogY = (mon.Y - vsY) / scale;
                 double monLogW = mon.Width / scale;
                 double monLogH = mon.Height / scale;
                 var monBounds = new Rect(monLogX, monLogY, monLogW, monLogH);
-                var overlayShapes = RenderHelper.BuildOverlayShapes(_overlayConfig, monBounds);
+                var overlayShapes = RenderHelper.BuildOverlayShapes(_overlayConfig, monBounds, scale);
                 foreach (var s in overlayShapes)
                     OverlayCanvas.Children.Add(s);
             }
@@ -200,7 +200,6 @@ public partial class OverlayWindow : Window
         // Render crosshair — per monitor
         if (_crosshairConfig.IsVisible)
         {
-            double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             var monitors = Win32Interop.GetAllMonitors();
@@ -209,12 +208,13 @@ public partial class OverlayWindow : Window
 
             foreach (var mon in monitors)
             {
+                double scale = mon.DpiScale;
                 double monLogX = (mon.X - vsX) / scale;
                 double monLogY = (mon.Y - vsY) / scale;
                 double monLogW = mon.Width / scale;
                 double monLogH = mon.Height / scale;
                 var monBounds = new Rect(monLogX, monLogY, monLogW, monLogH);
-                var crosshairShapes = RenderHelper.BuildCrosshairShapes(_crosshairConfig, monBounds);
+                var crosshairShapes = RenderHelper.BuildCrosshairShapes(_crosshairConfig, monBounds, scale);
                 foreach (var s in crosshairShapes)
                     OverlayCanvas.Children.Add(s);
             }
@@ -232,7 +232,6 @@ public partial class OverlayWindow : Window
     {
         var zones = new List<MotionZone>();
         var cfg = _overlayConfig;
-        double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
         int vsX = Win32Interop.GetVirtualScreenX();
         int vsY = Win32Interop.GetVirtualScreenY();
 
@@ -242,6 +241,8 @@ public partial class OverlayWindow : Window
 
         foreach (var mon in monitors)
         {
+            double scale = mon.DpiScale;
+
             // Translate monitor bounds to virtual-screen-relative coordinates
             float monX = mon.X - vsX;
             float monY = mon.Y - vsY;

@@ -366,9 +366,12 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         _layoutDotSpacingH = _config.MotionDotSpacingH;
         _layoutSize = _config.Size;
 
+        double dpiScale = _window != null
+            ? Win32Interop.GetDpiScaleForWindow(_window.Handle)
+            : Win32Interop.GetDpiScale();
         float baseDiameter = (float)(
             RenderHelper.MotionDotDiameter(_config.Size) *
-            Win32Interop.GetDpiScale());
+            dpiScale);
         float radius = baseDiameter / 2f;
         int columns = Math.Clamp(_config.MotionDotColumns, 1, 6);
         float spacingMultV = (float)Math.Clamp(_config.MotionDotSpacingV, 0.5, 3.0);

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using MotionStabilizer.Models;
@@ -239,19 +239,22 @@ public partial class App : Application
     private static DispatcherTimer? _autoSaveTimer;
     private static void ScheduleAutoSave()
     {
-        _autoSaveTimer?.Stop();
-        _autoSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
-        _autoSaveTimer.Tick += (_, _) =>
+        if (_autoSaveTimer == null)
         {
-            _autoSaveTimer?.Stop();
-            ConfigManager.SaveProfile(new ProfileData
+            _autoSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            _autoSaveTimer.Tick += (_, _) =>
             {
-                ProfileName = "Default",
-                Overlay = OverlayConfig,
-                Crosshair = CrosshairConfig,
-                Clock = ClockConfig
-            });
-        };
+                _autoSaveTimer!.Stop();
+                ConfigManager.SaveProfile(new ProfileData
+                {
+                    ProfileName = "Default",
+                    Overlay = OverlayConfig,
+                    Crosshair = CrosshairConfig,
+                    Clock = ClockConfig
+                });
+            };
+        }
+        _autoSaveTimer.Stop();
         _autoSaveTimer.Start();
     }
 

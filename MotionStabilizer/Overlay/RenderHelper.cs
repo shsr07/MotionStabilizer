@@ -145,7 +145,7 @@ public static class RenderHelper
     // ── Overlay shape builders ─────────────────────────────────────────
 
     /// <summary>Build all shapes for the edge overlay within the given monitor area.</summary>
-    public static List<Shape> BuildOverlayShapes(OverlayConfig cfg, Rect monitorBounds)
+    public static List<Shape> BuildOverlayShapes(OverlayConfig cfg, Rect monitorBounds, double dpiScale = 0)
     {
         var shapes = new List<Shape>();
         var color = cfg.GetColor();
@@ -167,7 +167,7 @@ public static class RenderHelper
             var fwRect = Win32Interop.GetForegroundWindowRect();
             if (fwRect.HasValue)
             {
-                double scale = Win32Interop.GetDpiScale();
+                double scale = dpiScale > 0 ? dpiScale : Win32Interop.GetDpiScale();
                 double vsX = Win32Interop.GetVirtualScreenX() / scale;
                 double vsY = Win32Interop.GetVirtualScreenY() / scale;
                 var r = fwRect.Value;
@@ -420,7 +420,7 @@ public static class RenderHelper
     // ── Crosshair shape builders ───────────────────────────────────────
 
     /// <summary>Build all shapes for the crosshair within the given monitor area.</summary>
-    public static List<Shape> BuildCrosshairShapes(CrosshairConfig cfg, Rect monitorBounds)
+    public static List<Shape> BuildCrosshairShapes(CrosshairConfig cfg, Rect monitorBounds, double dpiScale = 0)
     {
         var shapes = new List<Shape>();
         if (!cfg.IsVisible) return shapes;

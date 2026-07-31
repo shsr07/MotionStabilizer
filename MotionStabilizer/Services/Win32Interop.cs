@@ -176,23 +176,51 @@ internal static class Win32Interop
     public const int SM_CXVIRTUALSCREEN = 78;
     public const int SM_CYVIRTUALSCREEN = 79;
 
-    /// <summary>Enumerates all display monitors with their bounds in virtual-screen coordinates.</summary>
+    // Per-monitor DPI
+    [DllImport("user32.dll")]
+    public static extern IntPtr MonitorFromRect(ref RECT lprc, uint dwFlags);
+
+    public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
+
+    public enum MONITOR_DPI_TYPE : int
+    {
+        MDT_EFFECTIVE_DPI = 0,
+        MDT_RAW_DPI = 1,
+        MDT_DEFAULT = MDT_EFFECTIVE_DPI
+    }
+
+    [DllImport("shcore.dll")]
+    public static extern int GetDpiForMonitor(IntPtr hmonitor, MONITOR_DPI_TYPE dpiType, out uint dpiX, out uint dpiY);
+
+    /// <summary>Enumerates all display monitors with their bounds and per-monitor DPI scale.</summary>
     public static List<MonitorInfo> GetAllMonitors()
     {
         var monitors = new List<MonitorInfo>();
         foreach (var screen in System.Windows.Forms.Screen.AllScreens)
         {
             var b = screen.Bounds;
-            monitors.Add(new MonitorInfo(b.X, b.Y, b.Width, b.Height));
+            double dpiScale = GetDpiScaleForRect(b.X, b.Y, b.Right, b.Bottom);
+            monitors.Add(new MonitorInfo(b.X, b.Y, b.Width, b.Height, dpiScale));
         }
         return monitors;
+    }
+
+    /// <summary>Per-monitor DPI scale for the monitor containing the given rect.</summary>
+    public static double GetDpiScaleForRect(int left, int top, int right, int bottom)
+    {
+        var rc = new RECT { Left = left, Top = top, Right = right, Bottom = bottom };
+        IntPtr hmon = MonitorFromRect(ref rc, MONITOR_DEFAULTTONEAREST);
+        if (hmon != IntPtr.Zero && GetDpiForMonitor(hmon, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, out uint dpiX, out _) == 0)
+            return dpiX == 0 ? 1.0 : dpiX / 96.0;
+        return GetDpiScale();
     }
 
     public readonly struct MonitorInfo
     {
         public readonly int X, Y, Width, Height;
-        public MonitorInfo(int x, int y, int w, int h)
-        { X = x; Y = y; Width = w; Height = h; }
+        public readonly double DpiScale;
+        public MonitorInfo(int x, int y, int w, int h, double dpiScale = 0)
+        { X = x; Y = y; Width = w; Height = h; DpiScale = dpiScale > 0 ? dpiScale : 1.0; }
     }
 
     /// <summary>System DPI scale factor (1.0 at 100%, 1.25 at 125%, etc.).</summary>
