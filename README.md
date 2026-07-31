@@ -1,5 +1,7 @@
 # Motion Stabilizer · 防晕动症叠加层
 
+[![Build & Test](https://github.com/shsr07/MotionStabilizer/workflows/Build%20&%20Test/badge.svg)](https://github.com/shsr07/MotionStabilizer/actions)
+
 > 安全、零侵入的视觉稳定叠加层，缓解 3D 游戏晕动症。
 >
 > A safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief.
@@ -71,6 +73,14 @@
 4. 双击 `MotionStabilizer.exe` 即可运行
 
 > 无需安装 .NET 运行时，已内置。
+
+> **校验和 / Checksum (v2.5.0)**
+>
+> SHA-256: `e462defdda705b265ec5323b2898a8ff3a92902049cbd4f31424e5832f34e26d`
+>
+> 验证方式 / Verify:
+> - Windows: `certutil -hashfile MotionStabilizer-v2.5.0-win-x64.zip SHA256`
+> - Linux/macOS: `sha256sum MotionStabilizer-v2.5.0-win-x64.zip`
 
 ### 方式二：从源码构建 / Build from Source
 
