@@ -17,7 +17,9 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build (Release)
-        run: dotnet build MotionStabilizer/MotionStabilizer.csproj -c Release --nologo
+        run: |
+          dotnet build MotionStabilizer/MotionStabilizer.csproj -c Release --nologo
+          dotnet build MotionStabilizer.Tests/MotionStabilizer.Tests.csproj -c Release --nologo
 
       - name: Run tests (Release)
         run: dotnet test MotionStabilizer.Tests/MotionStabilizer.Tests.csproj -c Release --no-build --nologo
