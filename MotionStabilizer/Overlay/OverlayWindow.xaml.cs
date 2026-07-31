@@ -102,7 +102,7 @@ public partial class OverlayWindow : Window
     /// <summary>Update window bounds to cover the full screen.</summary>
     public void UpdateScreenBounds()
     {
-        double scale = Win32Interop.GetDpiScale();
+        double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
         int physX = Win32Interop.GetVirtualScreenX();
         int physY = Win32Interop.GetVirtualScreenY();
         int physW = Win32Interop.GetScreenWidth();
@@ -171,13 +171,13 @@ public partial class OverlayWindow : Window
             !_crosshairConfig.IsVisible &&
             !_clockConfig.IsVisible);
 
-        double sw = this.Width > 0 ? this.Width : Win32Interop.GetScreenWidth() / Win32Interop.GetDpiScale();
-        double sh = this.Height > 0 ? this.Height : Win32Interop.GetScreenHeight() / Win32Interop.GetDpiScale();
+        double sw = this.Width > 0 ? this.Width : Win32Interop.GetScreenWidth() / Win32Interop.GetDpiScaleForWindow(_hwnd);
+        double sh = this.Height > 0 ? this.Height : Win32Interop.GetScreenHeight() / Win32Interop.GetDpiScaleForWindow(_hwnd);
 
         // Render edge overlay (non-MotionDots shapes) — per monitor
         if (_overlayConfig.IsVisible && _overlayConfig.Shape != OverlayShape.MotionDots)
         {
-            double scale = Win32Interop.GetDpiScale();
+            double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             var monitors = Win32Interop.GetAllMonitors();
@@ -200,7 +200,7 @@ public partial class OverlayWindow : Window
         // Render crosshair — per monitor
         if (_crosshairConfig.IsVisible)
         {
-            double scale = Win32Interop.GetDpiScale();
+            double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             var monitors = Win32Interop.GetAllMonitors();
@@ -232,7 +232,7 @@ public partial class OverlayWindow : Window
     {
         var zones = new List<MotionZone>();
         var cfg = _overlayConfig;
-        double scale = Win32Interop.GetDpiScale();
+        double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
         int vsX = Win32Interop.GetVirtualScreenX();
         int vsY = Win32Interop.GetVirtualScreenY();
 
@@ -337,7 +337,7 @@ public partial class OverlayWindow : Window
             return;
         }
 
-        double scale = Win32Interop.GetDpiScale();
+        double scale = Win32Interop.GetDpiScaleForWindow(_hwnd);
         double width = Win32Interop.GetScreenWidth() / scale;
         double height = Win32Interop.GetScreenHeight() / scale;
         Left = Win32Interop.GetVirtualScreenX() / scale;
@@ -360,14 +360,9 @@ public partial class OverlayWindow : Window
         IntPtr lParam,
         ref bool handled)
     {
-        if (message == Win32Interop.WM_INPUT &&
-            _overlayConfig.IsVisible &&
-            _overlayConfig.Shape == OverlayShape.MotionDots &&
-            Win32Interop.TryGetRawMouseDelta(lParam, out int deltaX, out int deltaY))
-        {
-            _nativeMotionRenderer.OnMouseDelta(deltaX, deltaY);
-        }
-
+        // Raw Input (WM_INPUT) is handled by the DirectCompositionMotionRenderer's
+        // internal RawInputNativeWindow, not here. This hook is reserved for
+        // future Win32 message handling.
         return IntPtr.Zero;
     }
 

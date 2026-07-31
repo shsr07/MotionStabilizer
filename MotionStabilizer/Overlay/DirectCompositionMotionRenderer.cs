@@ -110,7 +110,6 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     private int _width;
     private int _height;
     private bool _visible;
-    private bool _dirty = true;
     private bool _disposed;
     private int _timerEnabled;
     private int _tickQueued;
@@ -273,7 +272,6 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         }
 
         SetVisible(config.IsVisible && config.Shape == OverlayShape.MotionDots && zones.Count > 0);
-        _dirty = true;
         EnsureTimer();
     }
 
@@ -297,7 +295,6 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         {
             SetWindowPos(_window.Handle, HwndTopmost, _screenX, _screenY, _width, _height,
                 SwpNoActivate | SwpShowWindow);
-            _dirty = true;
             EnsureTimer();
         }
         else
@@ -507,7 +504,6 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         {
             DrawAndPresent();
             _lastPixelFrame = now;
-            _dirty = false;
         }
 
         // Timer cadence: fast when moving, slow when idle (but still running for pulsing)

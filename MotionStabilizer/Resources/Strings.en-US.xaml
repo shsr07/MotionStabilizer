@@ -128,7 +128,9 @@
     <sys:String x:Key="Hotkeys_PressKeys">Press key combination…</sys:String>
     <sys:String x:Key="Hotkeys_Conflict">Hotkey conflict!</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">Unbound</sys:String>
-    <sys:String x:Key="Hotkeys_Hint">Click a hotkey field, then press your desired key combination (supports Ctrl / Shift). Press Esc to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_Hint">Click a hotkey field, then press your desired key combination (supports Ctrl / Alt / Shift). Press Esc to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_RegFail_Title">Hotkey Registration Failed</sys:String>
+    <sys:String x:Key="Hotkeys_RegFail_Msg">The following hotkeys may be occupied by another program:</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">Toggle Overlay</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">Toggle Crosshair</sys:String>
     <sys:String x:Key="HK_ToggleClock">Toggle Clock</sys:String>

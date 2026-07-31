@@ -110,7 +110,7 @@ public partial class HotkeysPage : Page
         e.Handled = true;
         var key = e.Key;
 
-        // Ignore modifier-only presses (Alt is no longer supported as a combo key)
+        // Ignore modifier-only presses
         if (key == Key.LeftCtrl || key == Key.RightCtrl ||
             key == Key.LeftAlt || key == Key.RightAlt ||
             key == Key.LeftShift || key == Key.RightShift ||
@@ -144,11 +144,11 @@ public partial class HotkeysPage : Page
         string keyName = KeyToString(key);
 
         bool ctrl = Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
+        bool alt = Keyboard.Modifiers.HasFlag(ModifierKeys.Alt);
         bool shift = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
 
-        // Alt is no longer supported as a combination key
         // Check for conflicts
-        bool conflict = CheckConflict(_capturingItem.BindingName, keyName, ctrl, false, shift);
+        bool conflict = CheckConflict(_capturingItem.BindingName, keyName, ctrl, alt, shift);
 
         if (conflict)
         {
@@ -170,7 +170,7 @@ public partial class HotkeysPage : Page
         {
             _capturingItem.Binding.Key = keyName;
             _capturingItem.Binding.Ctrl = ctrl;
-            _capturingItem.Binding.Alt = false;
+            _capturingItem.Binding.Alt = alt;
             _capturingItem.Binding.Shift = shift;
         }
 
@@ -227,6 +227,19 @@ public partial class HotkeysPage : Page
             Key.Right => "Right",
             Key.Up => "Up",
             Key.Down => "Down",
+            // OEM keys — map to their character representation
+            Key.OemComma => ",",
+            Key.OemPeriod => ".",
+            Key.OemSemicolon => ";",
+            Key.OemQuotes => "'",
+            Key.OemOpenBrackets => "[",
+            Key.OemCloseBrackets => "]",
+            Key.OemMinus => "-",
+            Key.OemPlus => "=",
+            Key.OemQuestion => "/",
+            Key.OemBackslash => "\\",
+            Key.OemPipe => "\\",
+            Key.OemTilde => "`",
             _ => s
         };
     }

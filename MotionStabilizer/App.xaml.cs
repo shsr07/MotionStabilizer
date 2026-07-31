@@ -1,4 +1,4 @@
-﻿﻿using System.Windows;
+﻿﻿﻿﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using MotionStabilizer.Models;
@@ -113,6 +113,7 @@ public partial class App : Application
             Hotkeys.Initialize(MainWin);
             RegisterAllHotkeys();
             Hotkeys.HotkeyPressed += OnHotkeyPressed;
+            Hotkeys.RegistrationFailed += OnHotkeyRegistrationFailed;
         }
         catch (Exception ex)
         {
@@ -231,6 +232,27 @@ public partial class App : Application
     public static void RefreshOverlay()
     {
         OverlayWin?.UpdateConfigs(OverlayConfig, CrosshairConfig, ClockConfig);
+        ScheduleAutoSave();
+    }
+
+    // ── Debounced auto-save for overlay/crosshair/clock configs ──
+    private static DispatcherTimer? _autoSaveTimer;
+    private static void ScheduleAutoSave()
+    {
+        _autoSaveTimer?.Stop();
+        _autoSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        _autoSaveTimer.Tick += (_, _) =>
+        {
+            _autoSaveTimer?.Stop();
+            ConfigManager.SaveProfile(new ProfileData
+            {
+                ProfileName = "Default",
+                Overlay = OverlayConfig,
+                Crosshair = CrosshairConfig,
+                Clock = ClockConfig
+            });
+        };
+        _autoSaveTimer.Start();
     }
 
     /// <summary>
@@ -300,6 +322,30 @@ public partial class App : Application
     {
         // Update UI if main window is visible
         MainWin?.NotifyConfigChanged();
+    }
+
+    private readonly List<string> _failedHotkeys = new();
+    private DispatcherTimer? _failedHotkeyTimer;
+
+    private void OnHotkeyRegistrationFailed(string displayString)
+    {
+        _failedHotkeys.Add(displayString);
+        _failedHotkeyTimer?.Stop();
+        _failedHotkeyTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+        _failedHotkeyTimer.Tick += (_, _) =>
+        {
+            _failedHotkeyTimer?.Stop();
+            if (_failedHotkeys.Count > 0)
+            {
+                var msg = string.Join("\n", _failedHotkeys.Distinct());
+                _failedHotkeys.Clear();
+                var tip = (string)Current.Resources["Hotkeys_RegFail_Msg"];
+                MessageBox.Show($"{tip}\n\n{msg}",
+                    (string)Current.Resources["Hotkeys_RegFail_Title"],
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        };
+        _failedHotkeyTimer.Start();
     }
 
     protected override void OnExit(ExitEventArgs e)

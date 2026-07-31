@@ -128,7 +128,9 @@
     <sys:String x:Key="Hotkeys_PressKeys">请按下组合键…</sys:String>
     <sys:String x:Key="Hotkeys_Conflict">热键冲突！</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">已解除绑定</sys:String>
-    <sys:String x:Key="Hotkeys_Hint">点击快捷键输入框，然后按下所需的组合键（支持 Ctrl / Shift）。按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_Hint">点击快捷键输入框，然后按下所需的组合键（支持 Ctrl / Alt / Shift）。按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_RegFail_Title">快捷键注册失败</sys:String>
+    <sys:String x:Key="Hotkeys_RegFail_Msg">以下快捷键可能被其他程序占用，无法注册：</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">开关边缘叠加</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">开关中心准星</sys:String>
     <sys:String x:Key="HK_ToggleClock">开关悬浮时钟</sys:String>

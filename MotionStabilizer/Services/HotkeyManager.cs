@@ -18,6 +18,9 @@ public class HotkeyManager : IDisposable
     /// <summary>Triggered when any hotkey fires. Passes the binding name.</summary>
     public event Action<string>? HotkeyPressed;
 
+    /// <summary>Triggered when a hotkey fails to register. Passes the binding display string.</summary>
+    public event Action<string>? RegistrationFailed;
+
     /// <summary>Initialize with the window that will receive WM_HOTKEY messages.</summary>
     public void Initialize(Window window)
     {
@@ -71,6 +74,7 @@ public class HotkeyManager : IDisposable
             _bindingInfo[id] = binding;
             return true;
         }
+        RegistrationFailed?.Invoke(binding.DisplayString);
         return false;
     }
 

@@ -87,7 +87,10 @@ internal static class Win32Interop
     [DllImport("user32.dll")]
     public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
-    /// <summary>Convert a key string like "F1", "R" to a virtual key code.</summary>
+    [DllImport("user32.dll")]
+    public static extern short VkKeyScan(char ch);
+
+    /// <summary>Convert a key string like "F1", "R", "," to a virtual key code.</summary>
     public static uint KeyNameToVk(string keyName)
     {
         if (string.IsNullOrWhiteSpace(keyName)) return 0;
@@ -100,6 +103,12 @@ internal static class Win32Interop
             char c = keyName.ToUpper()[0];
             if (c >= 'A' && c <= 'Z') return (uint)(0x41 + (c - 'A'));
             if (c >= '0' && c <= '9') return (uint)(0x30 + (c - '0'));
+            // OEM characters (, . ; ' [ ] - / \ ` =) via VkKeyScan
+            short vks = VkKeyScan(c);
+            if (vks != -1) return (uint)(vks & 0xFF);
+            // Try lowercase too
+            vks = VkKeyScan(keyName[0]);
+            if (vks != -1) return (uint)(vks & 0xFF);
         }
 
         if (keyName.StartsWith("NumPad") && int.TryParse(keyName[6..], out int np))
@@ -151,6 +160,9 @@ internal static class Win32Interop
     public static extern uint GetDpiForSystem();
 
     [DllImport("user32.dll")]
+    public static extern uint GetDpiForWindow(IntPtr hwnd);
+
+    [DllImport("user32.dll")]
     public static extern int GetSystemMetrics(int nIndex);
 
     public const int HORZRES = 8;
@@ -188,6 +200,14 @@ internal static class Win32Interop
     {
         uint dpi = GetDpiForSystem();
         return dpi == 0 ? 1.0 : dpi / 96.0;
+    }
+
+    /// <summary>Per-window DPI scale factor — correct for mixed-DPI multi-monitor setups.</summary>
+    public static double GetDpiScaleForWindow(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero) return GetDpiScale();
+        uint dpi = GetDpiForWindow(hwnd);
+        return dpi == 0 ? GetDpiScale() : dpi / 96.0;
     }
 
     /// <summary>Virtual screen width in pixels (covers all monitors).</summary>
