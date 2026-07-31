@@ -197,4 +197,8 @@
     <sys:String x:Key="ConfirmClose_Yes">Close</sys:String>
     <sys:String x:Key="ConfirmClose_No">Minimize to Tray</sys:String>
 
+    <!-- Common dialog buttons -->
+    <sys:String x:Key="Common_OK">OK</sys:String>
+    <sys:String x:Key="Common_Cancel">Cancel</sys:String>
+
 </ResourceDictionary>

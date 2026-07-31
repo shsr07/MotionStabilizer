@@ -134,7 +134,6 @@ public partial class ClockPage : Page
     {
         if (_isLoading) return;
         App.ClockConfig.IsVisible = ToggleClock.IsChecked == true;
-        App.RefreshOverlay();
     }
 
     private void Format_Changed(object sender, RoutedEventArgs e)
@@ -143,7 +142,6 @@ public partial class ClockPage : Page
         if (RbFormat1.IsChecked == true) App.ClockConfig.Format = ClockFormat.HHmm;
         else if (RbFormat2.IsChecked == true) App.ClockConfig.Format = ClockFormat.HHmmss;
         else if (RbFormat3.IsChecked == true) App.ClockConfig.Format = ClockFormat.HhMmAmPm;
-        App.RefreshOverlay();
         UpdatePreview();
     }
 
@@ -153,7 +151,6 @@ public partial class ClockPage : Page
         if (CbFontFamily.SelectedItem is ComboBoxItem item)
         {
             App.ClockConfig.FontFamily = item.Content?.ToString() ?? "Outline";
-            App.RefreshOverlay();
             UpdatePreview();
         }
     }
@@ -163,7 +160,6 @@ public partial class ClockPage : Page
         if (_isLoading || FontSizeLabel == null) return;
         App.ClockConfig.FontSize = (int)SliderFontSize.Value;
         FontSizeLabel.Text = App.ClockConfig.FontSize.ToString();
-        App.RefreshOverlay();
         UpdatePreview();
     }
 
@@ -177,7 +173,6 @@ public partial class ClockPage : Page
         {
             App.ClockConfig.ColorHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
             BtnColor.Background = new SolidColorBrush(dialog.Color);
-            App.RefreshOverlay();
             UpdatePreview();
         }
     }
@@ -188,7 +183,6 @@ public partial class ClockPage : Page
         if (int.TryParse(TxtPosX.Text, out int x))
         {
             App.ClockConfig.PositionX = x;
-            App.RefreshOverlay();
         }
     }
 
@@ -198,7 +192,6 @@ public partial class ClockPage : Page
         if (int.TryParse(TxtPosY.Text, out int y))
         {
             App.ClockConfig.PositionY = y;
-            App.RefreshOverlay();
         }
     }
 
@@ -240,6 +233,5 @@ public partial class ClockPage : Page
         if (_isLoading || OpacityLabel == null) return;
         App.ClockConfig.Opacity = (int)SliderOpacity.Value;
         OpacityLabel.Text = App.ClockConfig.Opacity + "%";
-        App.RefreshOverlay();
     }
 }

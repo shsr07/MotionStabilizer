@@ -819,6 +819,34 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     // ── Win32 P/Invoke ──
 
     [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr w, int c);
+    // ── Timer resolution management (timeBeginPeriod tradeoff) ──────────
+    //
+    // timeBeginPeriod(1) is a **process-wide** Win32 call that requests 1 ms
+    // timer resolution from the OS. Without it, System.Threading.Timer fires
+    // at ~15.6 ms intervals, which is too coarse for 120 Hz motion animation.
+    //
+    // Known tradeoffs:
+    //   • Power: prevents the CPU from entering deep C-states, increasing
+    //     idle power consumption by ~1–2 W on typical desktop hardware.
+    //   • Scope: the resolution change affects the entire process, not just
+    //     our timer. This is acceptable since we are a single-purpose overlay.
+    //   • Windows 11 (2004+): SetProcessInformation with
+    //     PowerThrottlingIgnoreTimerResolution is also used (see
+    //     DisableBackgroundThrottling) to let the OS manage timer resolution
+    //     more intelligently on battery-powered devices.
+    //
+    // Mitigation strategy:
+    //   • timeBeginPeriod(1) is called ONLY when motion dots are actively
+    //     animating (velocity > threshold). When idle, timeEndPeriod(1) is
+    //     called to restore the default resolution.
+    //   • The Interlocked.Exchange pattern ensures thread-safe, paired
+    //     begin/end calls — no leaked timer resolutions.
+    //   • On Dispose(), StopTimer() guarantees timeEndPeriod(1) is called.
+    //
+    // This is a deliberate, documented tradeoff: the visual smoothness of
+    // motion sickness relief dots at high refresh rates (120–360 Hz) requires
+    // sub-15ms timer precision, which is only available via timeBeginPeriod.
+
     [DllImport("winmm.dll", EntryPoint = "timeBeginPeriod")] private static extern uint TimeBeginPeriod(uint p);
     [DllImport("winmm.dll", EntryPoint = "timeEndPeriod")] private static extern uint TimeEndPeriod(uint p);
 

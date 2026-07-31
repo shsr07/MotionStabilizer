@@ -10,7 +10,7 @@
     <AssemblyName>MotionStabilizer</AssemblyName>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <RootNamespace>MotionStabilizer</RootNamespace>
-    <Version>2.4.0</Version>
+    <Version>2.5.0</Version>
     <Company>3D Motion Stabilizer</Company>
     <Product>Motion Stabilizer</Product>
     <Description>Safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief</Description>
@@ -21,6 +21,10 @@
     <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
     <PackageReference Include="Vortice.DirectComposition" Version="3.8.3" />
     <PackageReference Include="Vortice.DXGI" Version="3.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="MotionStabilizer.Tests" />
   </ItemGroup>
 
 </Project>

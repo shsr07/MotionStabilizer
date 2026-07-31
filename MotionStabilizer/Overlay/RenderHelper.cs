@@ -144,13 +144,28 @@ public static class RenderHelper
 
     // ── Overlay shape builders ─────────────────────────────────────────
 
-    /// <summary>Build all shapes for the edge overlay within the given monitor area.</summary>
-    public static List<Shape> BuildOverlayShapes(OverlayConfig cfg, Rect monitorBounds, double dpiScale = 0)
+    /// <summary>
+    /// Build all shapes for the edge overlay within the given monitor area.
+    /// Shape dimensions (DIP at 96 DPI) are scaled by <paramref name="monDpiScale"/> /
+    /// <paramref name="windowScale"/> so they appear at the correct physical size on
+    /// the target monitor, regardless of the WPF window's own DPI.
+    /// </summary>
+    /// <param name="monitorBounds">Monitor bounds in canvas (window-DPI) coordinates.</param>
+    /// <param name="windowScale">DPI scale of the WPF overlay window (canvas coordinate system).</param>
+    /// <param name="monDpiScale">Per-monitor DPI scale of the target monitor.</param>
+    public static List<Shape> BuildOverlayShapes(OverlayConfig cfg, Rect monitorBounds,
+        double windowScale = 0, double monDpiScale = 0)
     {
         var shapes = new List<Shape>();
         var color = cfg.GetColor();
-        double sizePx = OverlayBarWidth(cfg.Size);
-        double lengthPx = LengthOffsetPx(cfg.Length);
+
+        // Scale shape dimensions from 96-DPI DIP to the monitor's physical size,
+        // expressed in canvas (window-DPI) DIP.
+        double dpiRatio = (windowScale > 0 && monDpiScale > 0)
+            ? monDpiScale / windowScale
+            : 1.0;
+        double sizePx = OverlayBarWidth(cfg.Size) * dpiRatio;
+        double lengthPx = LengthOffsetPx(cfg.Length) * dpiRatio;
 
         // Compute safe area within this monitor
         var safe = GetSafeArea(monitorBounds.Width, monitorBounds.Height, cfg.AspectRatio);
@@ -167,7 +182,8 @@ public static class RenderHelper
             var fwRect = Win32Interop.GetForegroundWindowRect();
             if (fwRect.HasValue)
             {
-                double scale = dpiScale > 0 ? dpiScale : Win32Interop.GetDpiScale();
+                // Convert foreground window rect to canvas (window-DPI) coordinates
+                double scale = windowScale > 0 ? windowScale : Win32Interop.GetDpiScale();
                 double vsX = Win32Interop.GetVirtualScreenX() / scale;
                 double vsY = Win32Interop.GetVirtualScreenY() / scale;
                 var r = fwRect.Value;
@@ -419,16 +435,28 @@ public static class RenderHelper
 
     // ── Crosshair shape builders ───────────────────────────────────────
 
-    /// <summary>Build all shapes for the crosshair within the given monitor area.</summary>
-    public static List<Shape> BuildCrosshairShapes(CrosshairConfig cfg, Rect monitorBounds, double dpiScale = 0)
+    /// <summary>
+    /// Build all shapes for the crosshair within the given monitor area.
+    /// Shape dimensions are scaled by <paramref name="monDpiScale"/> / <paramref name="windowScale"/>
+    /// for correct physical sizing on mixed-DPI multi-monitor setups.
+    /// </summary>
+    /// <param name="monitorBounds">Monitor bounds in canvas (window-DPI) coordinates.</param>
+    /// <param name="windowScale">DPI scale of the WPF overlay window.</param>
+    /// <param name="monDpiScale">Per-monitor DPI scale of the target monitor.</param>
+    public static List<Shape> BuildCrosshairShapes(CrosshairConfig cfg, Rect monitorBounds,
+        double windowScale = 0, double monDpiScale = 0)
     {
         var shapes = new List<Shape>();
         if (!cfg.IsVisible) return shapes;
 
         var color = cfg.GetColor();
         var brush = new SolidColorBrush(Color.FromArgb(OpacityToByte(cfg.Opacity), color.R, color.G, color.B));
-        double size = CrosshairSize(cfg.Size);
-        double thick = CrosshairThickness(cfg.Thickness);
+
+        double dpiRatio = (windowScale > 0 && monDpiScale > 0)
+            ? monDpiScale / windowScale
+            : 1.0;
+        double size = CrosshairSize(cfg.Size) * dpiRatio;
+        double thick = CrosshairThickness(cfg.Thickness) * dpiRatio;
 
         double monW = monitorBounds.Width;
         double monH = monitorBounds.Height;

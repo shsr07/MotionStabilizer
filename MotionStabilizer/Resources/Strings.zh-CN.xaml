@@ -197,4 +197,8 @@
     <sys:String x:Key="ConfirmClose_Yes">确定关闭</sys:String>
     <sys:String x:Key="ConfirmClose_No">最小化到托盘</sys:String>
 
+    <!-- Common dialog buttons -->
+    <sys:String x:Key="Common_OK">确定</sys:String>
+    <sys:String x:Key="Common_Cancel">取消</sys:String>
+
 </ResourceDictionary>

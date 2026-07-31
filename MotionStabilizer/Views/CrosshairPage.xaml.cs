@@ -82,7 +82,6 @@ public partial class CrosshairPage : Page
     {
         if (_isLoading) return;
         App.CrosshairConfig.IsVisible = ToggleCrosshair.IsChecked == true;
-        App.RefreshOverlay();
     }
 
     private void Shape_Click(object sender, RoutedEventArgs e)
@@ -92,14 +91,12 @@ public partial class CrosshairPage : Page
         else if (sender == BtnShapeCross) App.CrosshairConfig.Shape = CrosshairShape.Cross;
         else if (sender == BtnShapeDiamond) App.CrosshairConfig.Shape = CrosshairShape.Diamond;
         UpdateShapeSelection(App.CrosshairConfig.Shape);
-        App.RefreshOverlay();
     }
 
     private void AspectRatio_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_isLoading) return;
         App.CrosshairConfig.AspectRatio = (AspectRatio)CbAspectRatio.SelectedIndex;
-        App.RefreshOverlay();
     }
 
     private void Size_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -107,7 +104,6 @@ public partial class CrosshairPage : Page
         if (_isLoading || SizeLabel == null) return;
         App.CrosshairConfig.Size = (SizePreset)(int)SliderSize.Value;
         SizeLabel.Text = SizeToText(App.CrosshairConfig.Size);
-        App.RefreshOverlay();
     }
 
     private void Thickness_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -115,7 +111,6 @@ public partial class CrosshairPage : Page
         if (_isLoading || ThicknessLabel == null) return;
         App.CrosshairConfig.Thickness = (OffsetLevel)(int)SliderThickness.Value;
         ThicknessLabel.Text = "+" + (int)App.CrosshairConfig.Thickness;
-        App.RefreshOverlay();
     }
 
     private void PosX_Changed(object sender, TextChangedEventArgs e)
@@ -124,7 +119,6 @@ public partial class CrosshairPage : Page
         if (int.TryParse(TxtPosX.Text, out int x))
         {
             App.CrosshairConfig.PositionX = x;
-            App.RefreshOverlay();
         }
     }
 
@@ -134,7 +128,6 @@ public partial class CrosshairPage : Page
         if (int.TryParse(TxtPosY.Text, out int y))
         {
             App.CrosshairConfig.PositionY = y;
-            App.RefreshOverlay();
         }
     }
 
@@ -144,14 +137,12 @@ public partial class CrosshairPage : Page
         App.CrosshairConfig.PositionY = 0;
         TxtPosX.Text = "0";
         TxtPosY.Text = "0";
-        App.RefreshOverlay();
     }
 
     private void Split_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_isLoading) return;
         App.CrosshairConfig.Split = (SplitScreen)CbSplit.SelectedIndex;
-        App.RefreshOverlay();
     }
 
     private void Color_Click(object sender, RoutedEventArgs e)
@@ -161,7 +152,6 @@ public partial class CrosshairPage : Page
         else if (sender == SwatchGreen) App.CrosshairConfig.ColorPreset = ColorPreset.Green;
         else if (sender == SwatchBlue) App.CrosshairConfig.ColorPreset = ColorPreset.Blue;
         UpdateColorSelection(App.CrosshairConfig.ColorPreset);
-        App.RefreshOverlay();
     }
 
     private void CustomColor_Click(object sender, RoutedEventArgs e)
@@ -177,7 +167,6 @@ public partial class CrosshairPage : Page
             App.CrosshairConfig.CustomColorHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
             SwatchCustom.Background = new SolidColorBrush(dialog.Color);
             UpdateColorSelection(ColorPreset.Custom);
-            App.RefreshOverlay();
         }
     }
 
@@ -186,6 +175,5 @@ public partial class CrosshairPage : Page
         if (_isLoading || OpacityLabel == null) return;
         App.CrosshairConfig.Opacity = (int)SliderOpacity.Value;
         OpacityLabel.Text = App.CrosshairConfig.Opacity + "%";
-        App.RefreshOverlay();
     }
 }

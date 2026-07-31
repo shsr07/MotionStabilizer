@@ -10,7 +10,14 @@ namespace MotionStabilizer;
 
 /// <summary>
 /// Application entry point. Manages the overlay window, main settings window,
-/// hotkey manager, config manager, and system tray.
+/// hotkey manager, config store, and system tray.
+/// 
+/// Architecture: All config state lives in <see cref="Config"/> (a <see cref="ConfigStore"/>).
+/// Config objects implement <see cref="INotifyPropertyChanged"/>, so any property
+/// change automatically fires <see cref="ConfigStore.Changed"/>, which triggers
+/// <see cref="RefreshOverlay"/> and <see cref="ScheduleAutoSave"/>.
+/// Pages and hotkey handlers only need to set config properties — no explicit
+/// RefreshOverlay() calls are needed.
 /// </summary>
 public partial class App : Application
 {
@@ -18,12 +25,41 @@ public partial class App : Application
     public static HotkeyManager Hotkeys { get; } = new();
     public static ConfigManager ConfigMgr { get; } = new();
 
-    // Config state
-    public static OverlayConfig OverlayConfig { get; set; } = new();
-    public static CrosshairConfig CrosshairConfig { get; set; } = new();
-    public static ClockConfig ClockConfig { get; set; } = new();
-    public static HotkeyConfig HotkeyConfig { get; set; } = new();
-    public static AppConfig AppConfig { get; set; } = new();
+    // ── Config Store (single source of truth) ──
+    /// <summary>
+    /// Centralized config store. All config objects are observable — setting any
+    /// property automatically triggers overlay re-render and debounced auto-save.
+    /// </summary>
+    public static ConfigStore Config { get; } = new();
+
+    // ── Backward-compatible proxy properties (delegate to ConfigStore) ──
+    // These exist so that existing code using App.OverlayConfig etc. continues
+    // to work. New code should prefer App.Config.Overlay directly.
+    public static OverlayConfig OverlayConfig
+    {
+        get => Config.Overlay;
+        set => Config.Overlay = value;
+    }
+    public static CrosshairConfig CrosshairConfig
+    {
+        get => Config.Crosshair;
+        set => Config.Crosshair = value;
+    }
+    public static ClockConfig ClockConfig
+    {
+        get => Config.Clock;
+        set => Config.Clock = value;
+    }
+    public static HotkeyConfig HotkeyConfig
+    {
+        get => Config.Hotkeys;
+        set => Config.Hotkeys = value;
+    }
+    public static AppConfig AppConfig
+    {
+        get => Config.App;
+        set => Config.App = value;
+    }
 
     // Windows
     public static OverlayWindow? OverlayWin { get; private set; }
@@ -36,10 +72,8 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // ── Global exception handlers ──
-        // Catch unhandled UI thread exceptions
+        // ── Global exception Handlers ──
         DispatcherUnhandledException += App_DispatcherUnhandledException;
-        // Catch unhandled non-UI thread exceptions
         AppDomain.CurrentDomain.UnhandledException += AppDomain_UnhandledException;
 
         try
@@ -59,38 +93,36 @@ public partial class App : Application
 
     private void StartupInternal()
     {
+        // Subscribe to config changes: auto-refresh overlay + debounced auto-save
+        Config.Changed += OnConfigChanged;
+
         // Load saved configs
-        AppConfig = ConfigManager.LoadAppConfig();
-        HotkeyConfig = ConfigManager.LoadHotkeys();
+        Config.App = ConfigManager.LoadAppConfig();
+        Config.Hotkeys = ConfigManager.LoadHotkeys();
 
         // Try to load default profile
         var defaultProfile = ConfigManager.LoadProfile("Default");
         if (defaultProfile != null)
         {
-            OverlayConfig = defaultProfile.Overlay;
-            CrosshairConfig = defaultProfile.Crosshair;
-            ClockConfig = defaultProfile.Clock;
+            Config.ApplyProfile(defaultProfile);
         }
 
         // Apply language
-        ApplyLanguage(AppConfig.Language);
+        ApplyLanguage(Config.App.Language);
 
         // Create overlay window (invisible rendering layer)
-        // Wrapped in try-catch so overlay failure doesn't block the main window
         try
         {
             OverlayWin = new OverlayWindow();
             OverlayWin.Show();
-            OverlayWin.UpdateConfigs(OverlayConfig, CrosshairConfig, ClockConfig);
+            OverlayWin.UpdateConfigs(Config.Overlay, Config.Crosshair, Config.Clock);
         }
         catch (Exception ex)
         {
-            // Log but continue — the main window can still function
             System.Diagnostics.Debug.WriteLine($"Overlay window failed: {ex.Message}");
         }
 
-        // Create tray icon — always show it so the app is accessible
-        // even when the main window is hidden (minimized to tray)
+        // Create tray icon
         try
         {
             _tray = new TrayService();
@@ -105,7 +137,7 @@ public partial class App : Application
         MainWin = new MainWindow();
 
         // Apply saved UI scale
-        ApplyUIScale(AppConfig.Scale);
+        ApplyUIScale(Config.App.Scale);
 
         // Initialize hotkeys with the main window
         try
@@ -121,7 +153,7 @@ public partial class App : Application
         }
 
         // Show main window (or minimize to tray on first run)
-        if (AppConfig.MinimizeToTrayOnStart)
+        if (Config.App.MinimizeToTrayOnStart)
         {
             MainWin.Show();
             MainWin.Hide();
@@ -132,9 +164,17 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// Handler for ConfigStore.Changed: refreshes overlay and schedules auto-save.
+    /// Called automatically when any config property changes — no manual calls needed.
+    /// </summary>
+    private static void OnConfigChanged()
+    {
+        RefreshOverlay();
+    }
+
     private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        // Prevent the app from crashing on unhandled UI thread exceptions
         e.Handled = true;
         MessageBox.Show(
             $"发生未处理异常:\n\n{e.Exception.GetType().Name}: {e.Exception.Message}\n\n{e.Exception.StackTrace}",
@@ -159,9 +199,21 @@ public partial class App : Application
     public static void ApplyLanguage(Language lang)
     {
         var dict = Current.Resources.MergedDictionaries;
-        // Remove existing language dict (last one)
-        if (dict.Count > 1)
-            dict.RemoveAt(dict.Count - 1);
+        var langSource = lang == Language.English
+            ? "resources/strings.en-us.xaml"
+            : "resources/strings.zh-cn.xaml";
+
+        // Remove any existing language dictionary by matching its Source path
+        for (int i = dict.Count - 1; i >= 0; i--)
+        {
+            var src = dict[i].Source?.OriginalString;
+            if (src != null && src.Contains("strings.", StringComparison.OrdinalIgnoreCase)
+                && (src.Contains("en-us", StringComparison.OrdinalIgnoreCase)
+                    || src.Contains("zh-cn", StringComparison.OrdinalIgnoreCase)))
+            {
+                dict.RemoveAt(i);
+            }
+        }
 
         var langDict = new ResourceDictionary
         {
@@ -178,16 +230,19 @@ public partial class App : Application
     {
         Hotkeys.UnregisterAll();
 
-        var hk = HotkeyConfig;
-        Hotkeys.Register(hk.ToggleOverlay, () => { OverlayConfig.IsVisible = !OverlayConfig.IsVisible; RefreshOverlay(); });
-        Hotkeys.Register(hk.ToggleCrosshair, () => { CrosshairConfig.IsVisible = !CrosshairConfig.IsVisible; RefreshOverlay(); });
-        Hotkeys.Register(hk.ToggleClock, () => { ClockConfig.IsVisible = !ClockConfig.IsVisible; RefreshOverlay(); });
-        Hotkeys.Register(hk.CycleDisplayMode, () => { OverlayConfig.Mode = OverlayConfig.Mode == DisplayMode.Window ? DisplayMode.Stretch : DisplayMode.Window; RefreshOverlay(); });
+        var hk = Config.Hotkeys;
+        // Note: No explicit RefreshOverlay() calls needed here — setting any
+        // config property fires ConfigStore.Changed, which automatically
+        // triggers overlay re-render and debounced auto-save.
+        Hotkeys.Register(hk.ToggleOverlay, () => { OverlayConfig.IsVisible = !OverlayConfig.IsVisible; });
+        Hotkeys.Register(hk.ToggleCrosshair, () => { CrosshairConfig.IsVisible = !CrosshairConfig.IsVisible; });
+        Hotkeys.Register(hk.ToggleClock, () => { ClockConfig.IsVisible = !ClockConfig.IsVisible; });
+        Hotkeys.Register(hk.CycleDisplayMode, () => { OverlayConfig.Mode = OverlayConfig.Mode == DisplayMode.Window ? DisplayMode.Stretch : DisplayMode.Window; });
         Hotkeys.Register(hk.CycleSplitScreen, CycleSplitScreen);
-        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 4); RefreshOverlay(); });
-        Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); RefreshOverlay(); });
+        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 4); });
+        Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); });
         Hotkeys.Register(hk.CycleAspectRatio, CycleAspectRatio);
-        Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); RefreshOverlay(); });
+        Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); });
         Hotkeys.Register(hk.ColorRed, () => SetColor(ColorPreset.Red));
         Hotkeys.Register(hk.ColorGreen, () => SetColor(ColorPreset.Green));
         Hotkeys.Register(hk.ColorBlue, () => SetColor(ColorPreset.Blue));
@@ -207,7 +262,6 @@ public partial class App : Application
             cc.Split = cc.Split == SplitScreen.None ? SplitScreen.Vertical :
                        cc.Split == SplitScreen.Vertical ? SplitScreen.Horizontal : SplitScreen.None;
         }
-        RefreshOverlay();
     }
 
     private void CycleAspectRatio()
@@ -217,21 +271,22 @@ public partial class App : Application
             oc.AspectRatio = (AspectRatio)(((int)oc.AspectRatio + 1) % 4);
         else if (cfg is CrosshairConfig cc)
             cc.AspectRatio = (AspectRatio)(((int)cc.AspectRatio + 1) % 4);
-        RefreshOverlay();
     }
 
     private void SetColor(ColorPreset color)
     {
-        // Set color on both overlay and crosshair
         OverlayConfig.ColorPreset = color;
         CrosshairConfig.ColorPreset = color;
-        RefreshOverlay();
     }
 
-    /// <summary>Refresh the overlay window with current configs.</summary>
+    /// <summary>
+    /// Refresh the overlay window with current configs and schedule auto-save.
+    /// Called automatically by <see cref="ConfigStore.Changed"/> — pages and
+    /// hotkey handlers no longer need to call this explicitly.
+    /// </summary>
     public static void RefreshOverlay()
     {
-        OverlayWin?.UpdateConfigs(OverlayConfig, CrosshairConfig, ClockConfig);
+        OverlayWin?.UpdateConfigs(Config.Overlay, Config.Crosshair, Config.Clock);
         ScheduleAutoSave();
     }
 
@@ -239,6 +294,9 @@ public partial class App : Application
     private static DispatcherTimer? _autoSaveTimer;
     private static void ScheduleAutoSave()
     {
+        // Respect the user's AutoSaveOnClose setting — if disabled, don't auto-save on changes
+        if (!Config.App.AutoSaveOnClose) return;
+
         if (_autoSaveTimer == null)
         {
             _autoSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
@@ -248,9 +306,9 @@ public partial class App : Application
                 ConfigManager.SaveProfile(new ProfileData
                 {
                     ProfileName = "Default",
-                    Overlay = OverlayConfig,
-                    Crosshair = CrosshairConfig,
-                    Clock = ClockConfig
+                    Overlay = Config.Overlay,
+                    Crosshair = Config.Crosshair,
+                    Clock = Config.Clock
                 });
             };
         }
@@ -287,34 +345,31 @@ public partial class App : Application
     /// </summary>
     public void ResetAllDefaults()
     {
-        // Reset all config objects to fresh defaults
-        AppConfig = new AppConfig();
-        HotkeyConfig = new HotkeyConfig();
-        OverlayConfig = new OverlayConfig();
-        CrosshairConfig = new CrosshairConfig();
-        ClockConfig = new ClockConfig();
+        // Reset all config objects to fresh defaults via ConfigStore
+        Config.ResetToDefaults();
 
         // Persist to disk
-        ConfigManager.SaveAppConfig(AppConfig);
-        ConfigManager.SaveHotkeys(HotkeyConfig);
+        ConfigManager.SaveAppConfig(Config.App);
+        ConfigManager.SaveHotkeys(Config.Hotkeys);
         ConfigManager.SaveProfile(new ProfileData
         {
             ProfileName = "Default",
-            Overlay = OverlayConfig,
-            Crosshair = CrosshairConfig,
-            Clock = ClockConfig
+            Overlay = Config.Overlay,
+            Crosshair = Config.Crosshair,
+            Clock = Config.Clock
         });
 
         // Apply language (may have changed)
-        ApplyLanguage(AppConfig.Language);
+        ApplyLanguage(Config.App.Language);
 
         // Apply UI scale (may have changed)
-        ApplyUIScale(AppConfig.Scale);
+        ApplyUIScale(Config.App.Scale);
 
         // Re-register hotkeys with new defaults
         RegisterAllHotkeys();
 
-        // Refresh overlay rendering
+        // Refresh overlay rendering (also triggered by ConfigStore.Changed,
+        // but called here to ensure immediate refresh before UI notification)
         RefreshOverlay();
 
         // Notify all pages to refresh their UI
@@ -353,20 +408,23 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Unsubscribe from config changes
+        Config.Changed -= OnConfigChanged;
+
         // Always reset keyboard motion control on exit for safety
-        OverlayConfig.MotionKeyboardEnabled = false;
+        Config.Overlay.MotionKeyboardEnabled = false;
 
         // Auto-save if enabled
-        if (AppConfig.AutoSaveOnClose)
+        if (Config.App.AutoSaveOnClose)
         {
-            ConfigManager.SaveAppConfig(AppConfig);
-            ConfigManager.SaveHotkeys(HotkeyConfig);
+            ConfigManager.SaveAppConfig(Config.App);
+            ConfigManager.SaveHotkeys(Config.Hotkeys);
             ConfigManager.SaveProfile(new ProfileData
             {
                 ProfileName = "Default",
-                Overlay = OverlayConfig,
-                Crosshair = CrosshairConfig,
-                Clock = ClockConfig
+                Overlay = Config.Overlay,
+                Crosshair = Config.Crosshair,
+                Clock = Config.Clock
             });
         }
 

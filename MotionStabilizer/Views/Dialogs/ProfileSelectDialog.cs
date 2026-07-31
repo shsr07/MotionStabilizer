@@ -103,7 +103,7 @@ public class ProfileSelectDialog : Window
         var secondaryStyle = this.TryFindResource("SecondaryButton") as Style;
         var btnCancel = new Button
         {
-            Content = "Cancel",
+            Content = (string)System.Windows.Application.Current.TryFindResource("Common_Cancel") ?? "Cancel",
             FontFamily = new FontFamily(FontFam),
             Width = 80,
             Height = 36,

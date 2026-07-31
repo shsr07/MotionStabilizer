@@ -10,7 +10,7 @@
         ShowActivated="False"
         ResizeMode="NoResize"
         WindowStartupLocation="Manual"
-        Width="1920" Height="1080"
+        Width="1" Height="1"
         Left="0" Top="0">
     <Canvas x:Name="OverlayCanvas" Background="Transparent" />
 </Window>

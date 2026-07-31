@@ -36,22 +36,15 @@
                       ShadowDepth="0"
                       Opacity="1" />
 
-    <!-- ═══════════════ Base Styles ═══════════════ -->
+    <!-- ═══════════════ Shared Font Family ═══════════════ -->
+    <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI, Microsoft YaHei UI</FontFamily>
 
-    <Style TargetType="Window" x:Key="MainWindowStyle">
-        <Setter Property="Background" Value="{StaticResource BrushBgDark}" />
-        <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
-        <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="WindowStyle" Value="None" />
-        <Setter Property="AllowsTransparency" Value="True" />
-        <Setter Property="ResizeMode" Value="CanResize" />
-    </Style>
+    <!-- ═══════════════ Base Styles ═══════════════ -->
 
     <Style TargetType="Page">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
-        <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
@@ -197,7 +190,7 @@
     <Style TargetType="ComboBox">
         <Setter Property="Background" Value="{StaticResource BrushBgCard}" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
-        <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="12,8" />
@@ -369,7 +362,7 @@
     <Style TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource BrushBgCard}" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
-        <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="6,4" />
@@ -403,7 +396,7 @@
     <Style TargetType="ComboBoxItem">
         <Setter Property="Background" Value="{StaticResource BrushBgCard}" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
-        <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="Padding" Value="12,8" />
         <Setter Property="Cursor" Value="Hand" />

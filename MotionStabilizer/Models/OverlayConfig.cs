@@ -5,30 +5,69 @@ namespace MotionStabilizer.Models;
 
 /// <summary>
 /// Configuration for the edge overlay (边缘叠加).
+/// Implements <see cref="INotifyPropertyChanged"/> via <see cref="ObservableObject"/>
+/// so that the <see cref="ConfigStore"/> and overlay renderer are automatically
+/// notified when any property changes.
 /// </summary>
-public class OverlayConfig
+public class OverlayConfig : ObservableObject
 {
-    public bool IsVisible { get; set; } = false;
-    public OverlayShape Shape { get; set; } = OverlayShape.Box;
-    public AspectRatio AspectRatio { get; set; } = AspectRatio.Ratio16x9;
-    public SizePreset Size { get; set; } = SizePreset.M;
-    public OffsetLevel Length { get; set; } = OffsetLevel.Plus0;
-    public DisplayMode Mode { get; set; } = DisplayMode.Stretch;
-    public SplitScreen Split { get; set; } = SplitScreen.None;
-    public ColorPreset ColorPreset { get; set; } = ColorPreset.Green;
-    public string CustomColorHex { get; set; } = "#00FF00";
-    public int Opacity { get; set; } = 60;
+    private bool _isVisible = false;
+    private OverlayShape _shape = OverlayShape.Box;
+    private AspectRatio _aspectRatio = AspectRatio.Ratio16x9;
+    private SizePreset _size = SizePreset.M;
+    private OffsetLevel _length = OffsetLevel.Plus0;
+    private DisplayMode _mode = DisplayMode.Stretch;
+    private SplitScreen _split = SplitScreen.None;
+    private ColorPreset _colorPreset = ColorPreset.Green;
+    private string _customColorHex = "#00FF00";
+    private int _opacity = 60;
 
     // ── Per-edge visibility & opacity ──
-    public EdgeOpacityMode OpacityMode { get; set; } = EdgeOpacityMode.Uniform;
-    public bool EdgeTopVisible { get; set; } = true;
-    public bool EdgeBottomVisible { get; set; } = true;
-    public bool EdgeLeftVisible { get; set; } = true;
-    public bool EdgeRightVisible { get; set; } = true;
-    public int EdgeTopOpacity { get; set; } = 60;
-    public int EdgeBottomOpacity { get; set; } = 60;
-    public int EdgeLeftOpacity { get; set; } = 60;
-    public int EdgeRightOpacity { get; set; } = 60;
+    private EdgeOpacityMode _opacityMode = EdgeOpacityMode.Uniform;
+    private bool _edgeTopVisible = true;
+    private bool _edgeBottomVisible = true;
+    private bool _edgeLeftVisible = true;
+    private bool _edgeRightVisible = true;
+    private int _edgeTopOpacity = 60;
+    private int _edgeBottomOpacity = 60;
+    private int _edgeLeftOpacity = 60;
+    private int _edgeRightOpacity = 60;
+
+    // ── Dynamic motion cue settings (MotionDots shape) ──
+    private bool _motionKeyboardEnabled = false;
+    private int _motionDotCount = 6;
+    private int _motionDotColumns = 2;
+    private double _motionDotSpacingV = 1.0;
+    private double _motionDotSpacingH = 0.7;
+    private double _motionSensitivity = 1.5;
+    private double _motionKeyboardSensitivity = 1.0;
+    private int _motionReturnMs = 260;
+    private int _motionRefreshRate = 120;
+    private bool _motionInverted = false;
+    private bool _motionParallaxScale = true;
+    private double _motionParallaxAmount = 0.8;
+
+    public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
+    public OverlayShape Shape { get => _shape; set => SetProperty(ref _shape, value); }
+    public AspectRatio AspectRatio { get => _aspectRatio; set => SetProperty(ref _aspectRatio, value); }
+    public SizePreset Size { get => _size; set => SetProperty(ref _size, value); }
+    public OffsetLevel Length { get => _length; set => SetProperty(ref _length, value); }
+    public DisplayMode Mode { get => _mode; set => SetProperty(ref _mode, value); }
+    public SplitScreen Split { get => _split; set => SetProperty(ref _split, value); }
+    public ColorPreset ColorPreset { get => _colorPreset; set => SetProperty(ref _colorPreset, value); }
+    public string CustomColorHex { get => _customColorHex; set => SetProperty(ref _customColorHex, value); }
+    public int Opacity { get => _opacity; set => SetProperty(ref _opacity, value); }
+
+    // ── Per-edge visibility & opacity ──
+    public EdgeOpacityMode OpacityMode { get => _opacityMode; set => SetProperty(ref _opacityMode, value); }
+    public bool EdgeTopVisible { get => _edgeTopVisible; set => SetProperty(ref _edgeTopVisible, value); }
+    public bool EdgeBottomVisible { get => _edgeBottomVisible; set => SetProperty(ref _edgeBottomVisible, value); }
+    public bool EdgeLeftVisible { get => _edgeLeftVisible; set => SetProperty(ref _edgeLeftVisible, value); }
+    public bool EdgeRightVisible { get => _edgeRightVisible; set => SetProperty(ref _edgeRightVisible, value); }
+    public int EdgeTopOpacity { get => _edgeTopOpacity; set => SetProperty(ref _edgeTopOpacity, value); }
+    public int EdgeBottomOpacity { get => _edgeBottomOpacity; set => SetProperty(ref _edgeBottomOpacity, value); }
+    public int EdgeLeftOpacity { get => _edgeLeftOpacity; set => SetProperty(ref _edgeLeftOpacity, value); }
+    public int EdgeRightOpacity { get => _edgeRightOpacity; set => SetProperty(ref _edgeRightOpacity, value); }
 
     // ── Dynamic motion cue settings (MotionDots shape) ──
     /// <summary>
@@ -37,18 +76,18 @@ public class OverlayConfig
     /// re-confirmed after every restart, so a crash can never leave it enabled.
     /// </summary>
     [JsonIgnore]
-    public bool MotionKeyboardEnabled { get; set; } = false;
-    public int MotionDotCount { get; set; } = 6;
-    public int MotionDotColumns { get; set; } = 2;
-    public double MotionDotSpacingV { get; set; } = 1.0;
-    public double MotionDotSpacingH { get; set; } = 0.7;
-    public double MotionSensitivity { get; set; } = 1.5;
-    public double MotionKeyboardSensitivity { get; set; } = 1.0;
-    public int MotionReturnMs { get; set; } = 260;
-    public int MotionRefreshRate { get; set; } = 120;
-    public bool MotionInverted { get; set; } = false;
-    public bool MotionParallaxScale { get; set; } = true;
-    public double MotionParallaxAmount { get; set; } = 0.8;
+    public bool MotionKeyboardEnabled { get => _motionKeyboardEnabled; set => SetProperty(ref _motionKeyboardEnabled, value); }
+    public int MotionDotCount { get => _motionDotCount; set => SetProperty(ref _motionDotCount, value); }
+    public int MotionDotColumns { get => _motionDotColumns; set => SetProperty(ref _motionDotColumns, value); }
+    public double MotionDotSpacingV { get => _motionDotSpacingV; set => SetProperty(ref _motionDotSpacingV, value); }
+    public double MotionDotSpacingH { get => _motionDotSpacingH; set => SetProperty(ref _motionDotSpacingH, value); }
+    public double MotionSensitivity { get => _motionSensitivity; set => SetProperty(ref _motionSensitivity, value); }
+    public double MotionKeyboardSensitivity { get => _motionKeyboardSensitivity; set => SetProperty(ref _motionKeyboardSensitivity, value); }
+    public int MotionReturnMs { get => _motionReturnMs; set => SetProperty(ref _motionReturnMs, value); }
+    public int MotionRefreshRate { get => _motionRefreshRate; set => SetProperty(ref _motionRefreshRate, value); }
+    public bool MotionInverted { get => _motionInverted; set => SetProperty(ref _motionInverted, value); }
+    public bool MotionParallaxScale { get => _motionParallaxScale; set => SetProperty(ref _motionParallaxScale, value); }
+    public double MotionParallaxAmount { get => _motionParallaxAmount; set => SetProperty(ref _motionParallaxAmount, value); }
 
     /// <summary>Returns the actual Color based on preset or custom value.</summary>
     public Color GetColor()

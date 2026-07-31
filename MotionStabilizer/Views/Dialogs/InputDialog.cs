@@ -83,7 +83,7 @@ public class InputDialog : Window
         var primaryStyle = this.TryFindResource("PrimaryButton") as Style;
         var btnOk = new Button
         {
-            Content = "OK",
+            Content = (string)System.Windows.Application.Current.TryFindResource("Common_OK") ?? "OK",
             FontFamily = new FontFamily(FontFam),
             Width = 80,
             Height = 36,
@@ -96,7 +96,7 @@ public class InputDialog : Window
         var secondaryStyle = this.TryFindResource("SecondaryButton") as Style;
         var btnCancel = new Button
         {
-            Content = "Cancel",
+            Content = (string)System.Windows.Application.Current.TryFindResource("Common_Cancel") ?? "Cancel",
             FontFamily = new FontFamily(FontFam),
             Width = 80,
             Height = 36,

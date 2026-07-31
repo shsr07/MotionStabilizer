@@ -142,7 +142,6 @@ public partial class OverlayPage : Page
     {
         if (_isLoading) return;
         App.OverlayConfig.IsVisible = ToggleOverlay.IsChecked == true;
-        App.RefreshOverlay();
     }
 
     private void Shape_Click(object sender, RoutedEventArgs e)
@@ -159,7 +158,6 @@ public partial class OverlayPage : Page
         ChkEdgeBottom.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
         // In per-edge opacity mode, hide Top/Bottom sliders for MotionDots
         UpdateOpacityPanels();
-        App.RefreshOverlay();
     }
 
     private void MotionDotColumns_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -167,7 +165,6 @@ public partial class OverlayPage : Page
         if (_isLoading || MotionDotColumnsLabel == null) return;
         App.OverlayConfig.MotionDotColumns = (int)SliderMotionDotColumns.Value;
         MotionDotColumnsLabel.Text = App.OverlayConfig.MotionDotColumns.ToString();
-        App.RefreshOverlay();
     }
 
     private void MotionDotSpacingV_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -175,7 +172,6 @@ public partial class OverlayPage : Page
         if (_isLoading || MotionDotSpacingVLabel == null) return;
         App.OverlayConfig.MotionDotSpacingV = Math.Round(SliderMotionDotSpacingV.Value, 1);
         MotionDotSpacingVLabel.Text = App.OverlayConfig.MotionDotSpacingV.ToString("0.0") + "x";
-        App.RefreshOverlay();
     }
 
     private void MotionDotSpacingH_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -183,7 +179,6 @@ public partial class OverlayPage : Page
         if (_isLoading || MotionDotSpacingHLabel == null) return;
         App.OverlayConfig.MotionDotSpacingH = Math.Round(SliderMotionDotSpacingH.Value, 1);
         MotionDotSpacingHLabel.Text = App.OverlayConfig.MotionDotSpacingH.ToString("0.0") + "x";
-        App.RefreshOverlay();
     }
 
     private void MotionSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -191,7 +186,6 @@ public partial class OverlayPage : Page
         if (_isLoading || MotionSensitivityLabel == null) return;
         App.OverlayConfig.MotionSensitivity = Math.Round(SliderMotionSensitivity.Value, 1);
         MotionSensitivityLabel.Text = App.OverlayConfig.MotionSensitivity.ToString("0.0") + "x";
-        App.RefreshOverlay();
     }
 
     private void MotionKeyboardSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -199,7 +193,6 @@ public partial class OverlayPage : Page
         if (_isLoading || MotionKeyboardSensitivityLabel == null) return;
         App.OverlayConfig.MotionKeyboardSensitivity = Math.Round(SliderMotionKeyboardSensitivity.Value, 1);
         MotionKeyboardSensitivityLabel.Text = App.OverlayConfig.MotionKeyboardSensitivity.ToString("0.0") + "x";
-        App.RefreshOverlay();
     }
 
     private void MotionRefreshRate_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -207,7 +200,6 @@ public partial class OverlayPage : Page
         if (_isLoading || MotionRefreshRateLabel == null) return;
         App.OverlayConfig.MotionRefreshRate = (int)SliderMotionRefreshRate.Value;
         MotionRefreshRateLabel.Text = App.OverlayConfig.MotionRefreshRate + " Hz";
-        App.RefreshOverlay();
     }
 
     private void MotionKeyboard_Changed(object sender, RoutedEventArgs e)
@@ -238,14 +230,12 @@ public partial class OverlayPage : Page
 
         App.OverlayConfig.MotionKeyboardEnabled = wantEnabled;
         PanelKeyboardSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
-        App.RefreshOverlay();
     }
 
     private void MotionInverted_Changed(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;
         App.OverlayConfig.MotionInverted = ChkMotionInverted.IsChecked == true;
-        App.RefreshOverlay();
     }
 
     private void MotionParallax_Changed(object sender, RoutedEventArgs e)
@@ -253,7 +243,6 @@ public partial class OverlayPage : Page
         if (_isLoading) return;
         App.OverlayConfig.MotionParallaxScale = ChkMotionParallax.IsChecked == true;
         PanelParallaxAmount.Visibility = App.OverlayConfig.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
-        App.RefreshOverlay();
     }
 
     private void MotionParallaxAmount_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -262,14 +251,12 @@ public partial class OverlayPage : Page
         int pct = (int)SliderMotionParallaxAmount.Value;
         App.OverlayConfig.MotionParallaxAmount = pct / 100.0;
         MotionParallaxAmountLabel.Text = pct + "%";
-        App.RefreshOverlay();
     }
 
     private void AspectRatio_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_isLoading) return;
         App.OverlayConfig.AspectRatio = (AspectRatio)CbAspectRatio.SelectedIndex;
-        App.RefreshOverlay();
     }
 
     private void Size_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -277,7 +264,6 @@ public partial class OverlayPage : Page
         if (_isLoading || SizeLabel == null) return;
         App.OverlayConfig.Size = (SizePreset)(int)SliderSize.Value;
         SizeLabel.Text = SizeToText(App.OverlayConfig.Size);
-        App.RefreshOverlay();
     }
 
     private void Length_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -285,21 +271,18 @@ public partial class OverlayPage : Page
         if (_isLoading || LengthLabel == null) return;
         App.OverlayConfig.Length = (OffsetLevel)(int)SliderLength.Value;
         LengthLabel.Text = "+" + (int)App.OverlayConfig.Length;
-        App.RefreshOverlay();
     }
 
     private void DisplayMode_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_isLoading) return;
         App.OverlayConfig.Mode = (DisplayMode)CbDisplayMode.SelectedIndex;
-        App.RefreshOverlay();
     }
 
     private void Split_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_isLoading) return;
         App.OverlayConfig.Split = (SplitScreen)CbSplit.SelectedIndex;
-        App.RefreshOverlay();
     }
 
     private void Color_Click(object sender, RoutedEventArgs e)
@@ -309,7 +292,6 @@ public partial class OverlayPage : Page
         else if (sender == SwatchGreen) App.OverlayConfig.ColorPreset = ColorPreset.Green;
         else if (sender == SwatchBlue) App.OverlayConfig.ColorPreset = ColorPreset.Blue;
         UpdateColorSelection(App.OverlayConfig.ColorPreset);
-        App.RefreshOverlay();
     }
 
     private void CustomColor_Click(object sender, RoutedEventArgs e)
@@ -325,7 +307,6 @@ public partial class OverlayPage : Page
             App.OverlayConfig.CustomColorHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
             SwatchCustom.Background = new SolidColorBrush(dialog.Color);
             UpdateColorSelection(ColorPreset.Custom);
-            App.RefreshOverlay();
         }
     }
 
@@ -334,7 +315,6 @@ public partial class OverlayPage : Page
         if (_isLoading || OpacityLabel == null) return;
         App.OverlayConfig.Opacity = (int)SliderOpacity.Value;
         OpacityLabel.Text = App.OverlayConfig.Opacity + "%";
-        App.RefreshOverlay();
     }
 
     private void UpdateOpacityPanels()
@@ -373,7 +353,6 @@ public partial class OverlayPage : Page
         cfg.EdgeBottomVisible = ChkEdgeBottom.IsChecked == true;
         cfg.EdgeLeftVisible = ChkEdgeLeft.IsChecked == true;
         cfg.EdgeRightVisible = ChkEdgeRight.IsChecked == true;
-        App.RefreshOverlay();
     }
 
     private void OpacityMode_Changed(object sender, SelectionChangedEventArgs e)
@@ -381,7 +360,6 @@ public partial class OverlayPage : Page
         if (_isLoading) return;
         App.OverlayConfig.OpacityMode = (EdgeOpacityMode)CbOpacityMode.SelectedIndex;
         UpdateOpacityPanels();
-        App.RefreshOverlay();
     }
 
     private void EdgeOpacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -408,6 +386,5 @@ public partial class OverlayPage : Page
             cfg.EdgeRightOpacity = (int)SliderOpacityRight.Value;
             OpacityRightLabel.Text = cfg.EdgeRightOpacity + "%";
         }
-        App.RefreshOverlay();
     }
 }

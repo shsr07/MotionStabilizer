@@ -7,7 +7,7 @@ namespace MotionStabilizer.Services;
 /// This is a PURE EXTERNAL approach — no DLL injection, no process modification.
 /// The overlay simply draws on top using a transparent topmost window.
 /// </summary>
-internal static class Win32Interop
+public static class Win32Interop
 {
     #region Window Styles
 

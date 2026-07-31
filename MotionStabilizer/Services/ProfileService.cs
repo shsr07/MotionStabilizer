@@ -26,9 +26,9 @@ public static class ProfileService
             var profile = new ProfileData
             {
                 ProfileName = dialog.InputText,
-                Overlay = App.OverlayConfig,
-                Crosshair = App.CrosshairConfig,
-                Clock = App.ClockConfig
+                Overlay = App.Config.Overlay,
+                Crosshair = App.Config.Crosshair,
+                Clock = App.Config.Clock
             };
             ConfigManager.SaveProfile(profile);
         }
@@ -48,9 +48,9 @@ public static class ProfileService
             var profile = ConfigManager.LoadProfile(dialog.SelectedProfile);
             if (profile != null)
             {
-                App.OverlayConfig = profile.Overlay;
-                App.CrosshairConfig = profile.Crosshair;
-                App.ClockConfig = profile.Clock;
+                // ConfigStore.ApplyProfile replaces the config objects and fires
+                // Changed events, which automatically triggers RefreshOverlay + AutoSave.
+                App.Config.ApplyProfile(profile);
                 App.MainWin?.NotifyConfigChanged();
             }
         }
