@@ -13,7 +13,6 @@ obj/
 
 ## Visual Studio IDE
 .vs/
-*.sln.docstates
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
@@ -38,6 +37,7 @@ bld/
 
 ## Publish
 publish/
+publish-v*/
 *.[Pp]ublish.xml
 *.azurePubxml
 *.pubxml
@@ -63,17 +63,9 @@ PublishProfiles/
 ehthumbs.db
 Thumbs.db
 
-## Release zip
+## Release artifacts
 *.zip
 MotionStabilizer-v*.zip
 
-## Design docs & screenshots originals
-演示图/
-演示/
-视频/
-视频(禁止上传GitHub)/
-以往版本/
-具体页面设计与视觉呈现方案.txt
-
-## Publish output
-publish-v*/
+## Private / do-not-upload directory
+禁止上传到GitHub/
