@@ -177,7 +177,7 @@
 
     <!-- About -->
     <sys:String x:Key="About_Title">About</sys:String>
-    <sys:String x:Key="About_Version">Motion Stabilizer v2.4.0</sys:String>
+    <sys:String x:Key="About_Version">Motion Stabilizer v2.5.0</sys:String>
     <sys:String x:Key="About_Desc">A safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief.</sys:String>
     <sys:String x:Key="About_Feature1">✓ Pure external desktop overlay — no DLL injection</sys:String>
     <sys:String x:Key="About_Feature2">✓ Safe under all anti-cheat systems (Vanguard, EAC, BattlEye)</sys:String>
