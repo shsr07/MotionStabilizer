@@ -80,7 +80,6 @@
 >
 > 验证方式 / Verify:
 > - Windows: `certutil -hashfile MotionStabilizer-v2.5.0-win-x64.zip SHA256`
-> - Linux/macOS: `sha256sum MotionStabilizer-v2.5.0-win-x64.zip`
 
 ### 方式二：从源码构建 / Build from Source
 
