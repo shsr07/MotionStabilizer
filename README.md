@@ -10,20 +10,20 @@
 
 <table>
   <tr>
-    <td align="center"><b>中心准星 / Crosshair</b></td>
     <td align="center"><b>边缘叠加 / Edge Overlay</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/中心准星界面.png" width="480" alt="中心准星界面" /></td>
-    <td><img src="docs/screenshots/边缘叠加界面.jpg" width="480" alt="边缘叠加界面" /></td>
-  </tr>
-  <tr>
-    <td align="center"><b>悬浮时钟 / Floating Clock</b></td>
     <td align="center"><b>游戏实测 / In-Game Test</b></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/悬浮时钟界面.png" width="480" alt="悬浮时钟界面" /></td>
+    <td><img src="docs/screenshots/边缘叠加界面.jpg" width="480" alt="边缘叠加界面" /></td>
     <td><img src="docs/screenshots/运行测试画面.gif" width="480" alt="游戏测试截图" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>中心准星 / Crosshair</b></td>
+    <td align="center"><b>悬浮时钟 / Floating Clock</b></td>  
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/中心准星界面.png" width="480" alt="中心准星界面" /></td>
+    <td><img src="docs/screenshots/悬浮时钟界面.png" width="480" alt="悬浮时钟界面" /></td>
   </tr>
 </table>
 
