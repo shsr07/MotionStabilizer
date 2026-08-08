@@ -14,6 +14,7 @@ public class AppConfig : ObservableObject
     // UI customization
     private UIScale _scale = UIScale.Auto;
     private Language _language = Language.Chinese;
+    private string _targetMonitor = "";
 
     public bool MinimizeToTrayOnStart { get => _minimizeToTrayOnStart; set => SetProperty(ref _minimizeToTrayOnStart, value); }
     public bool AutoSaveOnClose { get => _autoSaveOnClose; set => SetProperty(ref _autoSaveOnClose, value); }
@@ -21,6 +22,11 @@ public class AppConfig : ObservableObject
 
     public UIScale Scale { get => _scale; set => SetProperty(ref _scale, value); }
     public Language Language { get => _language; set => SetProperty(ref _language, value); }
+
+    /// <summary>
+    /// Device name of the monitor to render overlays on. Empty means all monitors.
+    /// </summary>
+    public string TargetMonitor { get => _targetMonitor; set => SetProperty(ref _targetMonitor, value); }
 }
 
 /// <summary>

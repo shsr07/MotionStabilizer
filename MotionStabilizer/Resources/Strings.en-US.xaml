@@ -155,6 +155,9 @@
     <sys:String x:Key="Options_UICard">Interface</sys:String>
     <sys:String x:Key="Options_UIScale">UI Scale</sys:String>
     <sys:String x:Key="Options_Language">Language</sys:String>
+    <sys:String x:Key="Options_TargetMonitor">Target Monitor</sys:String>
+    <sys:String x:Key="Options_TargetMonitorAll">All Monitors</sys:String>
+    <sys:String x:Key="Options_MonitorLabel">Monitor {0} ({1}x{2})</sys:String>
     <sys:String x:Key="Options_ProfileCard">Profiles</sys:String>
     <sys:String x:Key="Options_ProfileDesc">Save and load overlay / crosshair / clock settings as named profiles. Hotkeys are not included.</sys:String>
     <sys:String x:Key="Options_SaveProfile">Save Profile</sys:String>

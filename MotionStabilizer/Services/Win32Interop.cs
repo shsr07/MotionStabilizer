@@ -200,9 +200,31 @@ public static class Win32Interop
         {
             var b = screen.Bounds;
             double dpiScale = GetDpiScaleForRect(b.X, b.Y, b.Right, b.Bottom);
-            monitors.Add(new MonitorInfo(b.X, b.Y, b.Width, b.Height, dpiScale));
+            monitors.Add(new MonitorInfo(screen.DeviceName, b.X, b.Y, b.Width, b.Height, dpiScale));
         }
         return monitors;
+    }
+
+    /// <summary>
+    /// Returns all monitors, or only the monitor whose device name matches
+    /// <paramref name="targetDeviceName"/>. Falls back to all monitors when the
+    /// target is not found (e.g. after a display was disconnected).
+    /// </summary>
+    public static List<MonitorInfo> GetTargetMonitors(string? targetDeviceName)
+        => SelectTargetMonitors(GetAllMonitors(), targetDeviceName);
+
+    /// <summary>Pure monitor filtering used by <see cref="GetTargetMonitors"/>.</summary>
+    public static List<MonitorInfo> SelectTargetMonitors(
+        IReadOnlyList<MonitorInfo> monitors,
+        string? targetDeviceName)
+    {
+        if (string.IsNullOrWhiteSpace(targetDeviceName))
+            return new List<MonitorInfo>(monitors);
+
+        var matched = monitors
+            .Where(m => string.Equals(m.DeviceName, targetDeviceName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        return matched.Count > 0 ? matched : new List<MonitorInfo>(monitors);
     }
 
     /// <summary>Per-monitor DPI scale for the monitor containing the given rect.</summary>
@@ -217,10 +239,18 @@ public static class Win32Interop
 
     public readonly struct MonitorInfo
     {
+        public readonly string DeviceName;
         public readonly int X, Y, Width, Height;
         public readonly double DpiScale;
         public MonitorInfo(int x, int y, int w, int h, double dpiScale = 0)
-        { X = x; Y = y; Width = w; Height = h; DpiScale = dpiScale > 0 ? dpiScale : 1.0; }
+            : this("", x, y, w, h, dpiScale) { }
+
+        public MonitorInfo(string deviceName, int x, int y, int w, int h, double dpiScale = 0)
+        {
+            DeviceName = deviceName ?? "";
+            X = x; Y = y; Width = w; Height = h;
+            DpiScale = dpiScale > 0 ? dpiScale : 1.0;
+        }
     }
 
     /// <summary>System DPI scale factor (1.0 at 100%, 1.25 at 125%, etc.).</summary>

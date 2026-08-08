@@ -155,6 +155,9 @@
     <sys:String x:Key="Options_UICard">界面定制</sys:String>
     <sys:String x:Key="Options_UIScale">UI 缩放</sys:String>
     <sys:String x:Key="Options_Language">语言</sys:String>
+    <sys:String x:Key="Options_TargetMonitor">目标显示器</sys:String>
+    <sys:String x:Key="Options_TargetMonitorAll">全部显示器</sys:String>
+    <sys:String x:Key="Options_MonitorLabel">显示器 {0}（{1}x{2}）</sys:String>
     <sys:String x:Key="Options_ProfileCard">配置文件</sys:String>
     <sys:String x:Key="Options_ProfileDesc">将叠加层 / 准星 / 时钟设置保存为命名的配置文件。快捷键不包含在内。</sys:String>
     <sys:String x:Key="Options_SaveProfile">保存配置文件</sys:String>
