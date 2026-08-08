@@ -32,10 +32,47 @@ public partial class OptionsPage : Page
         ChkAutoSave.IsChecked = cfg.AutoSaveOnClose;
         ChkConfirmClose.IsChecked = cfg.ConfirmBeforeClose;
 
+        RefreshMonitorList();
         CbUIScale.SelectedIndex = (int)cfg.Scale;
         CbLanguage.SelectedIndex = (int)cfg.Language;
 
         _isLoading = false;
+    }
+
+    private void RefreshMonitorList()
+    {
+        CbTargetMonitor.Items.Clear();
+
+        var all = new ComboBoxItem
+        {
+            Content = FindResource("Options_TargetMonitorAll"),
+            Tag = ""
+        };
+        CbTargetMonitor.Items.Add(all);
+
+        int index = 1;
+        var labelFormat = FindResource("Options_MonitorLabel") as string ?? "Monitor {0} ({1}x{2})";
+        foreach (var mon in Win32Interop.GetAllMonitors())
+        {
+            CbTargetMonitor.Items.Add(new ComboBoxItem
+            {
+                Content = string.Format(labelFormat, index, mon.Width, mon.Height),
+                Tag = mon.DeviceName
+            });
+            index++;
+        }
+
+        string target = App.AppConfig.TargetMonitor;
+        CbTargetMonitor.SelectedIndex = 0;
+        for (int i = 0; i < CbTargetMonitor.Items.Count; i++)
+        {
+            if (string.Equals(((ComboBoxItem)CbTargetMonitor.Items[i]).Tag as string,
+                    target, StringComparison.OrdinalIgnoreCase))
+            {
+                CbTargetMonitor.SelectedIndex = i;
+                break;
+            }
+        }
     }
 
     private void MinimizeToTray_Changed(object sender, RoutedEventArgs e)
@@ -72,6 +109,14 @@ public partial class OptionsPage : Page
         if (_isLoading) return;
         App.AppConfig.Language = (Language)CbLanguage.SelectedIndex;
         App.ApplyLanguage(App.AppConfig.Language);
+        ConfigManager.SaveAppConfig(App.AppConfig);
+    }
+
+    private void TargetMonitor_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading) return;
+        var item = CbTargetMonitor.SelectedItem as ComboBoxItem;
+        App.AppConfig.TargetMonitor = item?.Tag as string ?? "";
         ConfigManager.SaveAppConfig(App.AppConfig);
     }
 
