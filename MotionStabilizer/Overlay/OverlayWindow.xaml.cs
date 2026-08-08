@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -58,6 +59,7 @@ public partial class OverlayWindow : Window
         Win32Interop.MakeOverlayWindow(_hwnd);
         _windowSource = HwndSource.FromHwnd(_hwnd);
         _windowSource?.AddHook(WindowMessageHook);
+        SystemEvents.DisplaySettingsChanged += OnSystemDisplaySettingsChanged;
 
         // Size to full screen
         UpdateScreenBounds();
@@ -92,6 +94,7 @@ public partial class OverlayWindow : Window
     private void OverlayWindow_Closed(object? sender, EventArgs e)
     {
         _topmostTimer?.Stop();
+        SystemEvents.DisplaySettingsChanged -= OnSystemDisplaySettingsChanged;
         _nativeMotionRenderer.Dispose();
         _windowSource?.RemoveHook(WindowMessageHook);
         _windowSource = null;
@@ -180,7 +183,7 @@ public partial class OverlayWindow : Window
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             double windowScale = Win32Interop.GetDpiScaleForWindow(_hwnd);
-            var monitors = Win32Interop.GetAllMonitors();
+            var monitors = Win32Interop.GetTargetMonitors(App.AppConfig.TargetMonitor);
             if (monitors.Count == 0)
                 monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physicalWidth, physicalHeight, windowScale));
 
@@ -204,7 +207,7 @@ public partial class OverlayWindow : Window
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             double windowScale = Win32Interop.GetDpiScaleForWindow(_hwnd);
-            var monitors = Win32Interop.GetAllMonitors();
+            var monitors = Win32Interop.GetTargetMonitors(App.AppConfig.TargetMonitor);
             if (monitors.Count == 0)
                 monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physicalWidth, physicalHeight, windowScale));
 
@@ -237,7 +240,7 @@ public partial class OverlayWindow : Window
         int vsX = Win32Interop.GetVirtualScreenX();
         int vsY = Win32Interop.GetVirtualScreenY();
 
-        var monitors = Win32Interop.GetAllMonitors();
+        var monitors = Win32Interop.GetTargetMonitors(App.AppConfig.TargetMonitor);
         if (monitors.Count == 0)
             monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physW, physH));
 
@@ -531,5 +534,10 @@ public partial class OverlayWindow : Window
     {
         UpdateScreenBounds();
         Render();
+    }
+
+    private void OnSystemDisplaySettingsChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () => OnScreenResolutionChanged());
     }
 }
