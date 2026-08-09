@@ -75,7 +75,7 @@
 
 > **校验 / Checksum (v2.6.0)**
 >
-> SHA-256: `（待更新 / TBA）`
+> SHA-256: `8883F4B66A554D9523D59F25901D4D916D2BACC59752A8DDE6313FEACCCF2FBD`
 >
 > 验证方式 / Verify:
 > - Windows: `certutil -hashfile MotionStabilizer-v2.6.0-win-x64.zip SHA256`
