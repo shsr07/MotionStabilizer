@@ -9,8 +9,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>MotionStabilizer</AssemblyName>
     <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
     <RootNamespace>MotionStabilizer</RootNamespace>
-    <Version>2.5.0</Version>
+    <Version>2.6.0</Version>
     <Company>3D Motion Stabilizer</Company>
     <Product>Motion Stabilizer</Product>
     <Description>Safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief</Description>

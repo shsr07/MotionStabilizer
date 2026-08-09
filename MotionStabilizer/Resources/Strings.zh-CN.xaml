@@ -140,6 +140,7 @@
     <sys:String x:Key="HK_CycleCrosshairShape">切换准星形状</sys:String>
     <sys:String x:Key="HK_CycleAspectRatio">切换宽高比</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">切换透明度模式</sys:String>
+    <sys:String x:Key="HK_CycleTargetMonitor">切换目标显示器</sys:String>
     <sys:String x:Key="HK_ColorRed">颜色：红色</sys:String>
     <sys:String x:Key="HK_ColorGreen">颜色：绿色</sys:String>
     <sys:String x:Key="HK_ColorBlue">颜色：蓝色</sys:String>
@@ -155,6 +156,10 @@
     <sys:String x:Key="Options_UICard">界面定制</sys:String>
     <sys:String x:Key="Options_UIScale">UI 缩放</sys:String>
     <sys:String x:Key="Options_Language">语言</sys:String>
+    <sys:String x:Key="Options_TargetMonitor">目标显示器</sys:String>
+    <sys:String x:Key="Options_TargetMonitorAll">全部显示器</sys:String>
+    <sys:String x:Key="Options_MonitorLabel">显示器 {0}（{1}x{2}）</sys:String>
+    <sys:String x:Key="Options_TargetMonitorFallback">⚠ 未检测到选定显示器，已回退为全部显示器</sys:String>
     <sys:String x:Key="Options_ProfileCard">配置文件</sys:String>
     <sys:String x:Key="Options_ProfileDesc">将叠加层 / 准星 / 时钟设置保存为命名的配置文件。快捷键不包含在内。</sys:String>
     <sys:String x:Key="Options_SaveProfile">保存配置文件</sys:String>
@@ -177,7 +182,7 @@
 
     <!-- About -->
     <sys:String x:Key="About_Title">关于</sys:String>
-    <sys:String x:Key="About_Version">Motion Stabilizer v2.5.0</sys:String>
+    <sys:String x:Key="About_Version">Motion Stabilizer v2.6.0</sys:String>
     <sys:String x:Key="About_Desc">安全、零侵入的视觉稳定叠加层，缓解 3D 游戏晕动症。</sys:String>
     <sys:String x:Key="About_Feature1">✓ 纯外部桌面叠加层 — 无 DLL 注入</sys:String>
     <sys:String x:Key="About_Feature2">✓ 兼容所有反作弊系统（Vanguard、EAC、BattlEye）</sys:String>

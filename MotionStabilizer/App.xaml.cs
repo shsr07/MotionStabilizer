@@ -243,6 +243,7 @@ public partial class App : Application
         Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); });
         Hotkeys.Register(hk.CycleAspectRatio, CycleAspectRatio);
         Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); });
+        Hotkeys.Register(hk.CycleTargetMonitor, CycleTargetMonitor);
         Hotkeys.Register(hk.ColorRed, () => SetColor(ColorPreset.Red));
         Hotkeys.Register(hk.ColorGreen, () => SetColor(ColorPreset.Green));
         Hotkeys.Register(hk.ColorBlue, () => SetColor(ColorPreset.Blue));
@@ -277,6 +278,41 @@ public partial class App : Application
     {
         OverlayConfig.ColorPreset = color;
         CrosshairConfig.ColorPreset = color;
+    }
+
+    /// <summary>
+    /// Cycle through available monitors (All → Monitor 1 → Monitor 2 → … → All).
+    /// Uses SelectTargetMonitors for current-position detection so that EDID
+    /// fallback (port change) is handled consistently with rendering.
+    /// </summary>
+    private void CycleTargetMonitor()
+    {
+        var monitors = Win32Interop.GetAllMonitors();
+        if (monitors.Count <= 1) return;
+
+        // Build cycle list: "All" first, then each monitor's DeviceId
+        var ids = new List<string> { "" };
+        ids.AddRange(monitors.Select(m => m.DeviceId));
+
+        // Use the same layered matching as rendering to find current position
+        string current = AppConfig.TargetMonitor;
+        int idx = 0; // default to "All"
+        if (!string.IsNullOrEmpty(current))
+        {
+            var matched = Win32Interop.SelectTargetMonitors(monitors, current);
+            if (matched.Count == 1)
+            {
+                // Found a specific monitor — find its position in the cycle list
+                idx = ids.FindIndex(id =>
+                    string.Equals(id, matched[0].DeviceId, StringComparison.OrdinalIgnoreCase));
+                if (idx < 0) idx = 0;
+            }
+            // If matched.Count > 1 (fallback to all), idx stays 0
+        }
+
+        int next = (idx + 1) % ids.Count;
+        AppConfig.TargetMonitor = ids[next];
+        ConfigManager.SaveAppConfig(AppConfig);
     }
 
     /// <summary>

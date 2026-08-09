@@ -192,17 +192,124 @@ public static class Win32Interop
     [DllImport("shcore.dll")]
     public static extern int GetDpiForMonitor(IntPtr hmonitor, MONITOR_DPI_TYPE dpiType, out uint dpiX, out uint dpiY);
 
-    /// <summary>Enumerates all display monitors with their bounds and per-monitor DPI scale.</summary>
+    // ── EnumDisplayDevices (PnP device identification) ──────────────────
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool EnumDisplayDevices(string? lpDevice, uint iDevNum,
+        ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct DISPLAY_DEVICE
+    {
+        public int cb;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string DeviceName;   // GDI name: \\.\DISPLAY1
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceString; // Model: DELL S2721DGF
+        public uint StateFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceID;    // PnP path: \\?\DISPLAY#DELF0F81#...
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceKey;
+    }
+
+    /// <summary>
+    /// Build a map from GDI device name (\\.\DISPLAY1) to PnP DeviceID and
+    /// friendly name (model string) via EnumDisplayDevices. This provides a
+    /// more stable identifier than the GDI name alone.
+    /// </summary>
+    private static Dictionary<string, (string deviceId, string friendlyName)> BuildPnpDeviceMap()
+    {
+        var map = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
+        uint adapterIdx = 0;
+        var adapter = new DISPLAY_DEVICE { cb = Marshal.SizeOf<DISPLAY_DEVICE>() };
+        while (EnumDisplayDevices(null, adapterIdx, ref adapter, 0))
+        {
+            uint monitorIdx = 0;
+            var mon = new DISPLAY_DEVICE { cb = Marshal.SizeOf<DISPLAY_DEVICE>() };
+            while (EnumDisplayDevices(adapter.DeviceName, monitorIdx, ref mon, 0))
+            {
+                if ((mon.StateFlags & 0x1) != 0 || !string.IsNullOrEmpty(mon.DeviceID))
+                {
+                    var friendly = string.IsNullOrEmpty(mon.DeviceString) ? "" : mon.DeviceString;
+                    map[adapter.DeviceName] = (mon.DeviceID, friendly);
+                }
+                monitorIdx++;
+            }
+            adapterIdx++;
+        }
+        return map;
+    }
+
+    /// <summary>Enumerates all display monitors with bounds, DPI, and PnP device info.</summary>
     public static List<MonitorInfo> GetAllMonitors()
     {
+        var pnpMap = BuildPnpDeviceMap();
         var monitors = new List<MonitorInfo>();
         foreach (var screen in System.Windows.Forms.Screen.AllScreens)
         {
             var b = screen.Bounds;
             double dpiScale = GetDpiScaleForRect(b.X, b.Y, b.Right, b.Bottom);
-            monitors.Add(new MonitorInfo(b.X, b.Y, b.Width, b.Height, dpiScale));
+            pnpMap.TryGetValue(screen.DeviceName, out var pnp);
+            monitors.Add(new MonitorInfo(
+                screen.DeviceName, pnp.deviceId ?? "", pnp.friendlyName ?? "",
+                b.X, b.Y, b.Width, b.Height, dpiScale));
         }
         return monitors;
+    }
+
+    // ── Target monitor filtering ─────────────────────────────────────────
+
+    /// <summary>
+    /// Returns all monitors, or only the monitor whose PnP DeviceID matches
+    /// <paramref name="targetDeviceId"/>. Uses layered matching: exact PnP
+    /// path first, then EDID vendor+product fallback, then all monitors.
+    /// </summary>
+    public static List<MonitorInfo> GetTargetMonitors(string? targetDeviceId)
+        => SelectTargetMonitors(GetAllMonitors(), targetDeviceId);
+
+    /// <summary>Pure monitor filtering with layered matching — unit-testable.</summary>
+    public static List<MonitorInfo> SelectTargetMonitors(
+        IReadOnlyList<MonitorInfo> monitors,
+        string? targetDeviceId)
+    {
+        if (string.IsNullOrWhiteSpace(targetDeviceId))
+            return new List<MonitorInfo>(monitors);
+
+        // Layer 1: exact PnP DeviceID match (same port, same monitor)
+        var exact = monitors
+            .Where(m => string.Equals(m.DeviceId, targetDeviceId, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (exact.Count > 0) return exact;
+
+        // Layer 2: EDID vendor+product match (handles port change)
+        var targetEdid = ExtractEdidPart(targetDeviceId);
+        if (!string.IsNullOrEmpty(targetEdid))
+        {
+            var edid = monitors
+                .Where(m => string.Equals(ExtractEdidPart(m.DeviceId), targetEdid,
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (edid.Count == 1) return edid;
+        }
+
+        // Layer 3: safe fallback — all monitors
+        return new List<MonitorInfo>(monitors);
+    }
+
+    /// <summary>
+    /// Extract the EDID vendor+product segment from a PnP DeviceID path.
+    /// Example: "\\?\DISPLAY#DELF0F81#5&..." → "DELF0F81"
+    /// </summary>
+    public static string ExtractEdidPart(string? deviceId)
+    {
+        if (string.IsNullOrEmpty(deviceId)) return "";
+        // PnP path format: \\?\DISPLAY#VENDOR_PRODUCT#INSTANCE#UID#{GUID}
+        var segments = deviceId.Split('#');
+        if (segments.Length >= 2)
+            return segments[1]; // VENDOR_PRODUCT segment
+        return "";
     }
 
     /// <summary>Per-monitor DPI scale for the monitor containing the given rect.</summary>
@@ -217,10 +324,25 @@ public static class Win32Interop
 
     public readonly struct MonitorInfo
     {
+        public readonly string DeviceName;   // GDI name: \\.\DISPLAY1
+        public readonly string DeviceId;     // PnP path: \\?\DISPLAY#DELF0F81#...
+        public readonly string FriendlyName; // Model: DELL S2721DGF
         public readonly int X, Y, Width, Height;
         public readonly double DpiScale;
+
+        /// <summary>Legacy constructor (no PnP info) — for tests and fallbacks.</summary>
         public MonitorInfo(int x, int y, int w, int h, double dpiScale = 0)
-        { X = x; Y = y; Width = w; Height = h; DpiScale = dpiScale > 0 ? dpiScale : 1.0; }
+            : this("", "", "", x, y, w, h, dpiScale) { }
+
+        public MonitorInfo(string deviceName, string deviceId, string friendlyName,
+            int x, int y, int w, int h, double dpiScale = 0)
+        {
+            DeviceName = deviceName ?? "";
+            DeviceId = deviceId ?? "";
+            FriendlyName = friendlyName ?? "";
+            X = x; Y = y; Width = w; Height = h;
+            DpiScale = dpiScale > 0 ? dpiScale : 1.0;
+        }
     }
 
     /// <summary>System DPI scale factor (1.0 at 100%, 1.25 at 125%, etc.).</summary>

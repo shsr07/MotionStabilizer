@@ -43,7 +43,7 @@
 - **中心准星 (Crosshair)** — 在屏幕中心绘制准星，提供视觉焦点
 - **悬浮时钟 (Floating Clock)** — 可拖动的实时时钟，支持多种时间格式和描边字体
 - **全局快捷键 (Global Hotkeys)** — 在游戏中随时切换设置，支持 F1–F11 等快捷键
-- **多显示器支持 (Multi-Monitor)** — 自动识别所有显示器，边缘叠加、动态圆点和准星在多屏环境下正确定位与渲染，支持混合 DPI 显示器
+- **多显示器支持 (Multi-Monitor)** — 自动识别所有显示器，支持在全局选项中选择**目标显示器**（仅在该屏渲染叠加层），边缘叠加、动态圆点和准星在多屏环境下正确定位与渲染，支持混合 DPI 显示器（PerMonitorV2）
 - **多语言支持** — 中文 / English
 - **配置文件管理** — 保存 / 加载 / 删除自定义配置方案，修改即自动保存
 
@@ -67,18 +67,18 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v2.5.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v2.6.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 
 > 无需安装 .NET 运行时，已内置。
 
-> **校验 / Checksum (v2.5.0)**
+> **校验 / Checksum (v2.6.0)**
 >
-> SHA-256: `e462defdda705b265ec5323b2898a8ff3a92902049cbd4f31424e5832f34e26d`
+> SHA-256: `（待更新 / TBA）`
 >
 > 验证方式 / Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.5.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.6.0-win-x64.zip SHA256`
 
 ### 方式二：从源码构建 / Build from Source
 
@@ -113,13 +113,14 @@ dotnet build -c Release
 | F6 | 切换显示模式 |
 | F7 | 切换透明度模式 |
 | F8–F11 | 切换颜色（红/绿/蓝/自定义） |
+| — | 切换目标显示器（默认未绑定，需手动设置） |
 
 ## 🛠️ 技术栈 / Tech Stack
 
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — 硬件加速渲染动态圆点
 - **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕、Raw Input
-- **xUnit** — 单元测试（167 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射）
+- **xUnit** — 单元测试（179 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射、显示器选择）
 - **C# 12** — 最新 C# 特性
 
 ## 📁 项目结构 / Project Structure
@@ -151,16 +152,18 @@ MotionStabilizer/                    # 主项目
 ├── Views/                           # 设置页面 (叠加层、准星、时钟、快捷键、选项)
 │   └── Dialogs/                     #   自定义对话框
 ├── GlobalUsings.cs                  # WPF/WinForms 别名
+├── app.manifest                    # PerMonitorV2 DPI 声明
 ├── App.xaml(.cs)                    # 应用入口
 └── MainWindow.xaml(.cs)             # 主窗口
 
-MotionStabilizer.Tests/              # 单元测试项目 (167 tests)
+MotionStabilizer.Tests/              # 单元测试项目 (179 tests)
 ├── RenderHelperTests.cs             #   渲染尺寸映射、安全区域计算
 ├── ConfigModelTests.cs              #   配置模型：颜色解析、边缘可见性/透明度
 ├── HotkeyBindingTests.cs            #   快捷键显示字符串、克隆
 ├── ObservableConfigTests.cs         #   ConfigStore 事件通知、Profile 加载/重置
 ├── ComputeMotionZonesTests.cs       #   动态圆点区域几何计算
 ├── KeyNameToVkTests.cs              #   键名→虚拟键码映射
+├── MonitorSelectionTests.cs        #   目标显示器选择与分层匹配
 └── MotionStabilizer.Tests.csproj    #   测试项目文件
 ```
 

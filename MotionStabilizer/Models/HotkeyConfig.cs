@@ -57,6 +57,7 @@ public class HotkeyConfig
     public HotkeyBinding CycleCrosshairShape { get; set; } = new() { Name = "CycleCrosshairShape", Key = "F5" };
     public HotkeyBinding CycleAspectRatio { get; set; } = new() { Name = "CycleAspectRatio" };
     public HotkeyBinding CycleOpacityMode { get; set; } = new() { Name = "CycleOpacityMode", Key = "F7" };
+    public HotkeyBinding CycleTargetMonitor { get; set; } = new() { Name = "CycleTargetMonitor" };
 
     // 4 color switch hotkeys
     public HotkeyBinding ColorRed { get; set; } = new() { Name = "ColorRed", Key = "F8" };
@@ -75,6 +76,7 @@ public class HotkeyConfig
         CycleCrosshairShape,
         CycleAspectRatio,
         CycleOpacityMode,
+        CycleTargetMonitor,
         ColorRed,
         ColorGreen,
         ColorBlue,

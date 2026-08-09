@@ -70,3 +70,6 @@ MotionStabilizer-v*.zip
 ## Private / do-not-upload directory
 禁止上传到GitHub/
 改进建议*.txt
+
+## Backup directories
+*_backup_*/

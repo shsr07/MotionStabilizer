@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -42,6 +43,7 @@ public partial class OverlayWindow : Window
     private readonly DirectCompositionMotionRenderer _nativeMotionRenderer = new();
     private IntPtr _hwnd;
     private DispatcherTimer? _topmostTimer;
+    private bool _isClosed;
 
     public OverlayWindow()
     {
@@ -58,6 +60,7 @@ public partial class OverlayWindow : Window
         Win32Interop.MakeOverlayWindow(_hwnd);
         _windowSource = HwndSource.FromHwnd(_hwnd);
         _windowSource?.AddHook(WindowMessageHook);
+        SystemEvents.DisplaySettingsChanged += OnSystemDisplaySettingsChanged;
 
         // Size to full screen
         UpdateScreenBounds();
@@ -91,7 +94,9 @@ public partial class OverlayWindow : Window
 
     private void OverlayWindow_Closed(object? sender, EventArgs e)
     {
+        _isClosed = true;
         _topmostTimer?.Stop();
+        SystemEvents.DisplaySettingsChanged -= OnSystemDisplaySettingsChanged;
         _nativeMotionRenderer.Dispose();
         _windowSource?.RemoveHook(WindowMessageHook);
         _windowSource = null;
@@ -180,9 +185,7 @@ public partial class OverlayWindow : Window
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             double windowScale = Win32Interop.GetDpiScaleForWindow(_hwnd);
-            var monitors = Win32Interop.GetAllMonitors();
-            if (monitors.Count == 0)
-                monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physicalWidth, physicalHeight, windowScale));
+            var monitors = GetConfiguredMonitors(physicalWidth, physicalHeight, windowScale, vsX, vsY);
 
             foreach (var mon in monitors)
             {
@@ -204,9 +207,7 @@ public partial class OverlayWindow : Window
             int vsX = Win32Interop.GetVirtualScreenX();
             int vsY = Win32Interop.GetVirtualScreenY();
             double windowScale = Win32Interop.GetDpiScaleForWindow(_hwnd);
-            var monitors = Win32Interop.GetAllMonitors();
-            if (monitors.Count == 0)
-                monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physicalWidth, physicalHeight, windowScale));
+            var monitors = GetConfiguredMonitors(physicalWidth, physicalHeight, windowScale, vsX, vsY);
 
             foreach (var mon in monitors)
             {
@@ -237,9 +238,7 @@ public partial class OverlayWindow : Window
         int vsX = Win32Interop.GetVirtualScreenX();
         int vsY = Win32Interop.GetVirtualScreenY();
 
-        var monitors = Win32Interop.GetAllMonitors();
-        if (monitors.Count == 0)
-            monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physW, physH));
+        var monitors = GetConfiguredMonitors(physW, physH, 0, vsX, vsY);
 
         Win32Interop.RECT? fwRect = null;
         if (cfg.Mode == DisplayMode.Window)
@@ -529,7 +528,29 @@ public partial class OverlayWindow : Window
     /// <summary>Called when the screen resolution may have changed.</summary>
     public void OnScreenResolutionChanged()
     {
+        if (_isClosed) return;
         UpdateScreenBounds();
         Render();
+    }
+
+    private void OnSystemDisplaySettingsChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () => OnScreenResolutionChanged());
+    }
+
+    /// <summary>
+    /// Get the list of monitors to render on, filtered by TargetMonitor config.
+    /// Falls back to the full virtual screen if no monitors are detected.
+    /// </summary>
+    private List<Win32Interop.MonitorInfo> GetConfiguredMonitors(
+        int physW, int physH, double windowScale, int vsX, int vsY)
+    {
+        var monitors = Win32Interop.GetTargetMonitors(App.AppConfig.TargetMonitor);
+        if (monitors.Count == 0)
+        {
+            double scale = windowScale > 0 ? windowScale : Win32Interop.GetDpiScale();
+            monitors.Add(new Win32Interop.MonitorInfo(vsX, vsY, physW, physH, scale));
+        }
+        return monitors;
     }
 }

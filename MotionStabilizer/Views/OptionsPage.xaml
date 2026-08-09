@@ -47,6 +47,16 @@
                         </ComboBox>
                     </StackPanel>
 
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="{DynamicResource Options_TargetMonitor}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <ComboBox x:Name="CbTargetMonitor" Width="240" Height="32"
+                                  SelectionChanged="TargetMonitor_Changed" />
+                    </StackPanel>
+
+                    <TextBlock x:Name="TargetMonitorFallbackHint" Text="{DynamicResource Options_TargetMonitorFallback}"
+                               Foreground="{StaticResource BrushAccentYellow}" FontSize="12"
+                               Margin="80,0,0,12" Visibility="Collapsed" TextWrapping="Wrap" />
+
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{DynamicResource Options_Language}" Style="{StaticResource FieldLabel}" Width="80" />
                         <ComboBox x:Name="CbLanguage" Width="140" Height="32"

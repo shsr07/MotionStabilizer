@@ -21,6 +21,17 @@ public class AppConfig : ObservableObject
 
     public UIScale Scale { get => _scale; set => SetProperty(ref _scale, value); }
     public Language Language { get => _language; set => SetProperty(ref _language, value); }
+
+    private string _targetMonitor = "";
+
+    /// <summary>
+    /// PnP Device ID of the monitor to render overlays on. Empty means all monitors.
+    /// Uses the monitor-level PnP path from EnumDisplayDevices (e.g.
+    /// \\?\DISPLAY#DELF0F81#5&amp;2e8a1c4a&amp;0&amp;UID256#{...}) which is more
+    /// stable than the GDI device name (\\.\DISPLAY1) that can swap on reboot.
+    /// If the saved target is not found, falls back to all monitors.
+    /// </summary>
+    public string TargetMonitor { get => _targetMonitor; set => SetProperty(ref _targetMonitor, value); }
 }
 
 /// <summary>

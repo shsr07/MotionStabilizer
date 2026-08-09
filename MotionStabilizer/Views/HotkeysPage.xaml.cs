@@ -55,6 +55,7 @@ public partial class HotkeysPage : Page
         AddItem(_displayItems, hk.CycleAspectRatio, "HK_CycleAspectRatio");
         AddItem(_displayItems, hk.CycleSplitScreen, "HK_CycleSplitScreen");
         AddItem(_displayItems, hk.CycleOpacityMode, "HK_CycleOpacityMode");
+        AddItem(_displayItems, hk.CycleTargetMonitor, "HK_CycleTargetMonitor");
 
         // Color hotkeys (4)
         AddItem(_colorItems, hk.ColorRed, "HK_ColorRed");
