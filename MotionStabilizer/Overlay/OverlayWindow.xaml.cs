@@ -36,7 +36,17 @@ public partial class OverlayWindow : Window
     private bool _isClockDragging;
     private DispatcherTimer? _dragTimer;
     private Point _clockDragOffset;
+    private Point _clockDragStartPos;
     private bool _wasLeftButtonDown;
+
+    // When true, Render() skips the full canvas rebuild. Used during clock
+    // dragging so that the 33ms drag timer does not trigger a 30Hz full
+    // re-render of every overlay element; the drag moves the clock TextBlock
+    // directly and the canvas is rendered once when dragging ends.
+    private bool _suppressRender;
+
+    // One-time warning when MotionDots rendering cannot be initialized.
+    private bool _motionInitFailureReported;
 
     private HwndSource? _windowSource;
     private bool _isWpfSurfaceCompact;
@@ -143,6 +153,8 @@ public partial class OverlayWindow : Window
     /// <summary>Re-render all overlay elements on the canvas.</summary>
     public void Render()
     {
+        if (_suppressRender) return;
+
         OverlayCanvas.Children.Clear();
         _clockText = null;
 
@@ -168,6 +180,20 @@ public partial class OverlayWindow : Window
         else
         {
             _nativeMotionRenderer.SetVisible(false);
+
+            // Surface a one-time warning when MotionDots were requested but the
+            // native renderer could not initialize (e.g. remote desktop, virtual
+            // machines, missing/outdated GPU drivers) — otherwise the feature
+            // fails silently and the user has no idea why nothing appears.
+            if (wantsNativeMotion && !_motionInitFailureReported)
+            {
+                _motionInitFailureReported = true;
+                string title = (string)(Application.Current.TryFindResource("Motion_InitFail_Title")
+                    ?? "Motion Dots Unavailable");
+                string msg = (string)(Application.Current.TryFindResource("Motion_InitFail_Msg")
+                    ?? "Motion dots rendering could not be initialized.");
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         // Shrink WPF window to 1x1 when DirectComposition is the only visible surface
@@ -442,13 +468,22 @@ public partial class OverlayWindow : Window
 
     /// <summary>
     /// Enable clock dragging via cursor tracking.
-    /// The clock follows the mouse cursor; left-click confirms the position.
+    /// The clock teleports to the current mouse cursor position and then
+    /// follows it; left-click confirms the position, Esc cancels and restores
+    /// the position from before dragging started.
     /// The overlay stays fully click-through — no UI is blocked.
     /// </summary>
     public void EnableClockDrag()
     {
         _isClockDragging = true;
         _wasLeftButtonDown = true;
+
+        // Remember the pre-drag position so Esc can restore it
+        _clockDragStartPos = new Point(_clockConfig.PositionX, _clockConfig.PositionY);
+
+        // Suppress the Changed-driven full re-render while dragging; the clock
+        // TextBlock is moved directly and the canvas is rebuilt once on confirm.
+        _suppressRender = true;
 
         _clockDragOffset = new Point(0, 0);
 
@@ -493,6 +528,9 @@ public partial class OverlayWindow : Window
 
         if ((Win32Interop.GetAsyncKeyState(Win32Interop.VK_ESCAPE) & 0x8000) != 0)
         {
+            // Esc: cancel the drag and restore the pre-drag position
+            _clockConfig.PositionX = (int)_clockDragStartPos.X;
+            _clockConfig.PositionY = (int)_clockDragStartPos.Y;
             DisableClockDrag();
             return;
         }
@@ -515,21 +553,31 @@ public partial class OverlayWindow : Window
         }
     }
 
-    /// <summary>Disable clock dragging and stop the tracking timer.</summary>
+    /// <summary>Disable clock dragging, stop the tracking timer, and render the final state once.</summary>
     public void DisableClockDrag()
     {
         _isClockDragging = false;
         _dragTimer?.Stop();
         _dragTimer = null;
 
+        // One final full render to sync the canvas with the config state
+        _suppressRender = false;
+        Render();
+
         App.MainWin?.NotifyClockDragConfirmed();
     }
 
-    /// <summary>Called when the screen resolution may have changed.</summary>
+    /// <summary>
+    /// Called when the screen resolution or monitor topology may have changed.
+    /// Resets the clock and crosshair positions to their defaults so they can
+    /// never end up stranded off-screen after a monitor is removed.
+    /// </summary>
     public void OnScreenResolutionChanged()
     {
         if (_isClosed) return;
         UpdateScreenBounds();
+        _clockConfig.ResetPosition();
+        _crosshairConfig.ResetPosition();
         Render();
     }
 

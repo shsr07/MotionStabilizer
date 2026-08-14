@@ -422,6 +422,19 @@ public static class Win32Interop
 
     #endregion
 
+    #region Single Instance
+
+    public static readonly IntPtr HWND_BROADCAST = new(0xFFFF);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern uint RegisterWindowMessage(string lpString);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    #endregion
+
     #region Cursor Tracking
 
     [DllImport("user32.dll")]

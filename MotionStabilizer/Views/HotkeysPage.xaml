@@ -8,7 +8,11 @@
             <!-- Title -->
             <TextBlock Text="{DynamicResource Hotkeys_Title}" Style="{StaticResource PageTitle}" />
             <TextBlock Text="{DynamicResource Hotkeys_Desc}" Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
-                       Margin="0,0,0,24" TextWrapping="Wrap" />
+                       Margin="0,0,0,8" TextWrapping="Wrap" />
+
+            <!-- Hint -->
+            <TextBlock Text="{DynamicResource Hotkeys_Hint}"
+                       Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,0,0,24" TextWrapping="Wrap" />
 
             <!-- ═══════ Display Mode Hotkeys ═══════ -->
             <Border Style="{StaticResource SettingsCard}">
@@ -44,8 +48,8 @@
                 </StackPanel>
             </Border>
 
-            <!-- ═══════ Color Switch Hotkeys ═══════ -->
-            <Border Style="{StaticResource SettingsCard}">
+            <!-- ═══════ Color Cycle Hotkeys ═══════ -->
+            <Border Style="{StaticResource SettingsCard}" Margin="0,16,0,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Hotkeys_ColorSection}" Style="{StaticResource CardTitle}" />
 
@@ -77,10 +81,6 @@
                     </ItemsControl>
                 </StackPanel>
             </Border>
-
-            <!-- Hint -->
-            <TextBlock Text="{DynamicResource Hotkeys_Hint}"
-                       Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
 
         </StackPanel>
     </ScrollViewer>

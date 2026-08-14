@@ -195,6 +195,19 @@ public partial class ClockPage : Page
         }
     }
 
+    /// <summary>
+    /// Reset the clock position to the default (20, 20).
+    /// </summary>
+    private void ResetPosition_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.ClockConfig.ResetPosition();
+        if (TxtPosX != null)
+            TxtPosX.Text = App.ClockConfig.PositionX.ToString();
+        if (TxtPosY != null)
+            TxtPosY.Text = App.ClockConfig.PositionY.ToString();
+    }
+
     private void Drag_Click(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;

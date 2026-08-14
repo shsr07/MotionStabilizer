@@ -13,6 +13,8 @@ public static class ProfileService
 {
     /// <summary>
     /// Show an input dialog and save current settings as a named profile.
+    /// Rejects empty names and asks for confirmation before overwriting
+    /// an existing profile.
     /// </summary>
     public static void SaveProfile()
     {
@@ -23,9 +25,36 @@ public static class ProfileService
 
         if (dialog.ShowDialog() == true)
         {
+            string name = dialog.InputText?.Trim() ?? "";
+
+            // Reject empty names
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                CustomMessageBox.Show(
+                    (string)Application.Current.Resources["ProfileSave_EmptyTitle"],
+                    (string)Application.Current.Resources["ProfileSave_EmptyMsg"],
+                    (string)Application.Current.Resources["Common_OK"]);
+                return;
+            }
+
+            // Confirm before overwriting an existing profile
+            string safeName = ConfigManager.SanitizeName(name);
+            if (ConfigManager.ListProfiles().Contains(safeName))
+            {
+                var confirmTitle = (string)Application.Current.Resources["ProfileSave_OverwriteTitle"];
+                var confirmMsg = string.Format(
+                    (string)Application.Current.Resources["ProfileSave_OverwriteMsg"], name);
+                var noText = (string)Application.Current.Resources["Options_ResetConfirmNo"];
+                var yesText = (string)Application.Current.Resources["ProfileSave_OverwriteYes"];
+
+                var result = CustomMessageBox.Show(confirmTitle, confirmMsg, noText, yesText);
+                if (result != CustomMessageBox.Result.Option2)
+                    return;
+            }
+
             var profile = new ProfileData
             {
-                ProfileName = dialog.InputText,
+                ProfileName = name,
                 Overlay = App.Config.Overlay,
                 Crosshair = App.Config.Crosshair,
                 Clock = App.Config.Clock

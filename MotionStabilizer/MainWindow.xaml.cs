@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -65,6 +65,17 @@ public partial class MainWindow : Window
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
+        // Second instance asked us to show the main window
+        if (msg == App.ShowMainWindowMessage)
+        {
+            Show();
+            if (WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+            Activate();
+            handled = true;
+            return IntPtr.Zero;
+        }
+
         if (msg == WM_NCHITTEST)
         {
             // Get screen coordinates of the mouse
@@ -155,7 +166,11 @@ public partial class MainWindow : Window
         this.Hide();
     }
 
-    private void BtnClose_Click(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// Shared close path for the ✕ button and Alt+F4: shows the confirmation
+    /// dialog (if enabled), then either minimizes to tray or exits.
+    /// </summary>
+    private void RequestClose()
     {
         if (App.AppConfig.ConfirmBeforeClose)
         {
@@ -178,6 +193,9 @@ public partial class MainWindow : Window
         Application.Current.Shutdown();
     }
 
+    private void BtnClose_Click(object sender, RoutedEventArgs e)
+        => RequestClose();
+
     private void SaveProfile_Click(object sender, RoutedEventArgs e)
         => ProfileService.SaveProfile();
 
@@ -196,9 +214,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Otherwise, hide instead of closing (minimize to tray)
+        // Alt+F4 behaves exactly like the ✕ button
         e.Cancel = true;
-        this.Hide();
+        RequestClose();
         base.OnClosing(e);
     }
 }

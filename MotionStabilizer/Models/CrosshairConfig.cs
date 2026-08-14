@@ -8,16 +8,20 @@ namespace MotionStabilizer.Models;
 /// </summary>
 public class CrosshairConfig : ObservableObject
 {
+    /// <summary>Default crosshair offset (centered).</summary>
+    public const int DefaultPositionX = 0;
+    public const int DefaultPositionY = 0;
+
     private bool _isVisible = false;
     private CrosshairShape _shape = CrosshairShape.Cross;
     private AspectRatio _aspectRatio = AspectRatio.Ratio16x9;
     private SizePreset _size = SizePreset.M;
     private OffsetLevel _thickness = OffsetLevel.Plus3;
-    private int _positionX = 0;
-    private int _positionY = 0;
+    private int _positionX = DefaultPositionX;
+    private int _positionY = DefaultPositionY;
     private SplitScreen _split = SplitScreen.None;
     private ColorPreset _colorPreset = ColorPreset.Red;
-    private string _customColorHex = "#FF0000";
+    private string _customColorHex = "#FFFF00";
     private int _opacity = 80;
 
     public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
@@ -31,6 +35,13 @@ public class CrosshairConfig : ObservableObject
     public ColorPreset ColorPreset { get => _colorPreset; set => SetProperty(ref _colorPreset, value); }
     public string CustomColorHex { get => _customColorHex; set => SetProperty(ref _customColorHex, value); }
     public int Opacity { get => _opacity; set => SetProperty(ref _opacity, value); }
+
+    /// <summary>Reset the position offset to the default (0, 0).</summary>
+    public void ResetPosition()
+    {
+        PositionX = DefaultPositionX;
+        PositionY = DefaultPositionY;
+    }
 
     public Color GetColor()
     {

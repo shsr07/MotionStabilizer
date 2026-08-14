@@ -302,7 +302,7 @@ public class ObservableConfigTests
         var store = new ConfigStore();
 
         Assert.False(store.Overlay.IsVisible);
-        Assert.Equal(OverlayShape.Box, store.Overlay.Shape);
+        Assert.Equal(OverlayShape.Pole, store.Overlay.Shape);
         Assert.False(store.Crosshair.IsVisible);
         Assert.False(store.Clock.IsVisible);
         Assert.True(store.App.AutoSaveOnClose);

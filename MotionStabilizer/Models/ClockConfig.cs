@@ -8,13 +8,17 @@ namespace MotionStabilizer.Models;
 /// </summary>
 public class ClockConfig : ObservableObject
 {
+    /// <summary>Default clock position (DIP relative to the overlay window's top-left corner).</summary>
+    public const int DefaultPositionX = 20;
+    public const int DefaultPositionY = 20;
+
     private bool _isVisible = false;
     private ClockFormat _format = ClockFormat.HHmm;
     private string _fontFamily = "Outline";
     private int _fontSize = 24;
     private string _colorHex = "#FFFFFF";
-    private int _positionX = 20;
-    private int _positionY = 20;
+    private int _positionX = DefaultPositionX;
+    private int _positionY = DefaultPositionY;
     private int _opacity = 100;
 
     public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
@@ -25,6 +29,13 @@ public class ClockConfig : ObservableObject
     public int PositionX { get => _positionX; set => SetProperty(ref _positionX, value); }
     public int PositionY { get => _positionY; set => SetProperty(ref _positionY, value); }
     public int Opacity { get => _opacity; set => SetProperty(ref _opacity, value); }
+
+    /// <summary>Reset the position to the default (20, 20).</summary>
+    public void ResetPosition()
+    {
+        PositionX = DefaultPositionX;
+        PositionY = DefaultPositionY;
+    }
 
     /// <summary>
     /// Returns the actual WPF font family for rendering.

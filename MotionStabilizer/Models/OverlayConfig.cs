@@ -12,14 +12,14 @@ namespace MotionStabilizer.Models;
 public class OverlayConfig : ObservableObject
 {
     private bool _isVisible = false;
-    private OverlayShape _shape = OverlayShape.Box;
+    private OverlayShape _shape = OverlayShape.Pole;
     private AspectRatio _aspectRatio = AspectRatio.Ratio16x9;
     private SizePreset _size = SizePreset.M;
     private OffsetLevel _length = OffsetLevel.Plus0;
     private DisplayMode _mode = DisplayMode.Stretch;
     private SplitScreen _split = SplitScreen.None;
     private ColorPreset _colorPreset = ColorPreset.Green;
-    private string _customColorHex = "#00FF00";
+    private string _customColorHex = "#FFFF00";
     private int _opacity = 60;
 
     // ── Per-edge visibility & opacity ──

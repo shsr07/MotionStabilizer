@@ -40,6 +40,7 @@
     <sys:String x:Key="Color_Custom">Custom</sys:String>
 
     <!-- Shapes -->
+    <sys:String x:Key="Shape_Pole">Pole</sys:String>
     <sys:String x:Key="Shape_Box">Box</sys:String>
     <sys:String x:Key="Shape_Dome">Dome</sys:String>
     <sys:String x:Key="Shape_Flag">Flag</sys:String>
@@ -69,6 +70,7 @@
     <!-- Overlay Page -->
     <sys:String x:Key="Overlay_Title">Edge Overlay</sys:String>
     <sys:String x:Key="Overlay_Desc">Draw reference borders at screen edges to provide visual stability anchors</sys:String>
+    <sys:String x:Key="Overlay_HotkeyHint">Please use hotkeys to control the overlay while in-game</sys:String>
     <sys:String x:Key="Overlay_ShapeCard">Shape Selection</sys:String>
     <sys:String x:Key="Overlay_SizeCard">Size &amp; Ratio</sys:String>
     <sys:String x:Key="Overlay_DisplayCard">Display &amp; Split</sys:String>
@@ -99,6 +101,8 @@
     <sys:String x:Key="Motion_WarningMsg">Enabling this feature uses high-frequency key polling (GetAsyncKeyState). It is strictly prohibited to use in multiplayer games with Vanguard, EAC, BattlEye or other anti-cheat systems — it may result in a ban. Only enable for single-player games!\n\nDo you wish to continue?</sys:String>
     <sys:String x:Key="Motion_WarningYes">I understand the risk, enable</sys:String>
     <sys:String x:Key="Motion_WarningNo">Cancel</sys:String>
+    <sys:String x:Key="Motion_InitFail_Title">Motion Dots Unavailable</sys:String>
+    <sys:String x:Key="Motion_InitFail_Msg">Motion dots rendering could not be initialized (a Direct3D 11 capable GPU driver is required). This can happen over remote desktop, in virtual machines, or with outdated GPU drivers. Other overlay features are unaffected.</sys:String>
 
     <!-- Crosshair Page -->
     <sys:String x:Key="Crosshair_Title">Crosshair</sys:String>
@@ -113,9 +117,10 @@
     <sys:String x:Key="Clock_FormatCard">Time Format</sys:String>
     <sys:String x:Key="Clock_FontCard">Font Style</sys:String>
     <sys:String x:Key="Clock_PositionCard">Position</sys:String>
-    <sys:String x:Key="Clock_PositionHint">The top-left corner of the screen is the origin (0,0). After unlocking, move the mouse to drag the clock. Left-click to confirm the position. Press Esc to cancel.</sys:String>
+    <sys:String x:Key="Clock_PositionHint">The top-left corner of the screen is the origin (0,0). After unlocking, the clock jumps to the mouse cursor and follows it. Left-click to confirm the position, or press Esc to cancel and restore the position from before dragging. You can also click the button below to reset the clock to its default position (20, 20).</sys:String>
     <sys:String x:Key="Clock_UnlockDrag">Unlock to Drag</sys:String>
     <sys:String x:Key="Clock_LockDrag">Lock Position</sys:String>
+    <sys:String x:Key="Clock_ResetPosition">Reset Clock Position</sys:String>
     <sys:String x:Key="Clock_FontFamily">Font</sys:String>
     <sys:String x:Key="Clock_FontSize">Font Size</sys:String>
     <sys:String x:Key="Clock_OutlineFont">Outline Font</sys:String>
@@ -124,7 +129,7 @@
     <sys:String x:Key="Hotkeys_Title">Hotkey Bindings</sys:String>
     <sys:String x:Key="Hotkeys_Desc">Set global hotkeys to toggle settings while in-game</sys:String>
     <sys:String x:Key="Hotkeys_DisplaySection">Display Mode Hotkeys</sys:String>
-    <sys:String x:Key="Hotkeys_ColorSection">Color Switch Hotkeys</sys:String>
+    <sys:String x:Key="Hotkeys_ColorSection">Color Cycle Hotkeys</sys:String>
     <sys:String x:Key="Hotkeys_PressKeys">Press key combination…</sys:String>
     <sys:String x:Key="Hotkeys_Conflict">Hotkey conflict!</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">Unbound</sys:String>
@@ -141,10 +146,8 @@
     <sys:String x:Key="HK_CycleAspectRatio">Cycle Aspect Ratio</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">Cycle Opacity Mode</sys:String>
     <sys:String x:Key="HK_CycleTargetMonitor">Cycle Target Monitor</sys:String>
-    <sys:String x:Key="HK_ColorRed">Color: Red</sys:String>
-    <sys:String x:Key="HK_ColorGreen">Color: Green</sys:String>
-    <sys:String x:Key="HK_ColorBlue">Color: Blue</sys:String>
-    <sys:String x:Key="HK_ColorCustom">Color: Custom</sys:String>
+    <sys:String x:Key="HK_CycleOverlayColor">Cycle Overlay Color (Red→Green→Blue→Custom)</sys:String>
+    <sys:String x:Key="HK_CycleCrosshairColor">Cycle Crosshair Color (Red→Green→Blue→Custom)</sys:String>
 
     <!-- Options Page -->
     <sys:String x:Key="Options_Title">Options</sys:String>
@@ -182,7 +185,6 @@
 
     <!-- About -->
     <sys:String x:Key="About_Title">About</sys:String>
-    <sys:String x:Key="About_Version">Motion Stabilizer v2.6.0</sys:String>
     <sys:String x:Key="About_Desc">A safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief.</sys:String>
     <sys:String x:Key="About_Feature1">✓ Pure external desktop overlay — no DLL injection</sys:String>
     <sys:String x:Key="About_Feature2">✓ Safe under all anti-cheat systems (Vanguard, EAC, BattlEye)</sys:String>
@@ -190,11 +192,27 @@
     <sys:String x:Key="About_Author">Author: shsr07</sys:String>
     <sys:String x:Key="About_GitHub">GitHub: https://github.com/shsr07</sys:String>
 
+    <!-- Profile load dialog -->
+    <sys:String x:Key="ProfileLoad_Title">Load Profile</sys:String>
+    <sys:String x:Key="ProfileLoad_Confirm">Load</sys:String>
+
     <!-- Profile delete dialog -->
     <sys:String x:Key="ProfileDelete_Title">Delete Profile</sys:String>
     <sys:String x:Key="ProfileDelete_Confirm">Delete</sys:String>
     <sys:String x:Key="ProfileDelete_ConfirmYes">Confirm</sys:String>
     <sys:String x:Key="ProfileDelete_Msg">Are you sure you want to delete profile "{0}"? This cannot be undone.</sys:String>
+
+    <!-- Profile save dialogs -->
+    <sys:String x:Key="ProfileSave_EmptyTitle">Cannot Save</sys:String>
+    <sys:String x:Key="ProfileSave_EmptyMsg">The profile name cannot be empty. Please enter a name.</sys:String>
+    <sys:String x:Key="ProfileSave_OverwriteTitle">Overwrite Profile</sys:String>
+    <sys:String x:Key="ProfileSave_OverwriteMsg">A profile named "{0}" already exists. Overwrite it?</sys:String>
+    <sys:String x:Key="ProfileSave_OverwriteYes">Overwrite</sys:String>
+
+    <!-- Error dialogs ({0} = exception type, {1} = message, {2} = stack trace) -->
+    <sys:String x:Key="Error_StartupFail">Startup failed:\n\n{0}: {1}\n\n{2}</sys:String>
+    <sys:String x:Key="Error_UnhandledException">An unhandled exception occurred:\n\n{0}: {1}\n\n{2}</sys:String>
+    <sys:String x:Key="Error_FatalException">A fatal exception occurred:\n\n{0}: {1}\n\n{2}</sys:String>
 
     <!-- Confirm dialog -->
     <sys:String x:Key="ConfirmClose_Title">Confirm Close</sys:String>

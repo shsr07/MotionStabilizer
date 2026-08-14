@@ -29,7 +29,7 @@
 
 ## ✨ 功能特性 / Features
 
-- **边缘叠加 (Edge Overlay)** — 在屏幕边缘绘制参考框线（方框 / 圆顶 / 旗帜三种形状），为大脑提供视觉稳定锚点
+- **边缘叠加 (Edge Overlay)** — 在屏幕边缘绘制参考框线（长杆 / 方框 / 圆顶 / 旗帜四种形状），为大脑提供视觉稳定锚点
 
 > [!TIP]
 > **核心功能(Core Features)：动态圆点 (Motion Dots)**
@@ -67,18 +67,18 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v2.6.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v2.7.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 
 > 无需安装 .NET 运行时，已内置。
 
-> **校验 / Checksum (v2.6.0)**
+> **校验 / Checksum (v2.7.0)**
 >
-> SHA-256: `8883F4B66A554D9523D59F25901D4D916D2BACC59752A8DDE6313FEACCCF2FBD`
+> SHA-256: `D9C3DC52CF8452E99A90F623A3F09AF0B6F4E4C1123BD40254968B7DD914F64C`
 >
 > 验证方式 / Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.6.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.7.0-win-x64.zip SHA256`
 
 ### 方式二：从源码构建 / Build from Source
 
@@ -112,7 +112,8 @@ dotnet build -c Release
 | F5 | 切换准星形状 |
 | F6 | 切换显示模式 |
 | F7 | 切换透明度模式 |
-| F8–F11 | 切换颜色（红/绿/蓝/自定义） |
+| F9 | 叠加层颜色循环（红/绿/蓝/自定义） |
+| F10 | 准星颜色循环（红/绿/蓝/自定义） |
 
 ## 🛠️ 技术栈 / Tech Stack
 

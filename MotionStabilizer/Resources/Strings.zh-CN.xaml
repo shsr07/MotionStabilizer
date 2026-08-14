@@ -40,6 +40,7 @@
     <sys:String x:Key="Color_Custom">自定义</sys:String>
 
     <!-- Shapes -->
+    <sys:String x:Key="Shape_Pole">长杆</sys:String>
     <sys:String x:Key="Shape_Box">方框</sys:String>
     <sys:String x:Key="Shape_Dome">圆顶</sys:String>
     <sys:String x:Key="Shape_Flag">旗帜</sys:String>
@@ -69,6 +70,7 @@
     <!-- Overlay Page -->
     <sys:String x:Key="Overlay_Title">边缘叠加</sys:String>
     <sys:String x:Key="Overlay_Desc">在屏幕边缘绘制参考框线，为大脑提供视觉稳定锚点</sys:String>
+    <sys:String x:Key="Overlay_HotkeyHint">请在游戏中使用快捷键操控叠加层</sys:String>
     <sys:String x:Key="Overlay_ShapeCard">形状选择</sys:String>
     <sys:String x:Key="Overlay_SizeCard">尺寸与比例</sys:String>
     <sys:String x:Key="Overlay_DisplayCard">显示与分屏</sys:String>
@@ -99,6 +101,8 @@
     <sys:String x:Key="Motion_WarningMsg">开启此功能会使用高频按键轮询（GetAsyncKeyState），绝对禁止在带有 Vanguard、EAC、BattlEye 等反作弊系统的多人游戏中使用，否则可能导致封号。仅限单机游戏开启！\n\n确定要继续吗？</sys:String>
     <sys:String x:Key="Motion_WarningYes">我已了解风险，确认开启</sys:String>
     <sys:String x:Key="Motion_WarningNo">取消</sys:String>
+    <sys:String x:Key="Motion_InitFail_Title">动态圆点不可用</sys:String>
+    <sys:String x:Key="Motion_InitFail_Msg">无法初始化动态圆点渲染（需要支持 Direct3D 11 的显卡驱动）。远程桌面、虚拟机或过旧的显卡驱动环境下可能无法使用。其他叠加功能不受影响。</sys:String>
 
     <!-- Crosshair Page -->
     <sys:String x:Key="Crosshair_Title">中心准星</sys:String>
@@ -113,9 +117,10 @@
     <sys:String x:Key="Clock_FormatCard">时间格式</sys:String>
     <sys:String x:Key="Clock_FontCard">字体样式</sys:String>
     <sys:String x:Key="Clock_PositionCard">位置</sys:String>
-    <sys:String x:Key="Clock_PositionHint">屏幕左上角为零坐标点。解除锁定后移动鼠标即可拖动时钟，按左键确认位置，按 Esc 取消。</sys:String>
+    <sys:String x:Key="Clock_PositionHint">屏幕左上角为零坐标点。解除锁定后时钟会瞬移到鼠标位置并跟随移动，按左键确认位置，按 Esc 取消并还原到拖动前的位置。也可点击下方按钮将时钟重置到默认位置（20, 20）。</sys:String>
     <sys:String x:Key="Clock_UnlockDrag">解锁拖动</sys:String>
     <sys:String x:Key="Clock_LockDrag">锁定位置</sys:String>
+    <sys:String x:Key="Clock_ResetPosition">重置时钟位置</sys:String>
     <sys:String x:Key="Clock_FontFamily">字体</sys:String>
     <sys:String x:Key="Clock_FontSize">字号</sys:String>
     <sys:String x:Key="Clock_OutlineFont">描边字体</sys:String>
@@ -124,7 +129,7 @@
     <sys:String x:Key="Hotkeys_Title">快捷键绑定</sys:String>
     <sys:String x:Key="Hotkeys_Desc">设置全局快捷键，在游戏中随时切换设置</sys:String>
     <sys:String x:Key="Hotkeys_DisplaySection">显示模式热键</sys:String>
-    <sys:String x:Key="Hotkeys_ColorSection">颜色切换热键</sys:String>
+    <sys:String x:Key="Hotkeys_ColorSection">颜色循环热键</sys:String>
     <sys:String x:Key="Hotkeys_PressKeys">请按下组合键…</sys:String>
     <sys:String x:Key="Hotkeys_Conflict">热键冲突！</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">已解除绑定</sys:String>
@@ -141,10 +146,8 @@
     <sys:String x:Key="HK_CycleAspectRatio">切换宽高比</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">切换透明度模式</sys:String>
     <sys:String x:Key="HK_CycleTargetMonitor">切换目标显示器</sys:String>
-    <sys:String x:Key="HK_ColorRed">颜色：红色</sys:String>
-    <sys:String x:Key="HK_ColorGreen">颜色：绿色</sys:String>
-    <sys:String x:Key="HK_ColorBlue">颜色：蓝色</sys:String>
-    <sys:String x:Key="HK_ColorCustom">颜色：自定义</sys:String>
+    <sys:String x:Key="HK_CycleOverlayColor">叠加层颜色循环（红→绿→蓝→自定义）</sys:String>
+    <sys:String x:Key="HK_CycleCrosshairColor">准星颜色循环（红→绿→蓝→自定义）</sys:String>
 
     <!-- Options Page -->
     <sys:String x:Key="Options_Title">全局选项</sys:String>
@@ -182,7 +185,6 @@
 
     <!-- About -->
     <sys:String x:Key="About_Title">关于</sys:String>
-    <sys:String x:Key="About_Version">Motion Stabilizer v2.6.0</sys:String>
     <sys:String x:Key="About_Desc">安全、零侵入的视觉稳定叠加层，缓解 3D 游戏晕动症。</sys:String>
     <sys:String x:Key="About_Feature1">✓ 纯外部桌面叠加层 — 无 DLL 注入</sys:String>
     <sys:String x:Key="About_Feature2">✓ 兼容所有反作弊系统（Vanguard、EAC、BattlEye）</sys:String>
@@ -190,11 +192,27 @@
     <sys:String x:Key="About_Author">作者：shsr07</sys:String>
     <sys:String x:Key="About_GitHub">GitHub：https://github.com/shsr07</sys:String>
 
+    <!-- Profile load dialog -->
+    <sys:String x:Key="ProfileLoad_Title">加载配置文件</sys:String>
+    <sys:String x:Key="ProfileLoad_Confirm">加载</sys:String>
+
     <!-- Profile delete dialog -->
     <sys:String x:Key="ProfileDelete_Title">删除配置文件</sys:String>
     <sys:String x:Key="ProfileDelete_Confirm">删除</sys:String>
     <sys:String x:Key="ProfileDelete_ConfirmYes">确认</sys:String>
     <sys:String x:Key="ProfileDelete_Msg">确定要删除配置文件 "{0}" 吗？此操作不可撤销。</sys:String>
+
+    <!-- Profile save dialogs -->
+    <sys:String x:Key="ProfileSave_EmptyTitle">无法保存</sys:String>
+    <sys:String x:Key="ProfileSave_EmptyMsg">配置名称不能为空，请输入一个名称。</sys:String>
+    <sys:String x:Key="ProfileSave_OverwriteTitle">覆盖配置文件</sys:String>
+    <sys:String x:Key="ProfileSave_OverwriteMsg">已存在名为 "{0}" 的配置文件，是否覆盖？</sys:String>
+    <sys:String x:Key="ProfileSave_OverwriteYes">覆盖</sys:String>
+
+    <!-- Error dialogs ({0} = exception type, {1} = message, {2} = stack trace) -->
+    <sys:String x:Key="Error_StartupFail">启动失败：\n\n{0}: {1}\n\n{2}</sys:String>
+    <sys:String x:Key="Error_UnhandledException">发生未处理异常：\n\n{0}: {1}\n\n{2}</sys:String>
+    <sys:String x:Key="Error_FatalException">发生致命异常：\n\n{0}: {1}\n\n{2}</sys:String>
 
     <!-- Confirm dialog -->
     <sys:String x:Key="ConfirmClose_Title">确认关闭</sys:String>

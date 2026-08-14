@@ -5,10 +5,12 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
         <StackPanel Margin="24,0,24,24">
 
-            <!-- Title -->
-            <TextBlock Text="{DynamicResource Overlay_Title}" Style="{StaticResource PageTitle}" />
+            <!-- Header -->
+            <TextBlock Text="{DynamicResource Overlay_Title}" Style="{StaticResource PageTitle}" Margin="0,0,0,8" />
             <TextBlock Text="{DynamicResource Overlay_Desc}" Foreground="{StaticResource BrushTextSecondary}" FontSize="13"
-                       Margin="0,0,0,24" TextWrapping="Wrap" />
+                       Margin="0,0,0,8" TextWrapping="Wrap" />
+            <TextBlock Text="{DynamicResource Overlay_HotkeyHint}" Foreground="{StaticResource BrushAccentYellow}" FontSize="13"
+                       FontWeight="SemiBold" Margin="0,0,0,24" TextWrapping="Wrap" />
 
             <!-- ═══════ Toggle Switch ═══════ -->
             <Border Style="{StaticResource SettingsCard}">
@@ -27,6 +29,24 @@
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Overlay_ShapeCard}" Style="{StaticResource CardTitle}" />
                     <StackPanel Orientation="Horizontal">
+                        <!-- Pole: four long bars sticking from each edge toward the center -->
+                        <Button x:Name="BtnShapePole" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
+                                Click="Shape_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Stroke="{StaticResource BrushTextSecondary}" StrokeThickness="1.5" Fill="{StaticResource BrushTextSecondary}"
+                                      Data="M16,2 L20,2 L20,12 L16,12 Z
+                                            M16,12 L20,12 L18,16 Z
+                                            M16,24 L20,24 L20,34 L16,34 Z
+                                            M16,24 L20,24 L18,20 Z
+                                            M2,16 L14,16 L14,20 L2,20 Z
+                                            M14,16 L14,20 L18,18 Z
+                                            M22,16 L34,16 L34,20 L22,20 Z
+                                            M22,16 L22,20 L18,18 Z"
+                                      Opacity="0.5" />
+                                <TextBlock Text="{DynamicResource Shape_Pole}" FontSize="11" Foreground="{StaticResource BrushTextSecondary}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Button>
                         <!-- Box: four discrete centered rectangles -->
                         <Button x:Name="BtnShapeBox" Style="{StaticResource ShapeButton}" Margin="0,0,12,0"
                                 Click="Shape_Click" Tag="">

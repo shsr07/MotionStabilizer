@@ -3,6 +3,7 @@ namespace MotionStabilizer.Models;
 /// <summary>Overlay shape types</summary>
 public enum OverlayShape
 {
+    Pole,
     Box,
     Dome,
     Flag,

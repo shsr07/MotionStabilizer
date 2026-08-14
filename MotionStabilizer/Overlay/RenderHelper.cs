@@ -33,6 +33,22 @@ public static class RenderHelper
     public static double OverlayTotalWidth(SizePreset s, OffsetLevel len) =>
         OverlayBarWidth(s) + LengthOffsetPx(len);
 
+    /// <summary>
+    /// Thickness (粗细) of each pole bar for the Pole shape, per size preset.
+    /// Anchored at M = 70 px (the original pole spec).
+    /// </summary>
+    public static double PoleThickness(SizePreset s) => s switch
+    {
+        SizePreset.XXS => 25,
+        SizePreset.XS => 38,
+        SizePreset.S => 52,
+        SizePreset.M => 70,
+        SizePreset.L => 90,
+        SizePreset.XL => 115,
+        SizePreset.XXL => 145,
+        _ => 70
+    };
+
     /// <summary>Diameter of each motion cue dot in device-independent pixels.</summary>
     public static double MotionDotDiameter(SizePreset s) => s switch
     {
@@ -207,24 +223,24 @@ public static class RenderHelper
         if (cfg.Split == SplitScreen.Vertical)
         {
             double halfW = drawArea.Width / 2;
-            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y, halfW, drawArea.Height), sizePx, lengthPx, color));
-            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X + halfW, drawArea.Y, halfW, drawArea.Height), sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y, halfW, drawArea.Height), sizePx, lengthPx, dpiRatio, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X + halfW, drawArea.Y, halfW, drawArea.Height), sizePx, lengthPx, dpiRatio, color));
         }
         else if (cfg.Split == SplitScreen.Horizontal)
         {
             double halfH = drawArea.Height / 2;
-            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y, drawArea.Width, halfH), sizePx, lengthPx, color));
-            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y + halfH, drawArea.Width, halfH), sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y, drawArea.Width, halfH), sizePx, lengthPx, dpiRatio, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, new Rect(drawArea.X, drawArea.Y + halfH, drawArea.Width, halfH), sizePx, lengthPx, dpiRatio, color));
         }
         else
         {
-            shapes.AddRange(BuildSingleOverlay(cfg, drawArea, sizePx, lengthPx, color));
+            shapes.AddRange(BuildSingleOverlay(cfg, drawArea, sizePx, lengthPx, dpiRatio, color));
         }
 
         return shapes;
     }
 
-    private static List<Shape> BuildSingleOverlay(OverlayConfig cfg, Rect area, double sizePx, double lengthPx, Color color)
+    private static List<Shape> BuildSingleOverlay(OverlayConfig cfg, Rect area, double sizePx, double lengthPx, double dpiRatio, Color color)
     {
         var result = new List<Shape>();
         double x = area.X;
@@ -239,6 +255,85 @@ public static class RenderHelper
 
         switch (cfg.Shape)
         {
+            case OverlayShape.Pole:
+                // ── Four poles sticking out from each screen edge toward the
+                //     screen center, centered on their edge, with a pointed
+                //     triangular tip at the inward end.
+                //     Size preset → thickness (粗细); Length offset → length (长短).
+                //     Base lengths at +0: the fixed spec values (400 px vertical,
+                //     750 px horizontal) when they fit; otherwise 80% of the axis
+                //     maximum, so the Length slider stays responsive on every
+                //     aspect ratio and DPI scale. Length +6 maps to
+                //     the axis maximum (half the axis minus half the thickness,
+                //     i.e. the poles reach just short of the screen center);
+                //     levels 0..6 interpolate linearly in between. The maxima are
+                //     computed per monitor, so every aspect ratio is handled. ──
+                double poleThick = Math.Max(PoleThickness(cfg.Size) * dpiRatio, 2);
+                double tipLen = poleThick; // triangular tip height = thickness
+
+                double maxLenH = Math.Max(w / 2 - poleThick / 2, tipLen);
+                double maxLenV = Math.Max(h / 2 - poleThick / 2, tipLen);
+                double baseLenH = Math.Max(Math.Min(750 * dpiRatio, maxLenH * 0.8), tipLen);
+                double baseLenV = Math.Max(Math.Min(400 * dpiRatio, maxLenV * 0.8), tipLen);
+
+                // Length level 0..6 → interpolation factor 0..1
+                double t = (int)cfg.Length / 6.0;
+                double lenH = baseLenH + (maxLenH - baseLenH) * t;
+                double lenV = baseLenV + (maxLenV - baseLenV) * t;
+
+                // Top edge — vertical pole pointing down into the screen
+                if (cfg.IsEdgeVisible(EdgeSide.Top))
+                {
+                    var topRect = new Rectangle { Fill = brushFor(EdgeSide.Top), Width = poleThick, Height = lenV - tipLen };
+                    Canvas.SetLeft(topRect, cx - poleThick / 2);
+                    Canvas.SetTop(topRect, y);
+                    result.Add(topRect);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Top),
+                        cx - poleThick / 2, y + lenV - tipLen,
+                        cx + poleThick / 2, y + lenV - tipLen,
+                        cx, y + lenV));
+                }
+
+                // Bottom edge — vertical pole pointing up into the screen
+                if (cfg.IsEdgeVisible(EdgeSide.Bottom))
+                {
+                    var botRect = new Rectangle { Fill = brushFor(EdgeSide.Bottom), Width = poleThick, Height = lenV - tipLen };
+                    Canvas.SetLeft(botRect, cx - poleThick / 2);
+                    Canvas.SetTop(botRect, y + h - (lenV - tipLen));
+                    result.Add(botRect);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Bottom),
+                        cx - poleThick / 2, y + h - lenV + tipLen,
+                        cx + poleThick / 2, y + h - lenV + tipLen,
+                        cx, y + h - lenV));
+                }
+
+                // Left edge — horizontal pole pointing right into the screen
+                if (cfg.IsEdgeVisible(EdgeSide.Left))
+                {
+                    var leftRect = new Rectangle { Fill = brushFor(EdgeSide.Left), Width = lenH - tipLen, Height = poleThick };
+                    Canvas.SetLeft(leftRect, x);
+                    Canvas.SetTop(leftRect, cy - poleThick / 2);
+                    result.Add(leftRect);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Left),
+                        x + lenH - tipLen, cy - poleThick / 2,
+                        x + lenH - tipLen, cy + poleThick / 2,
+                        x + lenH, cy));
+                }
+
+                // Right edge — horizontal pole pointing left into the screen
+                if (cfg.IsEdgeVisible(EdgeSide.Right))
+                {
+                    var rightRect = new Rectangle { Fill = brushFor(EdgeSide.Right), Width = lenH - tipLen, Height = poleThick };
+                    Canvas.SetLeft(rightRect, x + w - (lenH - tipLen));
+                    Canvas.SetTop(rightRect, cy - poleThick / 2);
+                    result.Add(rightRect);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Right),
+                        x + w - lenH + tipLen, cy - poleThick / 2,
+                        x + w - lenH + tipLen, cy + poleThick / 2,
+                        x + w - lenH, cy));
+                }
+                break;
+
             case OverlayShape.Box:
                 // ── Four centered rectangular bars, one on each edge ──
                 // Size  → thickness (perpendicular to edge)

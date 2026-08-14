@@ -100,7 +100,7 @@
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About_Title}" Style="{StaticResource CardTitle}" />
-                    <TextBlock Text="{DynamicResource About_Version}" Foreground="{StaticResource BrushTextPrimary}" FontSize="13" Margin="0,0,0,6" />
+                    <TextBlock x:Name="AboutVersionText" Foreground="{StaticResource BrushTextPrimary}" FontSize="13" Margin="0,0,0,6" />
                     <TextBlock Text="{DynamicResource About_Desc}"
                                Foreground="{StaticResource BrushTextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6" />
                     <TextBlock Text="{DynamicResource About_Feature1}" Foreground="{StaticResource BrushAccentGreen}" FontSize="12" Margin="0,0,0,4" />

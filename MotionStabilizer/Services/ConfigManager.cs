@@ -111,7 +111,8 @@ public class ConfigManager
         }
     }
 
-    private static string SanitizeName(string name)
+    /// <summary>Replace characters that are invalid in file names with '_'.</summary>
+    public static string SanitizeName(string name)
     {
         foreach (char c in Path.GetInvalidFileNameChars())
             name = name.Replace(c, '_');

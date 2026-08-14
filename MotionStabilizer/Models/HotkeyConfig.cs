@@ -59,11 +59,9 @@ public class HotkeyConfig
     public HotkeyBinding CycleOpacityMode { get; set; } = new() { Name = "CycleOpacityMode", Key = "F7" };
     public HotkeyBinding CycleTargetMonitor { get; set; } = new() { Name = "CycleTargetMonitor" };
 
-    // 4 color switch hotkeys
-    public HotkeyBinding ColorRed { get; set; } = new() { Name = "ColorRed", Key = "F8" };
-    public HotkeyBinding ColorGreen { get; set; } = new() { Name = "ColorGreen", Key = "F9" };
-    public HotkeyBinding ColorBlue { get; set; } = new() { Name = "ColorBlue", Key = "F10" };
-    public HotkeyBinding ColorCustom { get; set; } = new() { Name = "ColorCustom", Key = "F11" };
+    // 2 color cycle hotkeys: overlay / crosshair each cycle Red → Green → Blue → Custom
+    public HotkeyBinding CycleOverlayColor { get; set; } = new() { Name = "CycleOverlayColor", Key = "F9" };
+    public HotkeyBinding CycleCrosshairColor { get; set; } = new() { Name = "CycleCrosshairColor", Key = "F10" };
 
     public List<HotkeyBinding> AllBindings => new()
     {
@@ -77,9 +75,7 @@ public class HotkeyConfig
         CycleAspectRatio,
         CycleOpacityMode,
         CycleTargetMonitor,
-        ColorRed,
-        ColorGreen,
-        ColorBlue,
-        ColorCustom
+        CycleOverlayColor,
+        CycleCrosshairColor
     };
 }

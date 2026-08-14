@@ -89,6 +89,9 @@
                     <Button x:Name="BtnDrag" Style="{StaticResource SecondaryButton}"
                             Content="{DynamicResource Clock_UnlockDrag}"
                             Click="Drag_Click" />
+                    <Button x:Name="BtnResetPosition" Style="{StaticResource SecondaryButton}"
+                            Content="{DynamicResource Clock_ResetPosition}"
+                            Click="ResetPosition_Click" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 

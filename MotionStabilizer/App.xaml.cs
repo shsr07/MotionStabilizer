@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.Threading;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using MotionStabilizer.Models;
@@ -68,9 +69,45 @@ public partial class App : Application
     // Tray
     private TrayService? _tray;
 
+    // ── Single instance ──
+    private Mutex? _singleInstanceMutex;
+    private bool _ownsSingleInstanceMutex;
+    private const string SingleInstanceMutexName = @"Local\MotionStabilizer.SingleInstance";
+
+    /// <summary>
+    /// System-wide registered message id. When a second instance starts, it posts
+    /// this message to all top-level windows; the running instance's MainWindow
+    /// responds by showing and activating itself.
+    /// </summary>
+    public static int ShowMainWindowMessage { get; private set; }
+
+    /// <summary>
+    /// Look up a resource string, falling back to a hardcoded value so that
+    /// critical error dialogs never crash on a missing resource key.
+    /// </summary>
+    private static string Res(string key, string fallback) =>
+        Current.TryFindResource(key) as string ?? fallback;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // ── Single-instance guard: must run before any window is created ──
+        ShowMainWindowMessage =
+            unchecked((int)Win32Interop.RegisterWindowMessage("MotionStabilizer.ShowMainWindow"));
+        _singleInstanceMutex = new Mutex(true, SingleInstanceMutexName, out bool createdNew);
+        if (!createdNew)
+        {
+            // Another instance is already running: ask it to show its main window, then exit.
+            if (ShowMainWindowMessage != 0)
+                Win32Interop.PostMessage(Win32Interop.HWND_BROADCAST,
+                    (uint)ShowMainWindowMessage, IntPtr.Zero, IntPtr.Zero);
+            _singleInstanceMutex.Dispose();
+            _singleInstanceMutex = null;
+            Shutdown();
+            return;
+        }
+        _ownsSingleInstanceMutex = true;
 
         // ── Global exception Handlers ──
         DispatcherUnhandledException += App_DispatcherUnhandledException;
@@ -82,8 +119,12 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            string msg = string.Format(
+                    Res("Error_StartupFail", "Startup failed:\n\n{0}: {1}\n\n{2}"),
+                    ex.GetType().Name, ex.Message, ex.StackTrace)
+                .Replace("\\n", "\n");
             MessageBox.Show(
-                $"启动失败:\n\n{ex.GetType().Name}: {ex.Message}\n\n{ex.StackTrace}",
+                msg,
                 "Motion Stabilizer - Startup Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -176,8 +217,12 @@ public partial class App : Application
     private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         e.Handled = true;
+        string msg = string.Format(
+                Res("Error_UnhandledException", "An unhandled exception occurred:\n\n{0}: {1}\n\n{2}"),
+                e.Exception.GetType().Name, e.Exception.Message, e.Exception.StackTrace)
+            .Replace("\\n", "\n");
         MessageBox.Show(
-            $"发生未处理异常:\n\n{e.Exception.GetType().Name}: {e.Exception.Message}\n\n{e.Exception.StackTrace}",
+            msg,
             "Motion Stabilizer - Error",
             MessageBoxButton.OK,
             MessageBoxImage.Warning);
@@ -187,8 +232,12 @@ public partial class App : Application
     {
         if (e.ExceptionObject is Exception ex)
         {
+            string msg = string.Format(
+                    Res("Error_FatalException", "A fatal exception occurred:\n\n{0}: {1}\n\n{2}"),
+                    ex.GetType().Name, ex.Message, ex.StackTrace)
+                .Replace("\\n", "\n");
             MessageBox.Show(
-                $"发生致命异常:\n\n{ex.GetType().Name}: {ex.Message}\n\n{ex.StackTrace}",
+                msg,
                 "Motion Stabilizer - Fatal Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -239,15 +288,13 @@ public partial class App : Application
         Hotkeys.Register(hk.ToggleClock, () => { ClockConfig.IsVisible = !ClockConfig.IsVisible; });
         Hotkeys.Register(hk.CycleDisplayMode, () => { OverlayConfig.Mode = OverlayConfig.Mode == DisplayMode.Window ? DisplayMode.Stretch : DisplayMode.Window; });
         Hotkeys.Register(hk.CycleSplitScreen, CycleSplitScreen);
-        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 4); });
+        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 5); });
         Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); });
         Hotkeys.Register(hk.CycleAspectRatio, CycleAspectRatio);
         Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); });
         Hotkeys.Register(hk.CycleTargetMonitor, CycleTargetMonitor);
-        Hotkeys.Register(hk.ColorRed, () => SetColor(ColorPreset.Red));
-        Hotkeys.Register(hk.ColorGreen, () => SetColor(ColorPreset.Green));
-        Hotkeys.Register(hk.ColorBlue, () => SetColor(ColorPreset.Blue));
-        Hotkeys.Register(hk.ColorCustom, () => SetColor(ColorPreset.Custom));
+        Hotkeys.Register(hk.CycleOverlayColor, () => { OverlayConfig.ColorPreset = NextColorPreset(OverlayConfig.ColorPreset); });
+        Hotkeys.Register(hk.CycleCrosshairColor, () => { CrosshairConfig.ColorPreset = NextColorPreset(CrosshairConfig.ColorPreset); });
     }
 
     private void CycleSplitScreen()
@@ -274,11 +321,12 @@ public partial class App : Application
             cc.AspectRatio = (AspectRatio)(((int)cc.AspectRatio + 1) % 4);
     }
 
-    private void SetColor(ColorPreset color)
-    {
-        OverlayConfig.ColorPreset = color;
-        CrosshairConfig.ColorPreset = color;
-    }
+    /// <summary>
+    /// Cycle a color preset in the order Red → Green → Blue → Custom → Red.
+    /// Enum order defines the cycle, so no explicit mapping is needed.
+    /// </summary>
+    private static ColorPreset NextColorPreset(ColorPreset current) =>
+        (ColorPreset)(((int)current + 1) % 4);
 
     /// <summary>
     /// Cycle through available monitors (All → Monitor 1 → Monitor 2 → … → All).
@@ -444,6 +492,15 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Release the single-instance mutex if this instance owns it
+        if (_ownsSingleInstanceMutex)
+        {
+            _singleInstanceMutex?.ReleaseMutex();
+            _singleInstanceMutex?.Dispose();
+            _singleInstanceMutex = null;
+            _ownsSingleInstanceMutex = false;
+        }
+
         // Unsubscribe from config changes
         Config.Changed -= OnConfigChanged;
 

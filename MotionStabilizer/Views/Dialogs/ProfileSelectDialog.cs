@@ -15,15 +15,22 @@ public class ProfileSelectDialog : Window
 
     private static readonly string FontFam = "Segoe UI Variable, Segoe UI, Microsoft YaHei UI";
 
-    public ProfileSelectDialog(List<string> profiles, string dialogTitle = "Load Profile", string confirmText = "Load")
+    public ProfileSelectDialog(List<string> profiles, string? dialogTitle = null, string? confirmText = null)
     {
+        // Localized defaults: title and confirm button come from the resource
+        // dictionaries unless the caller passes explicit values.
+        string title = dialogTitle ??
+            (string)(System.Windows.Application.Current.TryFindResource("ProfileLoad_Title") ?? "Load Profile");
+        string confirm = confirmText ??
+            (string)(System.Windows.Application.Current.TryFindResource("ProfileLoad_Confirm") ?? "Load");
+
         // Ensure theme styles are available on this Window instance.
         Resources.MergedDictionaries.Add(new ResourceDictionary
         {
             Source = new Uri("pack://application:,,,/Themes/FluentLight.xaml", UriKind.Absolute)
         });
 
-        Title = dialogTitle;
+        Title = title;
         Width = 360;
         Height = 320;
         WindowStyle = WindowStyle.None;
@@ -46,7 +53,7 @@ public class ProfileSelectDialog : Window
 
         var titleBlock = new TextBlock
         {
-            Text = dialogTitle,
+            Text = title,
             FontFamily = new FontFamily(FontFam),
             FontSize = 16,
             FontWeight = FontWeights.SemiBold,
@@ -83,7 +90,7 @@ public class ProfileSelectDialog : Window
         var primaryStyle = this.TryFindResource("PrimaryButton") as Style;
         var btnLoad = new Button
         {
-            Content = confirmText,
+            Content = confirm,
             FontFamily = new FontFamily(FontFam),
             Width = 80,
             Height = 36,

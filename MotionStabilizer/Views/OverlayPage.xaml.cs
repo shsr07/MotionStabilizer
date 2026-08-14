@@ -117,6 +117,7 @@ public partial class OverlayPage : Page
 
     private void UpdateShapeSelection(OverlayShape shape)
     {
+        BtnShapePole.Tag = shape == OverlayShape.Pole ? "Selected" : "";
         BtnShapeBox.Tag = shape == OverlayShape.Box ? "Selected" : "";
         BtnShapeDome.Tag = shape == OverlayShape.Dome ? "Selected" : "";
         BtnShapeFlag.Tag = shape == OverlayShape.Flag ? "Selected" : "";
@@ -147,7 +148,8 @@ public partial class OverlayPage : Page
     private void Shape_Click(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;
-        if (sender == BtnShapeBox) App.OverlayConfig.Shape = OverlayShape.Box;
+        if (sender == BtnShapePole) App.OverlayConfig.Shape = OverlayShape.Pole;
+        else if (sender == BtnShapeBox) App.OverlayConfig.Shape = OverlayShape.Box;
         else if (sender == BtnShapeDome) App.OverlayConfig.Shape = OverlayShape.Dome;
         else if (sender == BtnShapeFlag) App.OverlayConfig.Shape = OverlayShape.Flag;
         else if (sender == BtnShapeMotion) App.OverlayConfig.Shape = OverlayShape.MotionDots;

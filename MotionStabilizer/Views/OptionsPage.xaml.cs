@@ -24,6 +24,10 @@ public partial class OptionsPage : Page
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
         RefreshFromConfig();
+        // Version comes from the assembly (csproj <Version>) — single source of truth,
+        // no manual per-language resource sync required.
+        var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        AboutVersionText.Text = $"Motion Stabilizer v{v?.Major ?? 0}.{v?.Minor ?? 0}.{v?.Build ?? 0}";
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
     }
 
