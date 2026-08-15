@@ -2,6 +2,8 @@
 
 [![Build & Test](https://github.com/shsr07/MotionStabilizer/workflows/Build%20&%20Test/badge.svg)](https://github.com/shsr07/MotionStabilizer/actions)
 
+**[English](README.en.md)** | 中文
+
 > 安全、零侵入的视觉稳定叠加层，缓解 3D 游戏晕动症。
 >
 > A safe, zero-intrusion visual stabilization overlay for 3D game motion sickness relief.
