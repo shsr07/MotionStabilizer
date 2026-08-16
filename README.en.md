@@ -93,11 +93,13 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 1. After launching, the main window appears in the system tray and taskbar
 2. Configure the edge overlay, crosshair, and floating clock via the left navigation
 3. Set global hotkeys on the "Hotkeys" page
-4. Adjust the UI, language, and profiles on the "Options" page
+4. Adjust the UI, language, monitor, and profiles on the "Options" page
 5. Minimizing the window keeps the program in the tray with the overlay running
 6. **IMPORTANT!!!**: Once in-game, control the features with hotkeys
 
-> ⚠️ **Note**: the overlay may not show in some games' exclusive-fullscreen mode. Switch the game to **borderless** or **windowed** mode and it will work normally.
+> ⚠️ **Notes**
+> 1. **Exclusive Fullscreen**: The overlay may not show in some games' exclusive-fullscreen mode. Switch the game to **borderless** or **windowed** mode and it will work normally.
+> 2. **Administrator Notice**: If Steam or your game is running as administrator, MotionStabilizer must also be run as administrator; otherwise the motion dots may not follow the mouse and global hotkeys may stop working. This is caused by a Windows permission isolation mechanism, not a bug in the app.
 
 ## ⌨️ Default Hotkeys
 
