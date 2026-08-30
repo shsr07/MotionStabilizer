@@ -114,6 +114,8 @@
     <sys:String x:Key="Motion_GamepadNotFound_Msg">手柄控制已启用，但当前未检测到已连接的 XInput 手柄。\n\nXbox 系手柄即插即用；其他手柄（DualSense、Switch Pro 等）需经转接才能被识别：在 Steam 中勾选“控制器 → Xbox 配置支持”，或使用 BetterJoy 等工具并在其中启用控制器。\n\n转接工具产生的虚拟手柄同样请勿用于联机游戏。手柄接入后动态圆点会立即响应摇杆，无需重启程序。</sys:String>
     <sys:String x:Key="Motion_XInputUnavailable_Title">XInput 不可用</sys:String>
     <sys:String x:Key="Motion_XInputUnavailable_Msg">手柄控制已启用，但本机缺少 XInput 组件（xinput1_4.dll / xinput9_1_0.dll），无法读取手柄状态。该组件为 Windows 自带，通常不会缺失；如持续出现请检查系统完整性。\n\n其他叠加功能不受影响。</sys:String>
+    <sys:String x:Key="Motion_GamepadNoData_Title">手柄无响应数据</sys:String>
+    <sys:String x:Key="Motion_GamepadNoData_Msg">检测到手柄连接，但未收到任何摇杆数据。\n\n请确认手柄已开机唤醒；若使用 Steam Input、BetterJoy 等转接工具，请确认其正在运行并已启用控制器；也可以尝试重新插拔手柄。\n\n转接工具产生的虚拟手柄同样请勿用于联机游戏。</sys:String>
     <sys:String x:Key="Motion_GamepadWarningMsg">开启此功能会轮询 XInput 手柄摇杆状态（左摇杆＝键盘角色，右摇杆＝鼠标角色）。摇杆轮询是被动读取，不向系统注入任何输入，但为安全策略一致，严禁在带有 Vanguard、EAC、BattlEye 等反作弊系统的联机游戏中使用。仅限单机游戏开启！\n\n确定要继续吗？</sys:String>
     <sys:String x:Key="Motion_InitFail_Title">动态圆点不可用</sys:String>
     <sys:String x:Key="Motion_InitFail_Msg">无法初始化动态圆点渲染（需要支持 Direct3D 11 的显卡驱动）。远程桌面、虚拟机或过旧的显卡驱动环境下可能无法使用。其他叠加功能不受影响。</sys:String>

@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace MotionStabilizer.Services;
 
@@ -6,6 +7,7 @@ namespace MotionStabilizer.Services;
 internal enum GamepadProbeResult
 {
     Connected,
+    ConnectedNoData,
     NotConnected,
     XInputUnavailable
 }
@@ -60,26 +62,63 @@ internal static class XInputInterop
     private static Backend _backend = Backend.Untested;
 
     /// <summary>
-    /// Polls controller slots 0–3 and reads the sticks of the first connected one.
-    /// XInput convention: +Y is stick-up. Returns false when no controller is
-    /// connected or XInput is unavailable.
+    /// Polls controller slots 0–3 and reads the sticks of the first slot that
+    /// is actually PRODUCING stick data. Conversion tools (Steam Input,
+    /// BetterJoy, …) leave zombie virtual pads behind that report "connected"
+    /// forever with all-zero sticks — such a slot on a lower index must not
+    /// shadow a real controller on a higher one, so live slots win; a
+    /// connected-but-idle slot is only used as a fallback (all zeros out).
     /// </summary>
     public static bool TryGetSticks(float deadzone,
         out float leftX, out float leftY, out float rightX, out float rightY)
     {
         leftX = leftY = rightX = rightY = 0f;
-        for (uint slot = 0; slot < 4; slot++)
+
+        var connected = new bool[SlotCount];
+        var alive = new bool[SlotCount];
+        var states = new XInputState[SlotCount];
+
+        for (uint slot = 0; slot < SlotCount; slot++)
         {
             if (InvokeGetState(slot, out XInputState state) != ErrorSuccess)
                 continue;
-
-            (leftX, leftY) = ApplyDeadzone(
-                NormalizeThumb(state.Gamepad.ThumbLX), NormalizeThumb(state.Gamepad.ThumbLY), deadzone);
-            (rightX, rightY) = ApplyDeadzone(
-                NormalizeThumb(state.Gamepad.ThumbRX), NormalizeThumb(state.Gamepad.ThumbRY), deadzone);
-            return true;
+            connected[slot] = true;
+            states[slot] = state;
+            alive[slot] = HasStickSignal(state.Gamepad.ThumbLX, state.Gamepad.ThumbLY,
+                state.Gamepad.ThumbRX, state.Gamepad.ThumbRY);
         }
-        return false;
+
+        int picked = PickSlot(connected, alive);
+        if (picked < 0)
+            return false;
+
+        ref XInputGamepad pad = ref states[picked].Gamepad;
+        (leftX, leftY) = ApplyDeadzone(
+            NormalizeThumb(pad.ThumbLX), NormalizeThumb(pad.ThumbLY), deadzone);
+        (rightX, rightY) = ApplyDeadzone(
+            NormalizeThumb(pad.ThumbRX), NormalizeThumb(pad.ThumbRY), deadzone);
+        return true;
+    }
+
+    internal const int SlotCount = 4;
+
+    /// <summary>Any stick axis reporting a non-rest value.</summary>
+    internal static bool HasStickSignal(float lx, float ly, float rx, float ry)
+        => lx != 0f || ly != 0f || rx != 0f || ry != 0f;
+
+    /// <summary>
+    /// Slot selection: the first slot with live stick data wins over zombie
+    /// virtual pads that merely report "connected"; -1 when none is connected.
+    /// </summary>
+    internal static int PickSlot(bool[] connected, bool[] alive)
+    {
+        for (int i = 0; i < connected.Length; i++)
+            if (connected[i] && alive[i])
+                return i;
+        for (int i = 0; i < connected.Length; i++)
+            if (connected[i])
+                return i;
+        return -1;
     }
 
     /// <summary>
@@ -87,18 +126,48 @@ internal static class XInputInterop
     /// page. Unlike <see cref="TryGetSticks"/>, it distinguishes "no controller
     /// plugged in" from "XInput DLLs unavailable" — the latter being impossible
     /// to tell apart there, and the top reason users report the feature as
-    /// silently broken.
+    /// silently broken. Two samples ~150ms apart also catch zombie virtual pads
+    /// (connected forever, packet 0, zero sticks) and report them as
+    /// <see cref="GamepadProbeResult.ConnectedNoData"/> instead of a misleading
+    /// "connected".
     /// </summary>
     public static GamepadProbeResult ProbeConnection()
     {
-        for (uint slot = 0; slot < 4; slot++)
+        var firstPacket = new uint?[SlotCount];
+        bool anyConnected = false;
+
+        for (int sample = 0; sample < 2; sample++)
         {
-            if (InvokeGetState(slot, out _) == ErrorSuccess)
-                return GamepadProbeResult.Connected;
+            if (sample == 1)
+                Thread.Sleep(150); // enable-time one-shot — acceptable on the UI thread
+
+            for (uint slot = 0; slot < SlotCount; slot++)
+            {
+                if (InvokeGetState(slot, out XInputState state) != ErrorSuccess)
+                    continue;
+                anyConnected = true;
+
+                bool live = HasStickSignal(state.Gamepad.ThumbLX, state.Gamepad.ThumbLY,
+                        state.Gamepad.ThumbRX, state.Gamepad.ThumbRY)
+                    || state.PacketNumber != 0
+                    || (firstPacket[slot].HasValue && firstPacket[slot].Value != state.PacketNumber);
+                if (live)
+                    return GamepadProbeResult.Connected;
+
+                firstPacket[slot] = state.PacketNumber;
+            }
         }
-        return _backend == Backend.Unavailable
-            ? GamepadProbeResult.XInputUnavailable
-            : GamepadProbeResult.NotConnected;
+
+        return ClassifyProbe(anyConnected, anyLive: false, _backend == Backend.Unavailable);
+    }
+
+    /// <summary>Pure probe classification — unit-tested.</summary>
+    internal static GamepadProbeResult ClassifyProbe(bool anyConnected, bool anyLive, bool xinputUnavailable)
+    {
+        if (xinputUnavailable) return GamepadProbeResult.XInputUnavailable;
+        if (anyLive) return GamepadProbeResult.Connected;
+        if (anyConnected) return GamepadProbeResult.ConnectedNoData;
+        return GamepadProbeResult.NotConnected;
     }
 
     private static uint InvokeGetState(uint userIndex, out XInputState state)

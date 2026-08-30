@@ -282,6 +282,11 @@ public partial class OverlayPage : Page
                     (string)FindResource("Motion_XInputUnavailable_Title"),
                     (string)FindResource("Motion_XInputUnavailable_Msg"),
                     (string)FindResource("Common_OK"));
+            else if (probe == GamepadProbeResult.ConnectedNoData)
+                CustomMessageBox.Show(
+                    (string)FindResource("Motion_GamepadNoData_Title"),
+                    (string)FindResource("Motion_GamepadNoData_Msg"),
+                    (string)FindResource("Common_OK"));
         }
     }
 

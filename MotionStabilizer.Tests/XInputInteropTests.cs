@@ -183,4 +183,55 @@ public class XInputInteropTests
         var (x, _) = XInputInterop.ApplyDeadzone(0.6f, 0f, 0.3f);
         Assert.True(x > 0f && x <= 1f);
     }
+
+    // ── Zombie virtual pad: slot selection & probe classification ──
+    // Conversion tools (Steam Input / BetterJoy leftovers) report "connected"
+    // forever with all-zero sticks and packet 0 — they must not shadow a real
+    // controller on a higher slot, and the probe must tell the user.
+
+    [Fact]
+    public void PickSlot_LiveSlotWinsOverZombie()
+    {
+        bool[] connected = { true, true, false, false };
+        bool[] alive = { false, true, false, false };
+        Assert.Equal(1, XInputInterop.PickSlot(connected, alive));
+    }
+
+    [Fact]
+    public void PickSlot_FallsBackToIdleConnectedSlot()
+    {
+        bool[] connected = { true, false, false, false };
+        bool[] alive = { false, false, false, false };
+        Assert.Equal(0, XInputInterop.PickSlot(connected, alive));
+    }
+
+    [Fact]
+    public void PickSlot_FirstConnectedWins_WhenAllIdle()
+    {
+        bool[] connected = { false, true, true, false };
+        bool[] alive = { false, false, false, false };
+        Assert.Equal(1, XInputInterop.PickSlot(connected, alive));
+    }
+
+    [Fact]
+    public void PickSlot_NoneConnected_ReturnsMinusOne()
+    {
+        Assert.Equal(-1, XInputInterop.PickSlot(new bool[4], new bool[4]));
+    }
+
+    [Theory]
+    [InlineData(true, true, false, GamepadProbeResult.Connected)]
+    [InlineData(true, false, false, GamepadProbeResult.ConnectedNoData)]
+    [InlineData(false, false, false, GamepadProbeResult.NotConnected)]
+    [InlineData(false, false, true, GamepadProbeResult.XInputUnavailable)]
+    internal void ClassifyProbe_MapsAllStates(bool anyConnected, bool anyLive, bool unavailable,
+        GamepadProbeResult expected)
+        => Assert.Equal(expected, XInputInterop.ClassifyProbe(anyConnected, anyLive, unavailable));
+
+    [Fact]
+    public void HasStickSignal_DetectsAnyAxis()
+    {
+        Assert.False(XInputInterop.HasStickSignal(0f, 0f, 0f, 0f));
+        Assert.True(XInputInterop.HasStickSignal(0f, 0f, 0.2f, 0f));
+    }
 }
