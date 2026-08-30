@@ -35,7 +35,6 @@
 > An ultra-minimal artificial optical-flow stimulus that feeds "your body is moving" visual evidence to your peripheral vision, aligning the visual signal with the inner-ear vestibular signal to relieve sensory conflict at the source.
 >
 > - **Direction inversion** — invert mouse, keyboard, and gamepad control direction to match different game camera styles
-> - **Gamepad control** — optional XInput dual sticks: left stick = WASD role (analog omnidirectional), right stick = mouse role; Xbox controllers work natively, DS5 / Switch controllers work once converted to XInput via Steam Input, BetterJoy, or similar tools
 > - **Parallax scaling** — dots automatically shrink near the screen center for a natural sense of depth
 > - **Configurable refresh rate** — 30–360 Hz custom animation refresh rate to match your monitor
 
@@ -126,6 +125,7 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 - **Win32 API** — click-through windows, global hotkey registration, system tray, multi-monitor virtual screen, Raw Input, XInput gamepad polling
 - **xUnit** — unit tests (266 tests covering render helpers, config models, hotkey bindings, observable config, area computation, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
 - **C# 12** — latest C# features
+- **Single-file publish** — self-contained win-x64 single exe with the .NET runtime bundled; extract and run
 
 ## 📁 Project Structure
 
