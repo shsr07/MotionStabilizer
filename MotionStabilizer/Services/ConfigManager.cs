@@ -19,6 +19,9 @@ public class ConfigManager
     private static readonly string ProfilesDir = Path.Combine(AppDataDir, "Profiles");
     private static readonly string AppConfigPath = Path.Combine(AppDataDir, "appconfig.json");
 
+    /// <summary>Data directory for config + log files (%LocalAppData%\MotionStabilizer).</summary>
+    internal static string DataDirectory => AppDataDir;
+
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         WriteIndented = true,

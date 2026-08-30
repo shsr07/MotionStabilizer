@@ -10,6 +10,9 @@ public class AppConfig : ObservableObject
     private bool _minimizeToTrayOnStart = false;
     private bool _autoSaveOnClose = true;
     private bool _confirmBeforeClose = true;
+    private bool _hotkeyWarningAcknowledged = false;
+    private bool _motionKeyboardWarningAcknowledged = false;
+    private bool _motionGamepadWarningAcknowledged = false;
 
     // UI customization
     private UIScale _scale = UIScale.Auto;
@@ -18,6 +21,25 @@ public class AppConfig : ObservableObject
     public bool MinimizeToTrayOnStart { get => _minimizeToTrayOnStart; set => SetProperty(ref _minimizeToTrayOnStart, value); }
     public bool AutoSaveOnClose { get => _autoSaveOnClose; set => SetProperty(ref _autoSaveOnClose, value); }
     public bool ConfirmBeforeClose { get => _confirmBeforeClose; set => SetProperty(ref _confirmBeforeClose, value); }
+
+    /// <summary>
+    /// True once the user acknowledged the first-run notice that the default
+    /// modifier-free hotkeys (F1–F7, F9, F10) are intercepted system-wide while
+    /// the app runs. Persisted so the notice dialog only ever shows once.
+    /// </summary>
+    public bool HotkeyWarningAcknowledged { get => _hotkeyWarningAcknowledged; set => SetProperty(ref _hotkeyWarningAcknowledged, value); }
+
+    /// <summary>
+    /// Persisted "don't show the red risk warning again" choice for KEYBOARD
+    /// motion control. Deliberately serialized — unlike the MotionKeyboardEnabled
+    /// safety gate itself, which must be re-confirmed every restart: the user's
+    /// informed consent to the warning text outlives the session, the dangerous
+    /// enable state does not. A factory reset clears it so the warning returns.
+    /// </summary>
+    public bool MotionKeyboardWarningAcknowledged { get => _motionKeyboardWarningAcknowledged; set => SetProperty(ref _motionKeyboardWarningAcknowledged, value); }
+
+    /// <summary>Same as <see cref="MotionKeyboardWarningAcknowledged"/>, for GAMEPAD motion control.</summary>
+    public bool MotionGamepadWarningAcknowledged { get => _motionGamepadWarningAcknowledged; set => SetProperty(ref _motionGamepadWarningAcknowledged, value); }
 
     public UIScale Scale { get => _scale; set => SetProperty(ref _scale, value); }
     public Language Language { get => _language; set => SetProperty(ref _language, value); }

@@ -45,7 +45,8 @@ public readonly struct MotionZone
 /// <summary>
 /// Draws motion cue dots in screen-side zones through Direct2D/DirectComposition.
 /// Dots appear in zones defined by MotionZone rectangles, and move uniformly
-/// based on mouse X/Y delta (inverted) and (optionally) WASD key state.
+/// based on mouse X/Y delta (inverted), (optionally) WASD key state, and
+/// (optionally) gamepad sticks (left = WASD role, right = mouse role).
 /// Includes continuous pulsing (breathing) and horizontal alpha-mask fade.
 /// </summary>
 internal sealed class DirectCompositionMotionRenderer : IDisposable
@@ -427,6 +428,39 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         float dt = (float)Math.Clamp((now - _lastFrame).TotalSeconds, 0, 0.05);
         _lastFrame = now;
 
+        // ── Gamepad input (safety-gated) ──
+        // Left stick = WASD-role velocity (keyboard priority slot); right stick =
+        // mouse-role: a dt-compensated synthetic delta is injected into the mouse
+        // accumulator so it flows through the exact mouse chain below (sensitivity,
+        // inversion, decay). mouseVel = pending/(dt·60) ⇒ injecting stick·dt·speed
+        // makes the synthesized velocity independent of the tick cadence.
+        float gamepadVelX = 0;
+        float gamepadVelY = 0;
+        bool gamepadActive = false;
+        if (_config.MotionGamepadEnabled &&
+            XInputInterop.TryGetSticks(
+                Math.Clamp((float)_config.MotionGamepadDeadzone, 0f, 0.95f),
+                out float stickLX, out float stickLY, out float stickRX, out float stickRY))
+        {
+            (gamepadVelX, gamepadVelY) = XInputInterop.StickToVelocity(
+                stickLX, stickLY, _config.MotionGamepadSensitivity, _config.MotionInverted, KeyboardBaseSpeed);
+
+            if (stickRX != 0 || stickRY != 0)
+            {
+                // Full right-stick deflection ≈ KeyboardBaseSpeed dot-px/s at mouse
+                // sensitivity 1.0: virtualMouseSpeed × MouseSpeedScale / 60 = KeyboardBaseSpeed
+                float virtualMouseSpeed = 60f * KeyboardBaseSpeed / MouseSpeedScale;
+                (float stickDx, float stickDy) = XInputInterop.StickToMouseDelta(
+                    stickRX, stickRY, dt, virtualMouseSpeed);
+                float rsSensitivity = (float)Math.Clamp(_config.MotionSensitivity, 0.05, 3.0);
+                float rsSign = _config.MotionInverted ? -1f : 1f;
+                _pendingMouseDeltaX += rsSign * stickDx * rsSensitivity * MouseSpeedScale;
+                _pendingMouseDeltaY += rsSign * stickDy * rsSensitivity * MouseSpeedScale;
+            }
+
+            gamepadActive = gamepadVelX != 0 || gamepadVelY != 0 || stickRX != 0 || stickRY != 0;
+        }
+
         // ── Mouse input (both axes, inverted) ──
         // Convert accumulated delta to velocity (px/s) by dividing by dt
         // Divide by reference frame rate (60) so effective sensitivity matches
@@ -474,11 +508,9 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         else if (!mouseActive)
             _velocity.Y *= MathF.Exp(-dt / returnSeconds);
 
-        // Keyboard overrides velocity when active
-        if (keyboardVelX != 0)
-            _velocity.X = keyboardVelX;
-        if (keyboardVelY != 0)
-            _velocity.Y = keyboardVelY;
+        // Per-axis override chain: keyboard > left stick > mouse/decay velocity
+        _velocity.X = XInputInterop.MergeAxis(_velocity.X, keyboardVelX, gamepadVelX);
+        _velocity.Y = XInputInterop.MergeAxis(_velocity.Y, keyboardVelY, gamepadVelY);
 
         if (_velocity.LengthSquared() < 0.01f)
             _velocity = Vector2.Zero;
@@ -487,8 +519,8 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         Vector2 displacement = _velocity * dt;
         bool motionActive = _velocity.LengthSquared() > 0.01f;
 
-        // Pulsing pauses when no input (mouse or keyboard)
-        bool hasInput = motionActive || mouseActive || keyboardActive;
+        // Pulsing pauses when no input (mouse, keyboard or gamepad)
+        bool hasInput = motionActive || mouseActive || keyboardActive || gamepadActive;
         if (hasInput)
             _pulseTime += dt;
 

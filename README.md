@@ -38,7 +38,8 @@
 >
 > 本质是极简的人工光流刺激，专门向你的周边视觉补充"身体正在运动"的视觉证据，让视觉信号与内耳前庭的平衡信号对齐，从根源缓解感官冲突。
 >
-> - **运动方向反转** — 可反转鼠标和键盘控制方向，适应不同游戏视角
+> - **运动方向反转** — 可反转鼠标、键盘和手柄控制方向，适应不同游戏视角
+> - **手柄控制** — XInput 手柄双摇杆（可选）：左摇杆＝WASD 角色（模拟量全向），右摇杆＝鼠标角色；裸机支持 Xbox 系手柄，DS5 / Switch 手柄经 Steam Input、BetterJoy 等工具转换为 XInput 后同样可用
 > - **视差缩放** — 圆点靠近屏幕中线时自动缩小，营造自然的运动景深感
 > - **可配置刷新率** — 30–360 Hz 自定义动画刷新率，匹配你的显示器
 
@@ -56,6 +57,7 @@
 - ✓ 反作弊兼容性：
   - 默认模式（仅鼠标 Raw Input）：与所有反作弊系统兼容，零风险
   - WASD 键盘控制（可选）：使用 GetAsyncKeyState 标准 API，风险极低，但建议仅用于单机游戏
+  - 手柄控制（可选）：使用 XInput 标准轮询，被动读取摇杆状态、不向系统注入任何输入，风险极低，但建议仅用于单机游戏
   - 本工具采用 Raw Input 只读旁路方式，不拦截输入、不修改输入流、不增加延迟，安全性高
 
 ## 📋 系统要求 / Requirements
@@ -69,18 +71,18 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v2.7.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v2.8.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 
 > 无需安装 .NET 运行时，已内置。
 
-> **校验 / Checksum (v2.7.0)**
+> **校验 / Checksum (v2.8.0)**
 >
-> SHA-256: `D9C3DC52CF8452E99A90F623A3F09AF0B6F4E4C1123BD40254968B7DD914F64C`
+> SHA-256: `81FEDB98D566BAFF452C277F9A3BE3AB828A6D4FFCC9144D7DCBE89274EF3A73`
 >
 > 验证方式 / Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.7.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.8.0-win-x64.zip SHA256`
 
 ### 方式二：从源码构建 / Build from Source
 
@@ -119,12 +121,14 @@ dotnet build -c Release
 | F9 | 叠加层颜色循环（红/绿/蓝/自定义） |
 | F10 | 准星颜色循环（红/绿/蓝/自定义） |
 
+> 💡 **管理绑定**：在「快捷键绑定」页面点击输入框后，按 **Esc** 取消输入，按 **Delete** 解除绑定。程序默认占用 F1–F7、F9、F10（未加修饰键，会被全局拦截），如与游戏冲突可在该页面修改组合键。
+
 ## 🛠️ 技术栈 / Tech Stack
 
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — 硬件加速渲染动态圆点
-- **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕、Raw Input
-- **xUnit** — 单元测试（179 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射、显示器选择）
+- **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕、Raw Input、XInput 手柄轮询
+- **xUnit** — 单元测试（257 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
 - **C# 12** — 最新 C# 特性
 
 ## 📁 项目结构 / Project Structure
@@ -150,6 +154,8 @@ MotionStabilizer/                    # 主项目
 │   ├── HotkeyManager.cs             #   全局热键管理
 │   ├── ProfileService.cs            #   配置方案服务
 │   ├── Win32Interop.cs              #   Win32 API 互操作
+│   ├── XInputInterop.cs             #   XInput 手柄摇杆互操作
+│   ├── OsdTextBuilder.cs            #   热键 → OSD 文案映射 (纯逻辑、可单测)
 │   ├── AppIcon.cs                   #   应用图标
 │   └── TrayService.cs               #   系统托盘服务
 ├── Themes/                          # WPF 全局样式
@@ -160,14 +166,19 @@ MotionStabilizer/                    # 主项目
 ├── App.xaml(.cs)                    # 应用入口
 └── MainWindow.xaml(.cs)             # 主窗口
 
-MotionStabilizer.Tests/              # 单元测试项目 (179 tests)
+MotionStabilizer.Tests/              # 单元测试项目 (257 tests)
 ├── RenderHelperTests.cs             #   渲染尺寸映射、安全区域计算
 ├── ConfigModelTests.cs              #   配置模型：颜色解析、边缘可见性/透明度
 ├── HotkeyBindingTests.cs            #   快捷键显示字符串、克隆
-├── ObservableConfigTests.cs         #   ConfigStore 事件通知、Profile 加载/重置
+├── ObservableConfigTests.cs         #   ConfigStore 事件通知、Profile 加载/重置、安全门序列化
 ├── ComputeMotionZonesTests.cs       #   动态圆点区域几何计算
+├── XInputInteropTests.cs            #   手柄输入数学（归一化/死区/速度合成/优先级）
 ├── KeyNameToVkTests.cs              #   键名→虚拟键码映射
 ├── MonitorSelectionTests.cs        #   目标显示器选择与分层匹配
+├── ForegroundRectTests.cs           #   窗口模式前台矩形变更检测
+├── OsdTextBuilderTests.cs           #   热键 → OSD 文案映射
+├── PositionClampTests.cs            #   分辨率变化时坐标越界夹回
+├── CompactSurfaceTests.cs           #   1×1 紧凑表面决策
 └── MotionStabilizer.Tests.csproj    #   测试项目文件
 ```
 

@@ -34,7 +34,8 @@
 >
 > An ultra-minimal artificial optical-flow stimulus that feeds "your body is moving" visual evidence to your peripheral vision, aligning the visual signal with the inner-ear vestibular signal to relieve sensory conflict at the source.
 >
-> - **Direction inversion** — invert mouse and keyboard control direction to match different game camera styles
+> - **Direction inversion** — invert mouse, keyboard, and gamepad control direction to match different game camera styles
+> - **Gamepad control** — optional XInput dual sticks: left stick = WASD role (analog omnidirectional), right stick = mouse role; Xbox controllers work natively, DS5 / Switch controllers work once converted to XInput via Steam Input, BetterJoy, or similar tools
 > - **Parallax scaling** — dots automatically shrink near the screen center for a natural sense of depth
 > - **Configurable refresh rate** — 30–360 Hz custom animation refresh rate to match your monitor
 
@@ -52,6 +53,7 @@
 - ✓ Anti-cheat compatibility:
   - Default mode (mouse Raw Input only): compatible with all anti-cheat systems, zero risk
   - WASD keyboard control (optional): uses the standard GetAsyncKeyState API — very low risk, but recommended for single-player games only
+  - Gamepad control (optional): uses standard XInput polling — passive stick reads that inject no input into the system, very low risk, but recommended for single-player games only
   - This tool uses a read-only Raw Input bypass: it never intercepts input, never modifies the input stream, and adds no latency
 
 ## 📋 Requirements
@@ -65,18 +67,18 @@
 ### Download (Recommended)
 
 1. Go to the [Releases page](https://github.com/shsr07/MotionStabilizer/releases)
-2. Download `MotionStabilizer-v2.7.0-win-x64.zip`
+2. Download `MotionStabilizer-v2.8.0-win-x64.zip`
 3. Extract it to any folder
 4. Double-click `MotionStabilizer.exe` to run
 
 > The .NET runtime is bundled — no installation required.
 
-> **Checksum (v2.7.0)**
+> **Checksum (v2.8.0)**
 >
-> SHA-256: `D9C3DC52CF8452E99A90F623A3F09AF0B6F4E4C1123BD40254968B7DD914F64C`
+> SHA-256: `81FEDB98D566BAFF452C277F9A3BE3AB828A6D4FFCC9144D7DCBE89274EF3A73`
 >
 > Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.7.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.8.0-win-x64.zip SHA256`
 
 ### Build from Source
 
@@ -115,12 +117,14 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 | F9 | Cycle overlay color (Red/Green/Blue/Custom) |
 | F10 | Cycle crosshair color (Red/Green/Blue/Custom) |
 
+> 💡 **Managing bindings**: click a hotkey field on the Hotkeys page, then press **Esc** to cancel the capture or **Delete** to unbind. The app occupies F1–F7, F9 and F10 by default (no modifier keys — captured system-wide); rebind them on that page if they clash with a game.
+
 ## 🛠️ Tech Stack
 
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — hardware-accelerated motion dot rendering
-- **Win32 API** — click-through windows, global hotkey registration, system tray, multi-monitor virtual screen, Raw Input
-- **xUnit** — unit tests (179 tests covering render helpers, config models, hotkey bindings, observable config, area computation, key-code mapping, monitor selection)
+- **Win32 API** — click-through windows, global hotkey registration, system tray, multi-monitor virtual screen, Raw Input, XInput gamepad polling
+- **xUnit** — unit tests (257 tests covering render helpers, config models, hotkey bindings, observable config, area computation, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
 - **C# 12** — latest C# features
 
 ## 📁 Project Structure
@@ -146,6 +150,8 @@ MotionStabilizer/                    # Main project
 │   ├── HotkeyManager.cs             #   Global hotkey management
 │   ├── ProfileService.cs            #   Profile management
 │   ├── Win32Interop.cs              #   Win32 API interop
+│   ├── XInputInterop.cs             #   XInput gamepad stick interop
+│   ├── OsdTextBuilder.cs            #   Hotkey → OSD text mapping (pure, unit-tested)
 │   ├── AppIcon.cs                   #   Application icon
 │   └── TrayService.cs               #   System tray service
 ├── Themes/                          # Global WPF styles
@@ -156,14 +162,19 @@ MotionStabilizer/                    # Main project
 ├── App.xaml(.cs)                    # Application entry point
 └── MainWindow.xaml(.cs)             # Main window
 
-MotionStabilizer.Tests/              # Unit test project (179 tests)
+MotionStabilizer.Tests/              # Unit test project (257 tests)
 ├── RenderHelperTests.cs             #   Render size mapping, safe-area computation
 ├── ConfigModelTests.cs              #   Config models: color parsing, edge visibility/opacity
 ├── HotkeyBindingTests.cs            #   Hotkey display strings, cloning
-├── ObservableConfigTests.cs         #   ConfigStore event notification, profile load/reset
+├── ObservableConfigTests.cs         #   ConfigStore event notification, profile load/reset, safety-gate serialization
 ├── ComputeMotionZonesTests.cs       #   Motion dot zone geometry computation
+├── XInputInteropTests.cs            #   Gamepad input math (normalization, deadzone, velocity synthesis, priority)
 ├── KeyNameToVkTests.cs              #   Key name → virtual key code mapping
 ├── MonitorSelectionTests.cs         #   Target monitor selection and layered matching
+├── ForegroundRectTests.cs           #   Window-mode foreground-rect change detection
+├── OsdTextBuilderTests.cs           #   Hotkey → OSD text mapping
+├── PositionClampTests.cs            #   Resolution-change position clamping
+├── CompactSurfaceTests.cs           #   1×1 compact-surface decision
 └── MotionStabilizer.Tests.csproj    #   Test project file
 ```
 

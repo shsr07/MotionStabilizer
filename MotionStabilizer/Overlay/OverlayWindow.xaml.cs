@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -55,6 +56,23 @@ public partial class OverlayWindow : Window
     private DispatcherTimer? _topmostTimer;
     private bool _isClosed;
 
+    // Last foreground-window rect the overlay was rendered for (Window mode tracking).
+    private Win32Interop.RECT? _lastForegroundRect;
+
+    // ── Hotkey OSD (top-center transient hint) ──
+    // OsdText lives on a Grid layer above OverlayCanvas because hotkey presses
+    // themselves trigger Render() (ConfigStore.Changed), and Render() clears
+    // the canvas — an OSD inside the canvas would be wiped the instant it
+    // appeared. The fields below manage hold/fade timing and the temporary
+    // expansion of the compact 1×1 WPF surface (motion-dots-only mode) that
+    // would otherwise clip the OSD to a single pixel.
+    private DispatcherTimer? _osdTimer;
+    private bool _osdVisible;          // shown or fading — blocks compact collapse in Render()
+    private bool _osdExpandedSurface;  // ShowOsd expanded the compact surface; restore on fade-out
+    private const int OsdHoldMs = 1000;
+    private const int OsdFadeMs = 300;
+    private const double OsdTopOffsetDip = 120; // below the thickest top bar (XXL = 100 DIP)
+
     public OverlayWindow()
     {
         InitializeComponent();
@@ -96,6 +114,22 @@ public partial class OverlayWindow : Window
         {
             if (!_isWpfSurfaceCompact)
                 Win32Interop.ReassertTopmost(_hwnd);
+
+            // Window mode tracking: Render() otherwise only runs on config/display
+            // changes, so the overlay would stay locked to whichever window was
+            // foreground when it last rendered. Poll the foreground rect at this
+            // low frequency and re-render only when it actually switched, moved,
+            // or was resized — one Render() refreshes both the motion zones and
+            // the edge shapes. Zero cost outside Window mode.
+            if (_overlayConfig.Mode == DisplayMode.Window && _overlayConfig.IsVisible)
+            {
+                var fw = Win32Interop.GetForegroundWindowRect();
+                if (!ForegroundRectEquals(fw, _lastForegroundRect))
+                {
+                    _lastForegroundRect = fw;
+                    Render();
+                }
+            }
         };
         _topmostTimer.Start();
 
@@ -106,6 +140,7 @@ public partial class OverlayWindow : Window
     {
         _isClosed = true;
         _topmostTimer?.Stop();
+        _osdTimer?.Stop();
         SystemEvents.DisplaySettingsChanged -= OnSystemDisplaySettingsChanged;
         _nativeMotionRenderer.Dispose();
         _windowSource?.RemoveHook(WindowMessageHook);
@@ -196,11 +231,16 @@ public partial class OverlayWindow : Window
             }
         }
 
-        // Shrink WPF window to 1x1 when DirectComposition is the only visible surface
-        SetWpfSurfaceCompact(
-            nativeMotionActive &&
-            !_crosshairConfig.IsVisible &&
-            !_clockConfig.IsVisible);
+        // Shrink WPF window to 1x1 when DirectComposition is the only visible surface.
+        // !_osdVisible: a showing OSD must not be collapsed back to 1×1 by the very
+        // Render() call the hotkey triggered — fade-out completion restores it.
+        SetWpfSurfaceCompact(ShouldCompactSurface(
+            overlayVisible: _overlayConfig.IsVisible,
+            isMotionDots: _overlayConfig.Shape == OverlayShape.MotionDots,
+            nativeMotionActive: nativeMotionActive,
+            crosshairVisible: _crosshairConfig.IsVisible,
+            clockVisible: _clockConfig.IsVisible,
+            osdVisible: _osdVisible));
 
         double sw = this.Width > 0 ? this.Width : Win32Interop.GetScreenWidth() / Win32Interop.GetDpiScaleForWindow(_hwnd);
         double sh = this.Height > 0 ? this.Height : Win32Interop.GetScreenHeight() / Win32Interop.GetDpiScaleForWindow(_hwnd);
@@ -569,21 +609,202 @@ public partial class OverlayWindow : Window
 
     /// <summary>
     /// Called when the screen resolution or monitor topology may have changed.
-    /// Resets the clock and crosshair positions to their defaults so they can
-    /// never end up stranded off-screen after a monitor is removed.
+    /// DisplaySettingsChanged also fires when games enter/exit fullscreen or
+    /// switch refresh rate — such transitions often leave the layout intact,
+    /// so the user's placed clock/crosshair must survive them. Positions are
+    /// therefore only clamped when they would now be stranded off-screen;
+    /// they are no longer reset to defaults unconditionally.
     /// </summary>
     public void OnScreenResolutionChanged()
     {
         if (_isClosed) return;
         UpdateScreenBounds();
-        _clockConfig.ResetPosition();
-        _crosshairConfig.ResetPosition();
+        ClampClockIntoView();
+        ClampCrosshairIntoView();
         Render();
+    }
+
+    /// <summary>
+    /// Keep the clock's top-left corner inside the canvas. Size is measured on
+    /// the last rendered clock element (identical config → identical size), so
+    /// this runs before Render() and lets it draw the corrected position in
+    /// one pass. Skipped when no clock was rendered yet. No-op while in bounds.
+    /// </summary>
+    private void ClampClockIntoView()
+    {
+        if (_clockText == null) return;
+
+        _clockText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var size = _clockText.DesiredSize;
+        int x = ClampIntoRange(_clockConfig.PositionX, OverlayCanvas.Width - size.Width);
+        int y = ClampIntoRange(_clockConfig.PositionY, OverlayCanvas.Height - size.Height);
+        if (x == _clockConfig.PositionX && y == _clockConfig.PositionY) return;
+
+        _clockConfig.PositionX = x;
+        _clockConfig.PositionY = y;
+    }
+
+    /// <summary>
+    /// Same safety net for the crosshair: PositionX/Y are offsets from each
+    /// target monitor's safe-area center, so clamping them to half the canvas
+    /// guarantees the center point lands on some connected screen. No-op when
+    /// in range.
+    /// </summary>
+    private void ClampCrosshairIntoView()
+    {
+        int x = ClampOffset(_crosshairConfig.PositionX, OverlayCanvas.Width / 2.0);
+        int y = ClampOffset(_crosshairConfig.PositionY, OverlayCanvas.Height / 2.0);
+        if (x == _crosshairConfig.PositionX && y == _crosshairConfig.PositionY) return;
+
+        _crosshairConfig.PositionX = x;
+        _crosshairConfig.PositionY = y;
+    }
+
+    /// <summary>Clamp a top-left coordinate into [0, max]; degenerate max → 0.</summary>
+    internal static int ClampIntoRange(int value, double max)
+        => Math.Clamp(value, 0, (int)Math.Floor(Math.Max(0, max)));
+
+    /// <summary>Clamp a center-offset into ±maxAbs; degenerate maxAbs → 0.</summary>
+    internal static int ClampOffset(int value, double maxAbs)
+    {
+        int bound = (int)Math.Floor(Math.Max(0, maxAbs));
+        return Math.Clamp(value, -bound, bound);
     }
 
     private void OnSystemDisplaySettingsChanged(object? sender, EventArgs e)
     {
         Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () => OnScreenResolutionChanged());
+    }
+
+    // ── Hotkey OSD ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Show a transient OSD hint at the top of the target monitor. Holds for
+    /// ~1s by default (<paramref name="holdMs"/>), then fades out over ~300ms;
+    /// repeated calls restart the hold timer and replace the text. Safe to call
+    /// from any UI-thread hotkey handler.
+    /// </summary>
+    public void ShowOsd(string text, int holdMs = OsdHoldMs)
+    {
+        if (_isClosed || string.IsNullOrWhiteSpace(text)) return;
+
+        // The compact 1×1 surface (motion-dots-only mode) would clip the OSD
+        // to a single pixel — expand it for the duration; fade-out completion
+        // restores the original compact state via ComputeCompactState().
+        if (_isWpfSurfaceCompact)
+        {
+            SetWpfSurfaceCompact(false);
+            _osdExpandedSurface = true;
+        }
+
+        _osdVisible = true;
+        OsdText.Text = text;
+        PositionOsd();
+        OsdText.BeginAnimation(OpacityProperty, null); // cancel a running fade
+        OsdText.Opacity = 1;
+        OsdText.Visibility = Visibility.Visible;
+
+        if (_osdTimer == null)
+        {
+            _osdTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(OsdHoldMs) };
+            _osdTimer.Tick += (_, _) => FadeOutOsd();
+        }
+        _osdTimer.Interval = TimeSpan.FromMilliseconds(holdMs);
+        _osdTimer.Stop();
+        _osdTimer.Start();
+    }
+
+    /// <summary>
+    /// Place the OSD at the top-center of the target monitor (primary monitor
+    /// when the target is "all monitors" or no specific match). Coordinates
+    /// follow Render()'s convention: window-DIP relative to the virtual-screen
+    /// origin, so the TextBlock stays horizontally centered regardless of its
+    /// measured width via HorizontalAlignment=Center + a TranslateTransform.
+    /// </summary>
+    private void PositionOsd()
+    {
+        int ax, ay, aw, ah;
+        var monitors = Win32Interop.GetTargetMonitors(App.AppConfig.TargetMonitor);
+        if (monitors.Count == 1)
+        {
+            (ax, ay, aw, ah) = (monitors[0].X, monitors[0].Y, monitors[0].Width, monitors[0].Height);
+        }
+        else
+        {
+            var primary = System.Windows.Forms.Screen.PrimaryScreen?.Bounds;
+            if (primary.HasValue)
+                (ax, ay, aw, ah) = (primary.Value.X, primary.Value.Y, primary.Value.Width, primary.Value.Height);
+            else
+                (ax, ay, aw, ah) = (Win32Interop.GetVirtualScreenX(), Win32Interop.GetVirtualScreenY(),
+                    Win32Interop.GetScreenWidth(), Win32Interop.GetScreenHeight());
+        }
+
+        double windowScale = Win32Interop.GetDpiScaleForWindow(_hwnd);
+        if (windowScale <= 0) windowScale = 1;
+        int vsX = Win32Interop.GetVirtualScreenX();
+        int vsY = Win32Interop.GetVirtualScreenY();
+
+        // Window center from metrics, not ActualWidth — a just-expanded compact
+        // surface has not been re-measured yet, so ActualWidth is still 1.
+        double windowCenterX = Win32Interop.GetScreenWidth() / (2.0 * windowScale);
+        double centerX = (ax + aw / 2.0 - vsX) / windowScale;
+        double topY = (ay - vsY) / windowScale + OsdTopOffsetDip;
+
+        OsdText.RenderTransform = new TranslateTransform(centerX - windowCenterX, topY);
+    }
+
+    private void FadeOutOsd()
+    {
+        _osdTimer?.Stop();
+        var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(OsdFadeMs));
+        fade.Completed += (_, _) =>
+        {
+            OsdText.Visibility = Visibility.Collapsed;
+            _osdVisible = false;
+            if (_osdExpandedSurface)
+            {
+                _osdExpandedSurface = false;
+                SetWpfSurfaceCompact(ComputeCompactState());
+            }
+        };
+        OsdText.BeginAnimation(OpacityProperty, fade);
+    }
+
+    /// <summary>
+    /// Compact-surface condition mirroring Render()'s SetWpfSurfaceCompact
+    /// call — used to restore the 1×1 surface after an OSD-triggered expansion.
+    /// </summary>
+    private bool ComputeCompactState() =>
+        ShouldCompactSurface(
+            overlayVisible: _overlayConfig.IsVisible,
+            isMotionDots: _overlayConfig.Shape == OverlayShape.MotionDots,
+            nativeMotionActive: _nativeMotionRenderer.IsReady,
+            crosshairVisible: _crosshairConfig.IsVisible,
+            clockVisible: _clockConfig.IsVisible,
+            osdVisible: false); // called at fade-out completion — the OSD is gone
+
+    /// <summary>
+    /// Pure decision for shrinking the WPF surface to 1×1: the only visible
+    /// content is native motion dots (renderer ready) and neither the
+    /// crosshair, the clock, nor an OSD needs the WPF layer. Extracted from
+    /// Render()/ComputeCompactState() for unit testing.
+    /// </summary>
+    internal static bool ShouldCompactSurface(
+        bool overlayVisible, bool isMotionDots, bool nativeMotionActive,
+        bool crosshairVisible, bool clockVisible, bool osdVisible)
+        => overlayVisible && isMotionDots && nativeMotionActive
+            && !crosshairVisible && !clockVisible && !osdVisible;
+
+    /// <summary>
+    /// Field-wise equality for the nullable foreground rect — RECT has no
+    /// equality members, so lifted == / != on RECT? is not available.
+    /// </summary>
+    internal static bool ForegroundRectEquals(Win32Interop.RECT? a, Win32Interop.RECT? b)
+    {
+        if (!a.HasValue || !b.HasValue)
+            return a.HasValue == b.HasValue;
+        return a.Value.Left == b.Value.Left && a.Value.Top == b.Value.Top
+            && a.Value.Right == b.Value.Right && a.Value.Bottom == b.Value.Bottom;
     }
 
     /// <summary>

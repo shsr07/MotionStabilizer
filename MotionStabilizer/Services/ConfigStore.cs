@@ -122,10 +122,14 @@ public class ConfigStore
 
     /// <summary>
     /// Reset all configs to factory defaults by replacing with fresh instances.
+    /// The hotkey-notice acknowledgement is carried over on purpose: the user
+    /// has already been told once that the default hotkeys are captured
+    /// system-wide — a factory reset of appearance settings must not resurface
+    /// that dialog.
     /// </summary>
     public void ResetToDefaults()
     {
-        App = new AppConfig();
+        App = new AppConfig { HotkeyWarningAcknowledged = _app.HotkeyWarningAcknowledged };
         Hotkeys = new HotkeyConfig();
         Overlay = new OverlayConfig();
         Crosshair = new CrosshairConfig();

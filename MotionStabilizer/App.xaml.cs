@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -193,16 +194,43 @@ public partial class App : Application
             System.Diagnostics.Debug.WriteLine($"Hotkey init failed: {ex.Message}");
         }
 
-        // Show main window (or minimize to tray on first run)
-        if (Config.App.MinimizeToTrayOnStart)
+        // Show main window. With tray-start requested the window is created but
+        // deliberately never shown — a Show-then-Hide pair here flashed a
+        // taskbar button on every launch. Tray "Show" brings it up later
+        // (Loaded fires at that point; the hotkey hook uses EnsureHandle, so it
+        // does not depend on the window being visible).
+        if (!Config.App.MinimizeToTrayOnStart)
         {
             MainWin.Show();
-            MainWin.Hide();
         }
-        else
+
+        ShowHotkeyOccupancyNoticeOnce();
+    }
+
+    /// <summary>
+    /// First-run notice: the default hotkeys (F1–F7, F9, F10) carry no modifier
+    /// keys, and RegisterHotKey intercepts rather than observes — while the app
+    /// runs, in-game F1 help / F5 quicksave etc. are silently swallowed. Show a
+    /// one-time acknowledgment dialog (persisted via AppConfig) and point users
+    /// at the Hotkeys page. Deferred to ApplicationIdle so the main window
+    /// paints first.
+    /// </summary>
+    private void ShowHotkeyOccupancyNoticeOnce()
+    {
+        if (Config.App.HotkeyWarningAcknowledged) return;
+
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () =>
         {
-            MainWin.Show();
-        }
+            CustomMessageBox.Show(
+                Res("Hotkeys_GlobalWarn_Title", "Global Hotkey Notice"),
+                Res("Hotkeys_GlobalWarn_Msg", ""),
+                Res("Hotkeys_GlobalWarn_Ack", "I Understand"));
+
+            Config.App.HotkeyWarningAcknowledged = true;
+            // Persist immediately — a crash right after the dialog must not
+            // bring the notice back, and the debounced auto-save may lag.
+            ConfigManager.SaveAppConfig(Config.App);
+        });
     }
 
     /// <summary>
@@ -217,28 +245,63 @@ public partial class App : Application
     private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         e.Handled = true;
+        AppendErrorLog("Unhandled", e.Exception);
+
+        // A recurring fault must not spam modal dialogs — each one steals focus
+        // from a fullscreen game. Throttle to 3 dialogs per minute; the log
+        // keeps recording every occurrence either way.
+        if (DateTime.UtcNow - _errorDialogWindowStart > TimeSpan.FromMinutes(1))
+        {
+            _errorDialogWindowStart = DateTime.UtcNow;
+            _errorDialogCount = 0;
+        }
+        if (++_errorDialogCount > 3)
+            return;
+
         string msg = string.Format(
-                Res("Error_UnhandledException", "An unhandled exception occurred:\n\n{0}: {1}\n\n{2}"),
-                e.Exception.GetType().Name, e.Exception.Message, e.Exception.StackTrace)
+                Res("Error_Short_Msg", "An internal error occurred. Details were written to error.log.\n\n{0}: {1}"),
+                e.Exception.GetType().Name, e.Exception.Message)
             .Replace("\\n", "\n");
         MessageBox.Show(
             msg,
-            "Motion Stabilizer - Error",
+            Res("Error_Short_Title", "Motion Stabilizer - Error"),
             MessageBoxButton.OK,
             MessageBoxImage.Warning);
+    }
+
+    private readonly object _errorLogLock = new();
+    private int _errorDialogCount;
+    private DateTime _errorDialogWindowStart = DateTime.MinValue;
+
+    /// <summary>Append one timestamped entry to error.log next to the config files. Never throws.</summary>
+    private void AppendErrorLog(string kind, Exception ex)
+    {
+        try
+        {
+            string line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {kind}: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}\n---\n";
+            lock (_errorLogLock)
+            {
+                File.AppendAllText(Path.Combine(ConfigManager.DataDirectory, "error.log"), line);
+            }
+        }
+        catch
+        {
+            // Logging must never become a second crash source
+        }
     }
 
     private void AppDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         if (e.ExceptionObject is Exception ex)
         {
+            AppendErrorLog("Fatal", ex);
             string msg = string.Format(
-                    Res("Error_FatalException", "A fatal exception occurred:\n\n{0}: {1}\n\n{2}"),
-                    ex.GetType().Name, ex.Message, ex.StackTrace)
+                    Res("Error_Short_Msg", "An internal error occurred. Details were written to error.log.\n\n{0}: {1}"),
+                    ex.GetType().Name, ex.Message)
                 .Replace("\\n", "\n");
             MessageBox.Show(
                 msg,
-                "Motion Stabilizer - Fatal Error",
+                Res("Error_Short_Title", "Motion Stabilizer - Fatal Error"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
@@ -464,6 +527,49 @@ public partial class App : Application
     {
         // Update UI if main window is visible
         MainWin?.NotifyConfigChanged();
+
+        // OSD shows unconditionally — it is the primary feedback that a hotkey
+        // fired, and the only feedback when the settings window is hidden to
+        // the tray. Over the settings UI it is a harmless 1s hint that also
+        // reflects the change.
+        string? text = OsdTextBuilder.Build(
+            name,
+            OverlayConfig,
+            CrosshairConfig,
+            ClockConfig,
+            crosshairPageActive: MainWin?.CurrentPage == "Crosshair",
+            res: ResolveString,
+            targetMonitorLabel: TargetMonitorOsdLabel());
+        if (text != null)
+            OverlayWin?.ShowOsd(text);
+    }
+
+    /// <summary>Localized resource lookup; falls back to the key when missing.</summary>
+    private static string ResolveString(string key) =>
+        (string?)Current.TryFindResource(key) ?? key;
+
+    /// <summary>
+    /// Localized label of the current target monitor for OSD feedback —
+    /// "All monitors" (incl. fallback) or "Monitor N (WxH)". Mirrors the
+    /// layered matching used by CycleTargetMonitor.
+    /// </summary>
+    private static string TargetMonitorOsdLabel()
+    {
+        string all = ResolveString("Options_TargetMonitorAll");
+        string target = AppConfig.TargetMonitor;
+        if (string.IsNullOrWhiteSpace(target)) return all;
+
+        var monitors = Win32Interop.GetAllMonitors();
+        var matched = Win32Interop.SelectTargetMonitors(monitors, target);
+        if (matched.Count == 1)
+        {
+            int idx = monitors.FindIndex(m =>
+                string.Equals(m.DeviceId, matched[0].DeviceId, StringComparison.OrdinalIgnoreCase));
+            if (idx >= 0)
+                return string.Format(ResolveString("Options_MonitorLabel"),
+                    idx + 1, matched[0].Width, matched[0].Height);
+        }
+        return all;
     }
 
     private readonly List<string> _failedHotkeys = new();
@@ -477,15 +583,19 @@ public partial class App : Application
         _failedHotkeyTimer.Tick += (_, _) =>
         {
             _failedHotkeyTimer?.Stop();
-            if (_failedHotkeys.Count > 0)
-            {
-                var msg = string.Join("\n", _failedHotkeys.Distinct());
-                _failedHotkeys.Clear();
-                var tip = (string)Current.Resources["Hotkeys_RegFail_Msg"];
-                MessageBox.Show($"{tip}\n\n{msg}",
-                    (string)Current.Resources["Hotkeys_RegFail_Title"],
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+        if (_failedHotkeys.Count > 0)
+        {
+            var msg = string.Join("\n", _failedHotkeys.Distinct());
+            _failedHotkeys.Clear();
+            var tip = (string)Current.Resources["Hotkeys_RegFail_Msg"];
+            // CustomMessageBox (not the raw Win32 MessageBox): gains Enter/Esc
+            // handling, an owner, and — when the main window is hidden in a
+            // game — the 2s overlay hint that the dialog is waiting.
+            CustomMessageBox.Show(
+                (string)Current.Resources["Hotkeys_RegFail_Title"],
+                $"{tip}\n\n{msg}",
+                (string)Current.Resources["Common_OK"]);
+        }
         };
         _failedHotkeyTimer.Start();
     }
@@ -504,8 +614,9 @@ public partial class App : Application
         // Unsubscribe from config changes
         Config.Changed -= OnConfigChanged;
 
-        // Always reset keyboard motion control on exit for safety
+        // Always reset keyboard/gamepad motion control on exit for safety
         Config.Overlay.MotionKeyboardEnabled = false;
+        Config.Overlay.MotionGamepadEnabled = false;
 
         // Auto-save if enabled
         if (Config.App.AutoSaveOnClose)

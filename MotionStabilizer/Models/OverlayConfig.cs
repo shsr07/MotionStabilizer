@@ -35,12 +35,17 @@ public class OverlayConfig : ObservableObject
 
     // ── Dynamic motion cue settings (MotionDots shape) ──
     private bool _motionKeyboardEnabled = false;
+    private bool _motionGamepadEnabled = false;
     private int _motionDotCount = 6;
     private int _motionDotColumns = 2;
     private double _motionDotSpacingV = 1.0;
     private double _motionDotSpacingH = 0.7;
     private double _motionSensitivity = 1.5;
     private double _motionKeyboardSensitivity = 1.0;
+    private double _motionGamepadSensitivity = 1.0;
+    // Keep in sync with XInputInterop.DefaultDeadzone — Models cannot reference
+    // the internal Services type from a public config class.
+    private double _motionGamepadDeadzone = 0.15;
     private int _motionReturnMs = 260;
     private int _motionRefreshRate = 120;
     private bool _motionInverted = false;
@@ -77,12 +82,33 @@ public class OverlayConfig : ObservableObject
     /// </summary>
     [JsonIgnore]
     public bool MotionKeyboardEnabled { get => _motionKeyboardEnabled; set => SetProperty(ref _motionKeyboardEnabled, value); }
+
+    /// <summary>
+    /// Safety gate: when false, XInput sticks are never polled.
+    /// Deliberately never persisted ([JsonIgnore]) — gamepad control must be
+    /// re-confirmed after every restart, matching MotionKeyboardEnabled.
+    /// </summary>
+    [JsonIgnore]
+    public bool MotionGamepadEnabled { get => _motionGamepadEnabled; set => SetProperty(ref _motionGamepadEnabled, value); }
+    /// <summary>
+    /// Radial stick deadzone as a fraction of full deflection (0–1). Persisted
+    /// like the sensitivity settings — unlike the enable gates this is a plain
+    /// tuning preference. Raise it to absorb stick drift on worn controllers.
+    /// </summary>
+    public double MotionGamepadDeadzone { get => _motionGamepadDeadzone; set => SetProperty(ref _motionGamepadDeadzone, value); }
     public int MotionDotCount { get => _motionDotCount; set => SetProperty(ref _motionDotCount, value); }
     public int MotionDotColumns { get => _motionDotColumns; set => SetProperty(ref _motionDotColumns, value); }
     public double MotionDotSpacingV { get => _motionDotSpacingV; set => SetProperty(ref _motionDotSpacingV, value); }
     public double MotionDotSpacingH { get => _motionDotSpacingH; set => SetProperty(ref _motionDotSpacingH, value); }
+    /// <summary>
+    /// Mouse/right-stick turning sensitivity, persisted on the legacy internal scale
+    /// (default 1.5). The settings UI displays value / 1.5, so the default shows as
+    /// "1.0x" while feeling identical to the pre-2.8.0 "1.5x" default. Stored values
+    /// from older profiles therefore keep their exact feel without migration.
+    /// </summary>
     public double MotionSensitivity { get => _motionSensitivity; set => SetProperty(ref _motionSensitivity, value); }
     public double MotionKeyboardSensitivity { get => _motionKeyboardSensitivity; set => SetProperty(ref _motionKeyboardSensitivity, value); }
+    public double MotionGamepadSensitivity { get => _motionGamepadSensitivity; set => SetProperty(ref _motionGamepadSensitivity, value); }
     public int MotionReturnMs { get => _motionReturnMs; set => SetProperty(ref _motionReturnMs, value); }
     public int MotionRefreshRate { get => _motionRefreshRate; set => SetProperty(ref _motionRefreshRate, value); }
     public bool MotionInverted { get => _motionInverted; set => SetProperty(ref _motionInverted, value); }

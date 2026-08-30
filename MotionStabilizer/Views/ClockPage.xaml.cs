@@ -183,6 +183,7 @@ public partial class ClockPage : Page
         if (int.TryParse(TxtPosX.Text, out int x))
         {
             App.ClockConfig.PositionX = x;
+            WarnIfClockFarOffscreen(x);
         }
     }
 
@@ -192,7 +193,22 @@ public partial class ClockPage : Page
         if (int.TryParse(TxtPosY.Text, out int y))
         {
             App.ClockConfig.PositionY = y;
+            WarnIfClockFarOffscreen(y);
         }
+    }
+
+    /// <summary>
+    /// The position fields accept any int — huge values park the clock outside
+    /// every screen with only the reset button as recovery. Values ≥ 1000 are
+    /// almost certainly a mistake: say so on the OSD instead of silently
+    /// clamping the user's input.
+    /// </summary>
+    private static void WarnIfClockFarOffscreen(int value)
+    {
+        if (value < 1000) return;
+        string text = App.Current.TryFindResource("Clock_OsdOffscreen") as string
+            ?? "Clock position may be off-screen";
+        App.OverlayWin?.ShowOsd(text, holdMs: 2000);
     }
 
     /// <summary>

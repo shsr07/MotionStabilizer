@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json;
 using MotionStabilizer.Models;
 using MotionStabilizer.Services;
 using Xunit;
@@ -379,5 +380,105 @@ public class ObservableConfigTests
         newApp.Scale = UIScale.Percent125;
 
         Assert.Equal(1, count);
+    }
+
+    // ── JSON persistence gates (safety-gated motion controls) ──
+
+    [Fact]
+    public void MotionKeyboardEnabled_IsNotPersisted()
+    {
+        var cfg = new OverlayConfig { MotionKeyboardEnabled = true };
+        string json = JsonSerializer.Serialize(cfg);
+
+        Assert.DoesNotContain("MotionKeyboardEnabled", json);
+    }
+
+    [Fact]
+    public void MotionGamepadEnabled_IsNotPersisted()
+    {
+        var cfg = new OverlayConfig { MotionGamepadEnabled = true };
+        string json = JsonSerializer.Serialize(cfg);
+
+        Assert.DoesNotContain("MotionGamepadEnabled", json);
+    }
+
+    [Fact]
+    public void MotionGamepadSensitivity_IsPersisted()
+    {
+        var cfg = new OverlayConfig { MotionGamepadSensitivity = 1.7 };
+        string json = JsonSerializer.Serialize(cfg);
+
+        Assert.Contains("MotionGamepadSensitivity", json);
+    }
+
+    [Fact]
+    public void MotionGamepad_RoundTrips()
+    {
+        var cfg = new OverlayConfig { MotionGamepadEnabled = true, MotionGamepadSensitivity = 1.7 };
+        string json = JsonSerializer.Serialize(cfg);
+
+        var back = JsonSerializer.Deserialize<OverlayConfig>(json);
+
+        Assert.Equal(1.7, back!.MotionGamepadSensitivity);
+        // Safety gate is never persisted — deserialized configs always start disabled
+        Assert.False(back.MotionGamepadEnabled);
+    }
+
+    [Fact]
+    public void HotkeyWarningAcknowledged_DefaultsFalse_AndRoundTrips()
+    {
+        var cfg = new AppConfig();
+        Assert.False(cfg.HotkeyWarningAcknowledged);
+
+        cfg.HotkeyWarningAcknowledged = true;
+        string json = JsonSerializer.Serialize(cfg);
+        var back = JsonSerializer.Deserialize<AppConfig>(json);
+
+        Assert.True(back!.HotkeyWarningAcknowledged);
+    }
+
+    [Fact]
+    public void ResetToDefaults_PreservesHotkeyWarningAcknowledged_ButResetsOtherSettings()
+    {
+        var store = new ConfigStore
+        {
+            App = new AppConfig { HotkeyWarningAcknowledged = true, ConfirmBeforeClose = false }
+        };
+
+        store.ResetToDefaults();
+
+        // The one-time notice must not come back after a factory reset...
+        Assert.True(store.App.HotkeyWarningAcknowledged);
+        // ...while regular app options do return to their defaults.
+        Assert.True(store.App.ConfirmBeforeClose);
+    }
+
+    [Fact]
+    public void MotionWarningAcknowledged_Flags_PersistAndRoundTrip()
+    {
+        var cfg = new AppConfig { MotionKeyboardWarningAcknowledged = true, MotionGamepadWarningAcknowledged = true };
+        string json = JsonSerializer.Serialize(cfg);
+
+        // Consent to the warning TEXT is persisted — unlike the enable safety
+        // gates (MotionXxxEnabled), which stay [JsonIgnore]'d
+        Assert.Contains("MotionKeyboardWarningAcknowledged", json);
+        Assert.Contains("MotionGamepadWarningAcknowledged", json);
+
+        var back = JsonSerializer.Deserialize<AppConfig>(json);
+        Assert.True(back!.MotionKeyboardWarningAcknowledged);
+        Assert.True(back!.MotionGamepadWarningAcknowledged);
+    }
+
+    [Fact]
+    public void MotionGamepadDeadzone_DefaultsTo15Percent_AndPersists()
+    {
+        var cfg = new OverlayConfig();
+        Assert.Equal(0.15, cfg.MotionGamepadDeadzone);
+
+        cfg.MotionGamepadDeadzone = 0.3;
+        var back = JsonSerializer.Deserialize<OverlayConfig>(JsonSerializer.Serialize(cfg));
+
+        // Plain tuning preference — persisted, unlike the enable safety gates
+        Assert.Equal(0.3, back!.MotionGamepadDeadzone);
     }
 }

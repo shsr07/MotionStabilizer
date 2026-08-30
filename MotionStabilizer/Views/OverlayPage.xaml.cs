@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using MotionStabilizer.Models;
+using MotionStabilizer.Services;
 
 namespace MotionStabilizer.Views;
 
@@ -42,14 +43,24 @@ public partial class OverlayPage : Page
         MotionDotSpacingVLabel.Text = cfg.MotionDotSpacingV.ToString("0.0") + "x";
         SliderMotionDotSpacingH.Value = Math.Clamp(cfg.MotionDotSpacingH, 0.5, 3.0);
         MotionDotSpacingHLabel.Text = cfg.MotionDotSpacingH.ToString("0.0") + "x";
-        SliderMotionSensitivity.Value = cfg.MotionSensitivity;
-        MotionSensitivityLabel.Text = cfg.MotionSensitivity.ToString("0.0") + "x";
+        // MotionSensitivity is persisted on the legacy internal scale (pre-2.8.0 default 1.5);
+        // the UI displays value / 1.5 so the old default shows as 1.0x with unchanged feel.
+        double mouseSensDisplay = Math.Round(cfg.MotionSensitivity / 1.5, 1);
+        SliderMotionSensitivity.Value = Math.Clamp(mouseSensDisplay, 0.1, 2.0);
+        MotionSensitivityLabel.Text = mouseSensDisplay.ToString("0.0") + "x";
         SliderMotionKeyboardSensitivity.Value = Math.Clamp(cfg.MotionKeyboardSensitivity, 0.1, 3.0);
         MotionKeyboardSensitivityLabel.Text = cfg.MotionKeyboardSensitivity.ToString("0.0") + "x";
         PanelKeyboardSensitivity.Visibility = cfg.MotionKeyboardEnabled ? Visibility.Visible : Visibility.Collapsed;
+        SliderMotionGamepadSensitivity.Value = Math.Clamp(cfg.MotionGamepadSensitivity, 0.1, 3.0);
+        MotionGamepadSensitivityLabel.Text = cfg.MotionGamepadSensitivity.ToString("0.0") + "x";
+        PanelGamepadSensitivity.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
+        SliderMotionGamepadDeadzone.Value = Math.Clamp(cfg.MotionGamepadDeadzone, 0.0, 0.5);
+        MotionGamepadDeadzoneLabel.Text = cfg.MotionGamepadDeadzone.ToString("0%");
+        PanelGamepadDeadzone.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         SliderMotionRefreshRate.Value = Math.Clamp(cfg.MotionRefreshRate, 30, 360);
         MotionRefreshRateLabel.Text = Math.Clamp(cfg.MotionRefreshRate, 30, 360) + " Hz";
         ChkMotionKeyboard.IsChecked = cfg.MotionKeyboardEnabled;
+        ChkMotionGamepad.IsChecked = cfg.MotionGamepadEnabled;
         ChkMotionInverted.IsChecked = cfg.MotionInverted;
         ChkMotionParallax.IsChecked = cfg.MotionParallaxScale;
         int parallaxPct = (int)Math.Round(cfg.MotionParallaxAmount * 100);
@@ -186,8 +197,10 @@ public partial class OverlayPage : Page
     private void MotionSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_isLoading || MotionSensitivityLabel == null) return;
-        App.OverlayConfig.MotionSensitivity = Math.Round(SliderMotionSensitivity.Value, 1);
-        MotionSensitivityLabel.Text = App.OverlayConfig.MotionSensitivity.ToString("0.0") + "x";
+        // Store on the legacy internal scale: displayed 1.0x = stored 1.5 = pre-2.8.0 default feel
+        double display = Math.Round(SliderMotionSensitivity.Value, 1);
+        App.OverlayConfig.MotionSensitivity = Math.Round(display * 1.5, 3);
+        MotionSensitivityLabel.Text = display.ToString("0.0") + "x";
     }
 
     private void MotionKeyboardSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -210,28 +223,115 @@ public partial class OverlayPage : Page
 
         bool wantEnabled = ChkMotionKeyboard.IsChecked == true;
 
-        // If trying to enable, show the mandatory red warning
-        if (wantEnabled && !App.OverlayConfig.MotionKeyboardEnabled)
+        // If trying to enable, show the mandatory red warning (skippable after a
+        // previous confirmation with "don't show again" ticked)
+        if (wantEnabled && !App.OverlayConfig.MotionKeyboardEnabled &&
+            !ConfirmMotionRisk("Motion_WarningMsg",
+                () => App.AppConfig.MotionKeyboardWarningAcknowledged,
+                () => App.AppConfig.MotionKeyboardWarningAcknowledged = true))
         {
-            var title = (string)FindResource("Motion_WarningTitle");
-            var msg = (string)FindResource("Motion_WarningMsg");
-            var yesText = (string)FindResource("Motion_WarningYes");
-            var noText = (string)FindResource("Motion_WarningNo");
-
-            var result = CustomMessageBox.Show(title, msg, yesText, noText);
-
-            if (result == CustomMessageBox.Result.Option2)
-            {
-                // User declined — keep disabled
-                _isLoading = true;
-                ChkMotionKeyboard.IsChecked = false;
-                _isLoading = false;
-                return;
-            }
+            // User declined or dismissed — keep disabled
+            _isLoading = true;
+            ChkMotionKeyboard.IsChecked = false;
+            _isLoading = false;
+            return;
         }
 
         App.OverlayConfig.MotionKeyboardEnabled = wantEnabled;
         PanelKeyboardSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void MotionGamepad_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+
+        bool wantEnabled = ChkMotionGamepad.IsChecked == true;
+        bool wasEnabled = App.OverlayConfig.MotionGamepadEnabled;
+
+        // Mandatory red warning on enable — same conservative gate as keyboard control
+        if (wantEnabled && !wasEnabled &&
+            !ConfirmMotionRisk("Motion_GamepadWarningMsg",
+                () => App.AppConfig.MotionGamepadWarningAcknowledged,
+                () => App.AppConfig.MotionGamepadWarningAcknowledged = true))
+        {
+            // User declined or dismissed — keep disabled
+            _isLoading = true;
+            ChkMotionGamepad.IsChecked = false;
+            _isLoading = false;
+            return;
+        }
+
+        App.OverlayConfig.MotionGamepadEnabled = wantEnabled;
+        PanelGamepadSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
+        PanelGamepadDeadzone.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
+
+        // Enable-time connectivity probe: TryGetSticks fails silently when no pad
+        // is attached or XInput is unavailable — the top "it doesn't work" report
+        // for this feature. Surface the reason immediately instead. Enabling stays
+        // allowed either way, so a pad plugged in later starts working on the spot.
+        if (wantEnabled && !wasEnabled)
+        {
+            var probe = XInputInterop.ProbeConnection();
+            if (probe == GamepadProbeResult.NotConnected)
+                CustomMessageBox.Show(
+                    (string)FindResource("Motion_GamepadNotFound_Title"),
+                    (string)FindResource("Motion_GamepadNotFound_Msg"),
+                    (string)FindResource("Common_OK"));
+            else if (probe == GamepadProbeResult.XInputUnavailable)
+                CustomMessageBox.Show(
+                    (string)FindResource("Motion_XInputUnavailable_Title"),
+                    (string)FindResource("Motion_XInputUnavailable_Msg"),
+                    (string)FindResource("Common_OK"));
+        }
+    }
+
+    /// <summary>
+    /// Mandatory red "ban risk" confirmation before enabling keyboard/gamepad
+    /// motion control. Returns true when enabling may proceed. The safety gate
+    /// itself (MotionXxxEnabled) intentionally resets on every restart; only the
+    /// user's informed consent to the warning TEXT is persistent — confirming
+    /// once with "don't show again" ticked silences the dialog (a factory reset
+    /// re-arms it), cutting the per-restart friction down to a single checkbox.
+    /// </summary>
+    private bool ConfirmMotionRisk(string msgResourceKey, Func<bool> warningAcknowledged, Action setWarningAcknowledged)
+    {
+        if (warningAcknowledged()) return true;
+
+        var title = (string)FindResource("Motion_WarningTitle");
+        var msg = (string)FindResource(msgResourceKey);
+        var yesText = (string)FindResource("Motion_WarningYes");
+        var noText = (string)FindResource("Motion_WarningNo");
+        var dontShowText = (string)FindResource("Motion_WarnDontShowAgain");
+
+        var result = CustomMessageBox.Show(title, msg, yesText, noText, dontShowText, out bool dontShowAgain);
+
+        // Enabling requires an explicit yes — declining AND dismissing (Alt+F4)
+        // both keep the feature off
+        if (result != CustomMessageBox.Result.Option1)
+            return false;
+
+        if (dontShowAgain)
+        {
+            setWarningAcknowledged();
+            // Persist immediately — the debounced auto-save may lag behind
+            ConfigManager.SaveAppConfig(App.AppConfig);
+        }
+        return true;
+    }
+
+    private void MotionGamepadSensitivity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionGamepadSensitivityLabel == null) return;
+        App.OverlayConfig.MotionGamepadSensitivity = Math.Round(SliderMotionGamepadSensitivity.Value, 1);
+        MotionGamepadSensitivityLabel.Text = App.OverlayConfig.MotionGamepadSensitivity.ToString("0.0") + "x";
+    }
+
+    private void MotionGamepadDeadzone_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionGamepadDeadzoneLabel == null) return;
+        // UI shows a percentage; the config stores the fraction the deadzone math consumes
+        App.OverlayConfig.MotionGamepadDeadzone = Math.Round(SliderMotionGamepadDeadzone.Value, 2);
+        MotionGamepadDeadzoneLabel.Text = App.OverlayConfig.MotionGamepadDeadzone.ToString("0%");
     }
 
     private void MotionInverted_Changed(object sender, RoutedEventArgs e)

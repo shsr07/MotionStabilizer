@@ -39,6 +39,11 @@
     <sys:String x:Key="Color_Blue">Blue</sys:String>
     <sys:String x:Key="Color_Custom">Custom</sys:String>
 
+    <!-- Hotkey OSD -->
+    <sys:String x:Key="Osd_OverlayColor">Overlay Color</sys:String>
+    <sys:String x:Key="Osd_CrosshairColor">Crosshair Color</sys:String>
+    <sys:String x:Key="Osd_DialogWaiting">A dialog is waiting — it may be hidden behind the game</sys:String>
+
     <!-- Shapes -->
     <sys:String x:Key="Shape_Pole">Pole</sys:String>
     <sys:String x:Key="Shape_Box">Box</sys:String>
@@ -88,19 +93,28 @@
     <sys:String x:Key="Motion_SettingsCard">Motion Dots Settings</sys:String>
     <sys:String x:Key="Motion_Desc">Displays dynamic dots on both sides of the screen that respond to mouse movement, providing visual motion anchors. GPU usage occurs while active.</sys:String>
     <sys:String x:Key="Motion_KeyboardEnable">Enable keyboard WASD to control motion dots (do not use in online games)</sys:String>
-    <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse and keyboard reversed)</sys:String>
+    <sys:String x:Key="Motion_GamepadEnable">Enable gamepad control of motion dots (do not use in online games)</sys:String>
+    <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse, keyboard and gamepad reversed)</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">Parallax scale (dots shrink near screen center)</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">Dot Scale Amount</sys:String>
     <sys:String x:Key="Motion_DotColumns">Dot Columns</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">Vertical Spacing</sys:String>
     <sys:String x:Key="Motion_DotSpacingH">Horizontal Spacing</sys:String>
-    <sys:String x:Key="Motion_MouseSensitivity">Mouse Sensitivity</sys:String>
-    <sys:String x:Key="Motion_KeyboardSensitivity">Keyboard Sensitivity</sys:String>
+    <sys:String x:Key="Motion_MouseSensitivity">Mouse &amp; Gamepad Turning</sys:String>
+    <sys:String x:Key="Motion_KeyboardSensitivity">Keyboard Movement</sys:String>
+    <sys:String x:Key="Motion_GamepadSensitivity">Gamepad Movement</sys:String>
+    <sys:String x:Key="Motion_GamepadDeadzone">Stick Deadzone</sys:String>
     <sys:String x:Key="Motion_RefreshRate">Refresh Rate</sys:String>
     <sys:String x:Key="Motion_WarningTitle">⚠ Safety Warning — Ban Risk</sys:String>
     <sys:String x:Key="Motion_WarningMsg">Enabling this feature uses high-frequency key polling (GetAsyncKeyState). It is strictly prohibited to use in multiplayer games with Vanguard, EAC, BattlEye or other anti-cheat systems — it may result in a ban. Only enable for single-player games!\n\nDo you wish to continue?</sys:String>
     <sys:String x:Key="Motion_WarningYes">I understand the risk, enable</sys:String>
     <sys:String x:Key="Motion_WarningNo">Cancel</sys:String>
+    <sys:String x:Key="Motion_WarnDontShowAgain">Don't show this warning again (the enable state still resets on restart)</sys:String>
+    <sys:String x:Key="Motion_GamepadNotFound_Title">No Gamepad Detected</sys:String>
+    <sys:String x:Key="Motion_GamepadNotFound_Msg">Gamepad control is enabled, but no connected XInput gamepad was detected.\n\nXbox controllers work out of the box; other pads (DualSense, Switch Pro, etc.) must be converted to be recognized: enable "Controller → Xbox Configuration Support" in Steam, or use a tool like BetterJoy and enable the controller there.\n\nVirtual gamepads created by conversion tools must likewise never be used in online games. Once a gamepad is connected, the motion dots respond to its sticks immediately — no restart needed.</sys:String>
+    <sys:String x:Key="Motion_XInputUnavailable_Title">XInput Unavailable</sys:String>
+    <sys:String x:Key="Motion_XInputUnavailable_Msg">Gamepad control is enabled, but this machine is missing the XInput components (xinput1_4.dll / xinput9_1_0.dll), so gamepad state cannot be read. These ship with Windows and are normally present; if this persists, please verify system integrity.\n\nAll other overlay features are unaffected.</sys:String>
+    <sys:String x:Key="Motion_GamepadWarningMsg">Enabling this feature polls XInput gamepad stick state (left stick = keyboard role, right stick = mouse role). Stick polling is a passive read that injects no input into the system, but for policy consistency it must never be used in multiplayer games with Vanguard, EAC, BattlEye or other anti-cheat systems. Only enable for single-player games!\n\nDo you wish to continue?</sys:String>
     <sys:String x:Key="Motion_InitFail_Title">Motion Dots Unavailable</sys:String>
     <sys:String x:Key="Motion_InitFail_Msg">Motion dots rendering could not be initialized (a Direct3D 11 capable GPU driver is required). This can happen over remote desktop, in virtual machines, or with outdated GPU drivers. Other overlay features are unaffected.</sys:String>
 
@@ -124,6 +138,7 @@
     <sys:String x:Key="Clock_FontFamily">Font</sys:String>
     <sys:String x:Key="Clock_FontSize">Font Size</sys:String>
     <sys:String x:Key="Clock_OutlineFont">Outline Font</sys:String>
+    <sys:String x:Key="Clock_OsdOffscreen">Clock position may be off-screen</sys:String>
 
     <!-- Hotkeys Page -->
     <sys:String x:Key="Hotkeys_Title">Hotkey Bindings</sys:String>
@@ -133,9 +148,12 @@
     <sys:String x:Key="Hotkeys_PressKeys">Press key combination…</sys:String>
     <sys:String x:Key="Hotkeys_Conflict">Hotkey conflict!</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">Unbound</sys:String>
-    <sys:String x:Key="Hotkeys_Hint">Click a hotkey field, then press your desired key combination (supports Ctrl / Alt / Shift). Press Esc to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_Hint">Click a hotkey field, then press your desired key combination (supports Ctrl / Alt / Shift). Press Esc to cancel, Delete to unbind.</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Title">Hotkey Registration Failed</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">The following hotkeys may be occupied by another program:</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Title">Global Hotkey Notice</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">The default hotkeys F1–F7, F9 and F10 use no modifier keys. While the app is running, these keys are captured system-wide — for example, some in-game functions bound to them (F1 help, F5 quicksave, etc.) will not respond.\n\nIf they conflict with your games or other software, rebind them on the Hotkeys page, or click a binding box and press Esc to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Ack">I Understand</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">Toggle Overlay</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">Toggle Crosshair</sys:String>
     <sys:String x:Key="HK_ToggleClock">Toggle Clock</sys:String>
@@ -154,7 +172,7 @@
     <sys:String x:Key="Options_Desc">Application behavior and UI settings</sys:String>
     <sys:String x:Key="Options_BehaviorCard">Behavior</sys:String>
     <sys:String x:Key="Options_MinimizeToTray">Minimize to tray on first run</sys:String>
-    <sys:String x:Key="Options_AutoSave">Auto-save settings on close</sys:String>
+    <sys:String x:Key="Options_AutoSave">Auto-save setting changes</sys:String>
     <sys:String x:Key="Options_ConfirmClose">Show confirmation before closing</sys:String>
     <sys:String x:Key="Options_UICard">Interface</sys:String>
     <sys:String x:Key="Options_UIScale">UI Scale</sys:String>
@@ -213,6 +231,8 @@
     <sys:String x:Key="Error_StartupFail">Startup failed:\n\n{0}: {1}\n\n{2}</sys:String>
     <sys:String x:Key="Error_UnhandledException">An unhandled exception occurred:\n\n{0}: {1}\n\n{2}</sys:String>
     <sys:String x:Key="Error_FatalException">A fatal exception occurred:\n\n{0}: {1}\n\n{2}</sys:String>
+    <sys:String x:Key="Error_Short_Title">Motion Stabilizer - Error</sys:String>
+    <sys:String x:Key="Error_Short_Msg">An internal error occurred. Details were written to error.log.\n\n{0}: {1}</sys:String>
 
     <!-- Confirm dialog -->
     <sys:String x:Key="ConfirmClose_Title">Confirm Close</sys:String>

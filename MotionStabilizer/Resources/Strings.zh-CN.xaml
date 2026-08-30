@@ -39,6 +39,11 @@
     <sys:String x:Key="Color_Blue">蓝色</sys:String>
     <sys:String x:Key="Color_Custom">自定义</sys:String>
 
+    <!-- Hotkey OSD -->
+    <sys:String x:Key="Osd_OverlayColor">叠加层颜色</sys:String>
+    <sys:String x:Key="Osd_CrosshairColor">准星颜色</sys:String>
+    <sys:String x:Key="Osd_DialogWaiting">有弹窗等待处理，可能被游戏画面遮挡</sys:String>
+
     <!-- Shapes -->
     <sys:String x:Key="Shape_Pole">长杆</sys:String>
     <sys:String x:Key="Shape_Box">方框</sys:String>
@@ -88,19 +93,28 @@
     <sys:String x:Key="Motion_SettingsCard">动态圆点设置</sys:String>
     <sys:String x:Key="Motion_Desc">在屏幕两侧显示根据鼠标移动而变化的动态圆点，提供视觉运动错点。功能生效期间会占用 GPU。</sys:String>
     <sys:String x:Key="Motion_KeyboardEnable">启用键盘 WASD 控制动态圆点（禁止联机游戏使用）</sys:String>
-    <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标和键盘控制反向）</sys:String>
+    <sys:String x:Key="Motion_GamepadEnable">启用手柄控制动态圆点（禁止联机游戏使用）</sys:String>
+    <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标、键盘和手柄控制反向）</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">视差缩放（圆点靠近屏幕中线时自动缩小）</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">圆点缩放程度</sys:String>
     <sys:String x:Key="Motion_DotColumns">圆点列数</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">圆点上下间距</sys:String>
     <sys:String x:Key="Motion_DotSpacingH">圆点左右间距</sys:String>
-    <sys:String x:Key="Motion_MouseSensitivity">鼠标灵敏度</sys:String>
-    <sys:String x:Key="Motion_KeyboardSensitivity">键盘灵敏度</sys:String>
+    <sys:String x:Key="Motion_MouseSensitivity">鼠标与手柄转动灵敏度</sys:String>
+    <sys:String x:Key="Motion_KeyboardSensitivity">键盘移动灵敏度</sys:String>
+    <sys:String x:Key="Motion_GamepadSensitivity">手柄移动灵敏度</sys:String>
+    <sys:String x:Key="Motion_GamepadDeadzone">摇杆死区</sys:String>
     <sys:String x:Key="Motion_RefreshRate">刷新率</sys:String>
     <sys:String x:Key="Motion_WarningTitle">⚠ 安全警告 — 封号风险</sys:String>
     <sys:String x:Key="Motion_WarningMsg">开启此功能会使用高频按键轮询（GetAsyncKeyState），绝对禁止在带有 Vanguard、EAC、BattlEye 等反作弊系统的多人游戏中使用，否则可能导致封号。仅限单机游戏开启！\n\n确定要继续吗？</sys:String>
     <sys:String x:Key="Motion_WarningYes">我已了解风险，确认开启</sys:String>
     <sys:String x:Key="Motion_WarningNo">取消</sys:String>
+    <sys:String x:Key="Motion_WarnDontShowAgain">不再提示此风险（启用状态仍不会跨启动保存）</sys:String>
+    <sys:String x:Key="Motion_GamepadNotFound_Title">未检测到手柄</sys:String>
+    <sys:String x:Key="Motion_GamepadNotFound_Msg">手柄控制已启用，但当前未检测到已连接的 XInput 手柄。\n\nXbox 系手柄即插即用；其他手柄（DualSense、Switch Pro 等）需经转接才能被识别：在 Steam 中勾选“控制器 → Xbox 配置支持”，或使用 BetterJoy 等工具并在其中启用控制器。\n\n转接工具产生的虚拟手柄同样请勿用于联机游戏。手柄接入后动态圆点会立即响应摇杆，无需重启程序。</sys:String>
+    <sys:String x:Key="Motion_XInputUnavailable_Title">XInput 不可用</sys:String>
+    <sys:String x:Key="Motion_XInputUnavailable_Msg">手柄控制已启用，但本机缺少 XInput 组件（xinput1_4.dll / xinput9_1_0.dll），无法读取手柄状态。该组件为 Windows 自带，通常不会缺失；如持续出现请检查系统完整性。\n\n其他叠加功能不受影响。</sys:String>
+    <sys:String x:Key="Motion_GamepadWarningMsg">开启此功能会轮询 XInput 手柄摇杆状态（左摇杆＝键盘角色，右摇杆＝鼠标角色）。摇杆轮询是被动读取，不向系统注入任何输入，但为安全策略一致，严禁在带有 Vanguard、EAC、BattlEye 等反作弊系统的联机游戏中使用。仅限单机游戏开启！\n\n确定要继续吗？</sys:String>
     <sys:String x:Key="Motion_InitFail_Title">动态圆点不可用</sys:String>
     <sys:String x:Key="Motion_InitFail_Msg">无法初始化动态圆点渲染（需要支持 Direct3D 11 的显卡驱动）。远程桌面、虚拟机或过旧的显卡驱动环境下可能无法使用。其他叠加功能不受影响。</sys:String>
 
@@ -124,6 +138,7 @@
     <sys:String x:Key="Clock_FontFamily">字体</sys:String>
     <sys:String x:Key="Clock_FontSize">字号</sys:String>
     <sys:String x:Key="Clock_OutlineFont">描边字体</sys:String>
+    <sys:String x:Key="Clock_OsdOffscreen">时钟位置可能超出屏幕范围</sys:String>
 
     <!-- Hotkeys Page -->
     <sys:String x:Key="Hotkeys_Title">快捷键绑定</sys:String>
@@ -133,9 +148,12 @@
     <sys:String x:Key="Hotkeys_PressKeys">请按下组合键…</sys:String>
     <sys:String x:Key="Hotkeys_Conflict">热键冲突！</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">已解除绑定</sys:String>
-    <sys:String x:Key="Hotkeys_Hint">点击快捷键输入框，然后按下所需的组合键（支持 Ctrl / Alt / Shift）。按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_Hint">点击快捷键输入框，然后按下所需的组合键（支持 Ctrl / Alt / Shift）。按 Esc 取消输入，按 Delete 解除绑定。</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Title">快捷键注册失败</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">以下快捷键可能被其他程序占用，无法注册：</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Title">快捷键占用提示</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">程序默认占用了 F1–F7、F9、F10 全局快捷键（未加修饰键）。程序运行期间这些按键会被本程序全局拦截，比如某些游戏内的 F1 帮助、F5 快速存档等对应功能将无法响应。\n\n如与您的游戏或常用软件冲突，请进入「快捷键绑定」页面修改按键组合，或点击输入框后按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Ack">我已知晓</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">开关边缘叠加</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">开关中心准星</sys:String>
     <sys:String x:Key="HK_ToggleClock">开关悬浮时钟</sys:String>
@@ -154,7 +172,7 @@
     <sys:String x:Key="Options_Desc">应用程序行为与界面设置</sys:String>
     <sys:String x:Key="Options_BehaviorCard">行为设置</sys:String>
     <sys:String x:Key="Options_MinimizeToTray">首次运行时最小化到托盘</sys:String>
-    <sys:String x:Key="Options_AutoSave">程序关闭时自动保存设置</sys:String>
+    <sys:String x:Key="Options_AutoSave">自动保存设置变更</sys:String>
     <sys:String x:Key="Options_ConfirmClose">程序关闭前显示确认消息</sys:String>
     <sys:String x:Key="Options_UICard">界面定制</sys:String>
     <sys:String x:Key="Options_UIScale">UI 缩放</sys:String>
@@ -213,6 +231,8 @@
     <sys:String x:Key="Error_StartupFail">启动失败：\n\n{0}: {1}\n\n{2}</sys:String>
     <sys:String x:Key="Error_UnhandledException">发生未处理异常：\n\n{0}: {1}\n\n{2}</sys:String>
     <sys:String x:Key="Error_FatalException">发生致命异常：\n\n{0}: {1}\n\n{2}</sys:String>
+    <sys:String x:Key="Error_Short_Title">Motion Stabilizer - 错误</sys:String>
+    <sys:String x:Key="Error_Short_Msg">程序遇到内部错误，详情已写入日志文件 error.log。\n\n{0}: {1}</sys:String>
 
     <!-- Confirm dialog -->
     <sys:String x:Key="ConfirmClose_Title">确认关闭</sys:String>

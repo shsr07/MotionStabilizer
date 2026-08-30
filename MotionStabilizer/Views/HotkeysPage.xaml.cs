@@ -101,6 +101,18 @@ public partial class HotkeysPage : Page
         _capturingTextBox = null;
     }
 
+    /// <summary>Leave capture mode: restore the field display, drop focus, refresh the list.</summary>
+    private void EndCapture(TextBox tb, HotkeyItem? item)
+    {
+        tb.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x6E, 0x6E, 0x6E));
+        tb.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xD1, 0xD1, 0xD1));
+        tb.Text = item?.Binding?.DisplayString ?? "—";
+        _capturingItem = null;
+        _capturingTextBox = null;
+        Keyboard.ClearFocus();
+        RefreshFromConfig();
+    }
+
     /// <summary>Capture key presses when a hotkey field is focused.</summary>
     private void HotkeyField_PreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -119,8 +131,14 @@ public partial class HotkeysPage : Page
             key == Key.LWin || key == Key.RWin)
             return;
 
-        // Handle Escape to unbind
+        // Esc = cancel the capture (binding left untouched);
+        // Delete = clear the binding entirely
         if (key == Key.Escape)
+        {
+            EndCapture(tb, _capturingItem);
+            return;
+        }
+        if (key == Key.Delete)
         {
             if (_capturingItem.Binding != null)
             {
@@ -128,17 +146,14 @@ public partial class HotkeysPage : Page
                 _capturingItem.Binding.Ctrl = false;
                 _capturingItem.Binding.Alt = false;
                 _capturingItem.Binding.Shift = false;
+                // Re-register all hotkeys
+                if (App.Current is App appInst)
+                {
+                    appInst.RegisterAllHotkeys();
+                }
+                ConfigManager.SaveHotkeys(App.HotkeyConfig);
             }
-            // Re-register all hotkeys
-            if (App.Current is App appInst)
-            {
-                appInst.RegisterAllHotkeys();
-            }
-            ConfigManager.SaveHotkeys(App.HotkeyConfig);
-            _capturingItem = null;
-            _capturingTextBox = null;
-            Keyboard.ClearFocus();
-            RefreshFromConfig();
+            EndCapture(tb, _capturingItem);
             return;
         }
 

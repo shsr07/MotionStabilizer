@@ -12,5 +12,24 @@
         WindowStartupLocation="Manual"
         Width="1" Height="1"
         Left="0" Top="0">
-    <Canvas x:Name="OverlayCanvas" Background="Transparent" />
+    <!--
+        Two independent layers:
+        - OverlayCanvas: rebuilt from scratch by every Render() call.
+        - OsdText: transient hotkey feedback that must SURVIVE those rebuilds
+          (hotkey presses themselves trigger Render via ConfigStore.Changed),
+          so it lives outside the canvas.
+    -->
+    <Grid>
+        <Canvas x:Name="OverlayCanvas" Background="Transparent" />
+        <TextBlock x:Name="OsdText"
+                   HorizontalAlignment="Center" VerticalAlignment="Top"
+                   Visibility="Collapsed" Opacity="0"
+                   IsHitTestVisible="False"
+                   FontSize="20" FontWeight="SemiBold"
+                   Foreground="#E6FFFFFF" Padding="12,6">
+            <TextBlock.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="0" Opacity="1" />
+            </TextBlock.Effect>
+        </TextBlock>
+    </Grid>
 </Window>

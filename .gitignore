@@ -73,3 +73,6 @@ MotionStabilizer-v*.zip
 
 ## Backup directories
 *_backup_*/
+
+## ZCode AI session artifacts
+.zcode/

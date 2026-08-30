@@ -126,6 +126,15 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Gamepad enable (safety-gated, mirrors keyboard) -->
+                    <Border Background="#1AFF4444" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox x:Name="ChkMotionGamepad" Content="{DynamicResource Motion_GamepadEnable}"
+                                      Checked="MotionGamepad_Changed" Unchecked="MotionGamepad_Changed"
+                                      FontWeight="SemiBold" Foreground="#FF4444" />
+                        </StackPanel>
+                    </Border>
+
                     <!-- Motion direction inversion -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                         <CheckBox x:Name="ChkMotionInverted" Content="{DynamicResource Motion_InvertDirection}"
@@ -140,7 +149,7 @@
 
                     <!-- Parallax amount slider -->
                     <StackPanel x:Name="PanelParallaxAmount" Orientation="Horizontal" Margin="0,0,0,14" Visibility="Collapsed">
-                        <TextBlock Text="{DynamicResource Motion_ParallaxAmount}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_ParallaxAmount}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionParallaxAmount" Width="280" Minimum="0" Maximum="100"
                                 TickFrequency="1" IsSnapToTickEnabled="True"
                                 ValueChanged="MotionParallaxAmount_Changed" />
@@ -149,7 +158,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="{DynamicResource Motion_DotColumns}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_DotColumns}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionDotColumns" Width="280" Minimum="1" Maximum="6"
                                 TickFrequency="1" IsSnapToTickEnabled="True"
                                 ValueChanged="MotionDotColumns_Changed" />
@@ -158,7 +167,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="{DynamicResource Motion_DotSpacingV}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_DotSpacingV}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionDotSpacingV" Width="280" Minimum="0.5" Maximum="3.0"
                                 TickFrequency="0.1" ValueChanged="MotionDotSpacingV_Changed" />
                         <TextBlock x:Name="MotionDotSpacingVLabel" Width="48" Margin="12,0,0,0"
@@ -166,7 +175,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="{DynamicResource Motion_DotSpacingH}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_DotSpacingH}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionDotSpacingH" Width="280" Minimum="0.5" Maximum="3.0"
                                 TickFrequency="0.1" ValueChanged="MotionDotSpacingH_Changed" />
                         <TextBlock x:Name="MotionDotSpacingHLabel" Width="48" Margin="12,0,0,0"
@@ -174,7 +183,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="{DynamicResource Motion_MouseSensitivity}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_MouseSensitivity}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionSensitivity" Width="280" Minimum="0.1" Maximum="2.0"
                                 TickFrequency="0.1" ValueChanged="MotionSensitivity_Changed" />
                         <TextBlock x:Name="MotionSensitivityLabel" Width="48" Margin="12,0,0,0"
@@ -182,15 +191,31 @@
                     </StackPanel>
 
                     <StackPanel x:Name="PanelKeyboardSensitivity" Orientation="Horizontal" Margin="0,0,0,14" Visibility="Collapsed">
-                        <TextBlock Text="{DynamicResource Motion_KeyboardSensitivity}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_KeyboardSensitivity}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionKeyboardSensitivity" Width="280" Minimum="0.1" Maximum="3.0"
                                 TickFrequency="0.1" ValueChanged="MotionKeyboardSensitivity_Changed" />
                         <TextBlock x:Name="MotionKeyboardSensitivityLabel" Width="48" Margin="12,0,0,0"
                                    VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
                     </StackPanel>
 
+                    <StackPanel x:Name="PanelGamepadSensitivity" Orientation="Horizontal" Margin="0,0,0,14" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource Motion_GamepadSensitivity}" Style="{StaticResource FieldLabel}" Width="150" />
+                        <Slider x:Name="SliderMotionGamepadSensitivity" Width="280" Minimum="0.1" Maximum="3.0"
+                                TickFrequency="0.1" ValueChanged="MotionGamepadSensitivity_Changed" />
+                        <TextBlock x:Name="MotionGamepadSensitivityLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="PanelGamepadDeadzone" Orientation="Horizontal" Margin="0,0,0,14" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource Motion_GamepadDeadzone}" Style="{StaticResource FieldLabel}" Width="150" />
+                        <Slider x:Name="SliderMotionGamepadDeadzone" Width="280" Minimum="0" Maximum="0.5"
+                                TickFrequency="0.01" ValueChanged="MotionGamepadDeadzone_Changed" />
+                        <TextBlock x:Name="MotionGamepadDeadzoneLabel" Width="48" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                    </StackPanel>
+
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="{DynamicResource Motion_RefreshRate}" Style="{StaticResource FieldLabel}" Width="100" />
+                        <TextBlock Text="{DynamicResource Motion_RefreshRate}" Style="{StaticResource FieldLabel}" Width="150" />
                         <Slider x:Name="SliderMotionRefreshRate" Width="280" Minimum="30" Maximum="360"
                                 TickFrequency="1" IsSnapToTickEnabled="True"
                                 ValueChanged="MotionRefreshRate_Changed" />
