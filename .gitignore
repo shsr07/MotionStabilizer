@@ -76,3 +76,6 @@ MotionStabilizer-v*.zip
 
 ## ZCode AI session artifacts
 .zcode/
+
+## Release checksum sidecars
+*.zip.SHA256
