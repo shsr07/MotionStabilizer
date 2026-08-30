@@ -128,7 +128,7 @@ dotnet build -c Release
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — 硬件加速渲染动态圆点
 - **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕、Raw Input、XInput 手柄轮询
-- **xUnit** — 单元测试（257 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
+- **xUnit** — 单元测试（266 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
 - **C# 12** — 最新 C# 特性
 
 ## 📁 项目结构 / Project Structure
@@ -166,7 +166,7 @@ MotionStabilizer/                    # 主项目
 ├── App.xaml(.cs)                    # 应用入口
 └── MainWindow.xaml(.cs)             # 主窗口
 
-MotionStabilizer.Tests/              # 单元测试项目 (257 tests)
+MotionStabilizer.Tests/              # 单元测试项目 (266 tests)
 ├── RenderHelperTests.cs             #   渲染尺寸映射、安全区域计算
 ├── ConfigModelTests.cs              #   配置模型：颜色解析、边缘可见性/透明度
 ├── HotkeyBindingTests.cs            #   快捷键显示字符串、克隆

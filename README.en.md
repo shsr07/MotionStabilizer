@@ -124,7 +124,7 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — hardware-accelerated motion dot rendering
 - **Win32 API** — click-through windows, global hotkey registration, system tray, multi-monitor virtual screen, Raw Input, XInput gamepad polling
-- **xUnit** — unit tests (257 tests covering render helpers, config models, hotkey bindings, observable config, area computation, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
+- **xUnit** — unit tests (266 tests covering render helpers, config models, hotkey bindings, observable config, area computation, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
 - **C# 12** — latest C# features
 
 ## 📁 Project Structure
@@ -162,7 +162,7 @@ MotionStabilizer/                    # Main project
 ├── App.xaml(.cs)                    # Application entry point
 └── MainWindow.xaml(.cs)             # Main window
 
-MotionStabilizer.Tests/              # Unit test project (257 tests)
+MotionStabilizer.Tests/              # Unit test project (266 tests)
 ├── RenderHelperTests.cs             #   Render size mapping, safe-area computation
 ├── ConfigModelTests.cs              #   Config models: color parsing, edge visibility/opacity
 ├── HotkeyBindingTests.cs            #   Hotkey display strings, cloning
