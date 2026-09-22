@@ -248,6 +248,37 @@ public static class RenderHelper
         return shapes;
     }
 
+    /// <summary>
+    /// Add a filled rectangle, preceded — when outlines are on — by a slightly
+    /// larger copy in the outline colour underneath it.
+    /// Drawing the outline as a solid underlay instead of Shape.Stroke matters
+    /// for Box: its four rectangles overlap at the corners, and a per-rectangle
+    /// Stroke would draw lines straight across the inside of the frame. The
+    /// underlays merge into one continuous ring that the fill then covers,
+    /// leaving an even border on both the outside and the inside of the frame.
+    /// </summary>
+    private static void AddRect(List<Shape> result, Brush fill, Brush? outline, double outlineW,
+        double x, double y, double w, double h)
+    {
+        if (outline != null && outlineW > 0)
+        {
+            var under = new Rectangle
+            {
+                Fill = outline,
+                Width = w + outlineW * 2,
+                Height = h + outlineW * 2
+            };
+            Canvas.SetLeft(under, x - outlineW);
+            Canvas.SetTop(under, y - outlineW);
+            result.Add(under);
+        }
+
+        var rect = new Rectangle { Fill = fill, Width = w, Height = h };
+        Canvas.SetLeft(rect, x);
+        Canvas.SetTop(rect, y);
+        result.Add(rect);
+    }
+
     private static List<Shape> BuildSingleOverlay(OverlayConfig cfg, Rect area, double sizePx, double lengthPx, double dpiRatio, Color color)
     {
         var result = new List<Shape>();
@@ -260,6 +291,17 @@ public static class RenderHelper
 
         Brush brushFor(EdgeSide side) => new SolidColorBrush(
             Color.FromArgb(OpacityToByte(cfg.GetEdgeOpacity(side)), color.R, color.G, color.B));
+
+        // Outline is shared with the motion dots — same colour, same hotkey, same
+        // thickness. Off by default; when on it costs one extra shape per
+        // rectangle and one stroke per path.
+        bool outlineOn = cfg.OverlayOutlineEnabled;
+        double outlineW = outlineOn ? Math.Clamp(cfg.OverlayOutlineWidth, 0.5, 5.0) * dpiRatio : 0;
+        var outlineColor = cfg.GetOutlineColor();
+        Brush? outlineBrushFor(EdgeSide side) => outlineOn
+            ? new SolidColorBrush(Color.FromArgb(
+                OpacityToByte(cfg.GetEdgeOpacity(side)), outlineColor.R, outlineColor.G, outlineColor.B))
+            : null;
 
         switch (cfg.Shape)
         {
@@ -292,11 +334,9 @@ public static class RenderHelper
                 // Top edge — vertical pole pointing down into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Top))
                 {
-                    var topRect = new Rectangle { Fill = brushFor(EdgeSide.Top), Width = poleThick, Height = lenV - tipLen };
-                    Canvas.SetLeft(topRect, cx - poleThick / 2);
-                    Canvas.SetTop(topRect, y);
-                    result.Add(topRect);
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Top),
+                    AddRect(result, brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
+                        cx - poleThick / 2, y, poleThick, lenV - tipLen);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
                         cx - poleThick / 2, y + lenV - tipLen,
                         cx + poleThick / 2, y + lenV - tipLen,
                         cx, y + lenV));
@@ -305,11 +345,9 @@ public static class RenderHelper
                 // Bottom edge — vertical pole pointing up into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Bottom))
                 {
-                    var botRect = new Rectangle { Fill = brushFor(EdgeSide.Bottom), Width = poleThick, Height = lenV - tipLen };
-                    Canvas.SetLeft(botRect, cx - poleThick / 2);
-                    Canvas.SetTop(botRect, y + h - (lenV - tipLen));
-                    result.Add(botRect);
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Bottom),
+                    AddRect(result, brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
+                        cx - poleThick / 2, y + h - (lenV - tipLen), poleThick, lenV - tipLen);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
                         cx - poleThick / 2, y + h - lenV + tipLen,
                         cx + poleThick / 2, y + h - lenV + tipLen,
                         cx, y + h - lenV));
@@ -318,11 +356,9 @@ public static class RenderHelper
                 // Left edge — horizontal pole pointing right into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Left))
                 {
-                    var leftRect = new Rectangle { Fill = brushFor(EdgeSide.Left), Width = lenH - tipLen, Height = poleThick };
-                    Canvas.SetLeft(leftRect, x);
-                    Canvas.SetTop(leftRect, cy - poleThick / 2);
-                    result.Add(leftRect);
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Left),
+                    AddRect(result, brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
+                        x, cy - poleThick / 2, lenH - tipLen, poleThick);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
                         x + lenH - tipLen, cy - poleThick / 2,
                         x + lenH - tipLen, cy + poleThick / 2,
                         x + lenH, cy));
@@ -331,11 +367,9 @@ public static class RenderHelper
                 // Right edge — horizontal pole pointing left into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Right))
                 {
-                    var rightRect = new Rectangle { Fill = brushFor(EdgeSide.Right), Width = lenH - tipLen, Height = poleThick };
-                    Canvas.SetLeft(rightRect, x + w - (lenH - tipLen));
-                    Canvas.SetTop(rightRect, cy - poleThick / 2);
-                    result.Add(rightRect);
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Right),
+                    AddRect(result, brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
+                        x + w - (lenH - tipLen), cy - poleThick / 2, lenH - tipLen, poleThick);
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
                         x + w - lenH + tipLen, cy - poleThick / 2,
                         x + w - lenH + tipLen, cy + poleThick / 2,
                         x + w - lenH, cy));
@@ -353,37 +387,29 @@ public static class RenderHelper
                 // Top edge — horizontal rectangle centered on top
                 if (cfg.IsEdgeVisible(EdgeSide.Top))
                 {
-                    var topRect = new Rectangle { Fill = brushFor(EdgeSide.Top), Width = boxLen, Height = boxThick };
-                    Canvas.SetLeft(topRect, cx - boxLen / 2);
-                    Canvas.SetTop(topRect, y);
-                    result.Add(topRect);
+                    AddRect(result, brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
+                        cx - boxLen / 2, y, boxLen, boxThick);
                 }
 
                 // Bottom edge — horizontal rectangle centered on bottom
                 if (cfg.IsEdgeVisible(EdgeSide.Bottom))
                 {
-                    var botRect = new Rectangle { Fill = brushFor(EdgeSide.Bottom), Width = boxLen, Height = boxThick };
-                    Canvas.SetLeft(botRect, cx - boxLen / 2);
-                    Canvas.SetTop(botRect, y + h - boxThick);
-                    result.Add(botRect);
+                    AddRect(result, brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
+                        cx - boxLen / 2, y + h - boxThick, boxLen, boxThick);
                 }
 
                 // Left edge — vertical rectangle centered on left
                 if (cfg.IsEdgeVisible(EdgeSide.Left))
                 {
-                    var leftRect = new Rectangle { Fill = brushFor(EdgeSide.Left), Width = boxThick, Height = boxLen };
-                    Canvas.SetLeft(leftRect, x);
-                    Canvas.SetTop(leftRect, cy - boxLen / 2);
-                    result.Add(leftRect);
+                    AddRect(result, brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
+                        x, cy - boxLen / 2, boxThick, boxLen);
                 }
 
                 // Right edge — vertical rectangle centered on right
                 if (cfg.IsEdgeVisible(EdgeSide.Right))
                 {
-                    var rightRect = new Rectangle { Fill = brushFor(EdgeSide.Right), Width = boxThick, Height = boxLen };
-                    Canvas.SetLeft(rightRect, x + w - boxThick);
-                    Canvas.SetTop(rightRect, cy - boxLen / 2);
-                    result.Add(rightRect);
+                    AddRect(result, brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
+                        x + w - boxThick, cy - boxLen / 2, boxThick, boxLen);
                 }
                 break;
 
@@ -397,23 +423,23 @@ public static class RenderHelper
 
                 // Top edge — half-ellipse bulging downward (into screen)
                 if (cfg.IsEdgeVisible(EdgeSide.Top))
-                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Top), cx, y, domeWidth, domeDepth,
-                        SweepDirection.Counterclockwise, false));
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
+                        cx, y, domeWidth, domeDepth, SweepDirection.Counterclockwise, false));
 
                 // Bottom edge — half-ellipse bulging upward (into screen)
                 if (cfg.IsEdgeVisible(EdgeSide.Bottom))
-                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Bottom), cx, y + h, domeWidth, domeDepth,
-                        SweepDirection.Clockwise, false));
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
+                        cx, y + h, domeWidth, domeDepth, SweepDirection.Clockwise, false));
 
                 // Left edge — half-ellipse bulging rightward (into screen)
                 if (cfg.IsEdgeVisible(EdgeSide.Left))
-                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Left), x, cy, domeWidth, domeDepth,
-                        SweepDirection.Clockwise, true));
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
+                        x, cy, domeWidth, domeDepth, SweepDirection.Clockwise, true));
 
                 // Right edge — half-ellipse bulging leftward (into screen)
                 if (cfg.IsEdgeVisible(EdgeSide.Right))
-                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Right), x + w, cy, domeWidth, domeDepth,
-                        SweepDirection.Counterclockwise, true));
+                    result.Add(MakeHalfEllipse(brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
+                        x + w, cy, domeWidth, domeDepth, SweepDirection.Counterclockwise, true));
                 break;
 
             case OverlayShape.Flag:
@@ -425,28 +451,28 @@ public static class RenderHelper
 
                 // Top edge triangle — base on top edge, apex pointing down toward center
                 if (cfg.IsEdgeVisible(EdgeSide.Top))
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Top),
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
                         cx - triBase / 2, y,
                         cx + triBase / 2, y,
                         cx, y + triHeight));
 
                 // Bottom edge triangle — base on bottom edge, apex pointing up toward center
                 if (cfg.IsEdgeVisible(EdgeSide.Bottom))
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Bottom),
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
                         cx - triBase / 2, y + h,
                         cx + triBase / 2, y + h,
                         cx, y + h - triHeight));
 
                 // Left edge triangle — base on left edge, apex pointing right toward center
                 if (cfg.IsEdgeVisible(EdgeSide.Left))
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Left),
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
                         x, cy - triBase / 2,
                         x, cy + triBase / 2,
                         x + triHeight, cy));
 
                 // Right edge triangle — base on right edge, apex pointing left toward center
                 if (cfg.IsEdgeVisible(EdgeSide.Right))
-                    result.Add(MakeTriangle(brushFor(EdgeSide.Right),
+                    result.Add(MakeTriangle(brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
                         x + w, cy - triBase / 2,
                         x + w, cy + triBase / 2,
                         x + w - triHeight, cy));
@@ -465,7 +491,8 @@ public static class RenderHelper
     /// <param name="sweep">Arc sweep direction</param>
     /// <param name="isVerticalEdge">True if on a left/right edge (flat side is vertical)</param>
     private static System.Windows.Shapes.Path MakeHalfEllipse(
-        Brush brush, double edgeX, double edgeY,
+        Brush brush, Brush? outline, double outlineW,
+        double edgeX, double edgeY,
         double alongEdgeRadius, double bulgeDepth,
         SweepDirection sweep, bool isVerticalEdge)
     {
@@ -492,6 +519,10 @@ public static class RenderHelper
         return new System.Windows.Shapes.Path
         {
             Fill = brush,
+            Stroke = outline,
+            // Strokes are centred on the edge, so use twice the width to expose
+            // the same w outside as the rectangle underlay does.
+            StrokeThickness = outline != null ? outlineW * 2 : 0,
             Data = new PathGeometry
             {
                 Figures = { new PathFigure
@@ -514,12 +545,16 @@ public static class RenderHelper
     }
 
     /// <summary>Create a filled triangle from three points.</summary>
-    private static System.Windows.Shapes.Path MakeTriangle(Brush brush,
+    private static System.Windows.Shapes.Path MakeTriangle(Brush brush, Brush? outline, double outlineW,
         double x1, double y1, double x2, double y2, double x3, double y3)
     {
         return new System.Windows.Shapes.Path
         {
             Fill = brush,
+            Stroke = outline,
+            // Strokes are centred on the edge, so use twice the width to expose
+            // the same w outside as the rectangle underlay does.
+            StrokeThickness = outline != null ? outlineW * 2 : 0,
             Data = new PathGeometry
             {
                 Figures = { new PathFigure

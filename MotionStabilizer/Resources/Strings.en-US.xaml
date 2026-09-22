@@ -104,9 +104,10 @@
     <sys:String x:Key="Motion_NoInputSource">No input source is enabled, so the dots stay static (breathing effect only).</sys:String>
     <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse, keyboard and gamepad reversed)</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">Parallax scale (dots shrink near screen center)</sys:String>
-    <sys:String x:Key="Motion_Outline">Dot outline</sys:String>
-    <sys:String x:Key="Motion_OutlineColor">Outline colour</sys:String>
-    <sys:String x:Key="Motion_OutlineWidth">Outline thickness</sys:String>
+    <sys:String x:Key="Overlay_Outline">Overlay outline</sys:String>
+    <sys:String x:Key="Overlay_OutlineHint">Adds a contrasting outline to the overlay shapes and the motion dots</sys:String>
+    <sys:String x:Key="Overlay_OutlineWidth">Thickness</sys:String>
+    <sys:String x:Key="Color_CustomHint">Swatches marked with a palette icon are custom colours — click to open the picker.</sys:String>
     <sys:String x:Key="Outline_White">White</sys:String>
     <sys:String x:Key="Outline_Black">Black</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">Dot Scale Amount</sys:String>
@@ -185,8 +186,9 @@
     <sys:String x:Key="HK_CycleCrosshairShape">Cycle Crosshair Shape</sys:String>
     <sys:String x:Key="HK_CycleAspectRatio">Cycle Aspect Ratio</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">Cycle Opacity Mode</sys:String>
+    <sys:String x:Key="HK_ToggleOutline">Toggle Overlay Outline</sys:String>
     <sys:String x:Key="HK_CycleTargetMonitor">Cycle Target Monitor</sys:String>
-    <sys:String x:Key="HK_CycleOutlineColor">Cycle Dot Outline Colour</sys:String>
+    <sys:String x:Key="HK_CycleOutlineColor">Overlay outline colour cycle (white → black → custom)</sys:String>
     <sys:String x:Key="HK_CycleOverlayColor">Cycle Overlay Color (Red→Green→Blue→Custom)</sys:String>
     <sys:String x:Key="HK_CycleCrosshairColor">Cycle Crosshair Color (Red→Green→Blue→Custom)</sys:String>
 

@@ -641,11 +641,11 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
 
         var baseColor = ToColor4(_config.GetColor());
         var outlineColor = ToColor4(_config.GetOutlineColor());
-        bool outlineWanted = _config.MotionDotOutlineEnabled && _outlineBrush != null;
+        bool outlineWanted = _config.OverlayOutlineEnabled && _outlineBrush != null;
         // Thickness is absolute pixels scaled by DPI, NOT a fraction of the dot
         // radius: dots shrink near the screen centre (parallax) and a proportional
         // outline would disappear exactly where it is needed most.
-        float outlineWidth = (float)Math.Clamp(_config.MotionDotOutlineWidth, 0.5, 5.0) * _dotDpiScale;
+        float outlineWidth = (float)Math.Clamp(_config.OverlayOutlineWidth, 0.5, 5.0) * _dotDpiScale;
 
         foreach (ZoneDot dot in _dots)
         {

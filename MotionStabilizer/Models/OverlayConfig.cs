@@ -53,11 +53,11 @@ public class OverlayConfig : ObservableObject
     private bool _motionParallaxScale = true;
     private double _motionParallaxAmount = 0.8;
 
-    // ── Motion dot outline ──
-    private bool _motionDotOutlineEnabled = false;
-    private OutlineColorPreset _motionDotOutlineColorPreset = OutlineColorPreset.White;
-    private string _motionDotOutlineCustomHex = "#FFFFFF";
-    private double _motionDotOutlineWidth = 2.0;
+    // ── Overlay outline (shared by the static shapes and the motion dots) ──
+    private bool _overlayOutlineEnabled = false;
+    private OutlineColorPreset _overlayOutlineColorPreset = OutlineColorPreset.White;
+    private string _overlayOutlineCustomHex = "#FFFFFF";
+    private double _overlayOutlineWidth = 2.0;
 
     public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
     public OverlayShape Shape { get => _shape; set => SetProperty(ref _shape, value); }
@@ -133,40 +133,41 @@ public class OverlayConfig : ObservableObject
     public bool MotionParallaxScale { get => _motionParallaxScale; set => SetProperty(ref _motionParallaxScale, value); }
     public double MotionParallaxAmount { get => _motionParallaxAmount; set => SetProperty(ref _motionParallaxAmount, value); }
 
-    // ── Motion dot outline ──
+    // ── Overlay outline ──
 
     /// <summary>
-    /// Draw a contrasting ring around each dot. Off by default: it costs an extra
-    /// draw call per dot and most scenes do not need it — it exists for bright
-    /// frames (snow, desert, daylight) where a solid dot washes out.
+    /// Draw a contrasting outline around the overlay: a ring on each motion dot
+    /// and a border on the static shapes (pole, box, dome, flag). Off by default.
+    /// It costs one extra draw per element, and exists for bright frames (snow,
+    /// desert, daylight) where the plain overlay washes out against the game.
     /// </summary>
-    public bool MotionDotOutlineEnabled { get => _motionDotOutlineEnabled; set => SetProperty(ref _motionDotOutlineEnabled, value); }
+    public bool OverlayOutlineEnabled { get => _overlayOutlineEnabled; set => SetProperty(ref _overlayOutlineEnabled, value); }
 
-    /// <summary>Outline colour preset. White by default, which stays visible on
-    /// both dark and mid-tone frames.</summary>
-    public OutlineColorPreset MotionDotOutlineColorPreset
+    /// <summary>Outline colour preset, shared by the static shapes and the dots.
+    /// White by default, which stays visible on both dark and mid-tone frames.</summary>
+    public OutlineColorPreset OverlayOutlineColorPreset
     {
-        get => _motionDotOutlineColorPreset;
-        set => SetProperty(ref _motionDotOutlineColorPreset, value);
+        get => _overlayOutlineColorPreset;
+        set => SetProperty(ref _overlayOutlineColorPreset, value);
     }
 
-    public string MotionDotOutlineCustomHex { get => _motionDotOutlineCustomHex; set => SetProperty(ref _motionDotOutlineCustomHex, value); }
+    public string OverlayOutlineCustomHex { get => _overlayOutlineCustomHex; set => SetProperty(ref _overlayOutlineCustomHex, value); }
 
     /// <summary>
     /// Outline thickness in pixels. Deliberately absolute rather than a fraction
-    /// of the dot radius: dots shrink near the screen centre (parallax) and a
+    /// of the element size: dots shrink near the screen centre (parallax) and a
     /// proportional outline would vanish exactly where it is needed most.
     /// </summary>
-    public double MotionDotOutlineWidth { get => _motionDotOutlineWidth; set => SetProperty(ref _motionDotOutlineWidth, value); }
+    public double OverlayOutlineWidth { get => _overlayOutlineWidth; set => SetProperty(ref _overlayOutlineWidth, value); }
 
     /// <summary>Effective outline colour, resolving the custom hex when selected.</summary>
     public Color GetOutlineColor()
     {
-        return MotionDotOutlineColorPreset switch
+        return OverlayOutlineColorPreset switch
         {
             OutlineColorPreset.White => Color.FromRgb(0xFF, 0xFF, 0xFF),
             OutlineColorPreset.Black => Color.FromRgb(0x00, 0x00, 0x00),
-            OutlineColorPreset.Custom => TryParseColor(MotionDotOutlineCustomHex, Color.FromRgb(0xFF, 0xFF, 0xFF)),
+            OutlineColorPreset.Custom => TryParseColor(OverlayOutlineCustomHex, Color.FromRgb(0xFF, 0xFF, 0xFF)),
             _ => Color.FromRgb(0xFF, 0xFF, 0xFF)
         };
     }

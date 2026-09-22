@@ -53,14 +53,15 @@ public partial class HotkeysPage : Page
         AddItem(_displayItems, hk.CycleCrosshairShape, "HK_CycleCrosshairShape");
         AddItem(_displayItems, hk.CycleDisplayMode, "HK_CycleDisplayMode");
         AddItem(_displayItems, hk.CycleOpacityMode, "HK_CycleOpacityMode");
+        AddItem(_displayItems, hk.ToggleOutline, "HK_ToggleOutline");
         AddItem(_displayItems, hk.CycleSplitScreen, "HK_CycleSplitScreen");
         AddItem(_displayItems, hk.CycleAspectRatio, "HK_CycleAspectRatio");
         AddItem(_displayItems, hk.CycleTargetMonitor, "HK_CycleTargetMonitor");
-        AddItem(_displayItems, hk.CycleOutlineColor, "HK_CycleOutlineColor");
 
-        // Color cycle hotkeys (2)
+        // Color cycle hotkeys (3)
         AddItem(_colorItems, hk.CycleOverlayColor, "HK_CycleOverlayColor");
         AddItem(_colorItems, hk.CycleCrosshairColor, "HK_CycleCrosshairColor");
+        AddItem(_colorItems, hk.CycleOutlineColor, "HK_CycleOutlineColor");
     }
 
     private void AddItem(ObservableCollection<HotkeyItem> list, HotkeyBinding binding, string resKey)

@@ -361,6 +361,36 @@
         </Setter>
     </Style>
 
+    <!-- Custom colour swatch. Same look and selected state as ColorSwatchButton,
+         but it carries a palette glyph instead of relying on a caption beside it —
+         a caption pinned to one swatch stops being true the moment a second swatch
+         of the same kind exists (the outline colour had none).
+         Must be declared AFTER ColorSwatchButton: BasedOn uses StaticResource,
+         which resolves in document order and throws at load time otherwise. -->
+    <Style TargetType="Button" x:Key="CustomColorSwatchButton"
+           BasedOn="{StaticResource ColorSwatchButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="swatchBorder"
+                            Width="36" Height="36"
+                            CornerRadius="18"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{StaticResource BrushBorderSubtle}"
+                            BorderThickness="2">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag" Value="Selected">
+                            <Setter TargetName="swatchBorder" Property="BorderBrush" Value="{StaticResource BrushTextPrimary}" />
+                            <Setter TargetName="swatchBorder" Property="BorderThickness" Value="3" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ═══════════════ Sidebar Nav Button ═══════════════ -->
 
     <Style TargetType="RadioButton" x:Key="NavButton">

@@ -235,31 +235,7 @@
                         </StackPanel>
                     </Border>
 
-                    <CheckBox x:Name="ChkMotionDotOutline" Content="{DynamicResource Motion_Outline}"
-                              Checked="MotionDotOutline_Changed" Unchecked="MotionDotOutline_Changed" />
-
-                    <Border x:Name="PanelMotionOutline" Style="{StaticResource SubRow}" Visibility="Collapsed">
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{DynamicResource Motion_OutlineColor}" Style="{StaticResource FieldLabel}" Width="130" />
-                                <Button x:Name="OutlineSwatchWhite" Style="{StaticResource ColorSwatchButton}"
-                                        Background="#FFFFFF" Click="OutlineColor_Click" Margin="0,0,12,0" />
-                                <Button x:Name="OutlineSwatchBlack" Style="{StaticResource ColorSwatchButton}"
-                                        Background="#000000" Click="OutlineColor_Click" Margin="0,0,12,0" />
-                                <Button x:Name="OutlineSwatchCustom" Style="{StaticResource ColorSwatchButton}"
-                                        Background="#888888" Click="OutlineCustomColor_Click" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                <TextBlock Text="{DynamicResource Motion_OutlineWidth}" Style="{StaticResource FieldLabel}" Width="130" />
-                                <Slider x:Name="SliderMotionOutlineWidth" Width="200" Minimum="0.5" Maximum="5.0"
-                                        TickFrequency="0.5" ValueChanged="MotionOutlineWidth_Changed" />
-                                <TextBlock x:Name="MotionOutlineWidthLabel" Width="48" Margin="12,0,0,0"
-                                           VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ═══ Performance ═══ -->
+                    <!-- ═══ Performance �══ -->
                     <TextBlock Text="{DynamicResource Motion_SectionPerformance}" Style="{StaticResource SectionHeader}" />
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
@@ -342,19 +318,67 @@
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Overlay_ColorCard}" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{DynamicResource Color_CustomHint}"
+                               Foreground="{StaticResource BrushTextSecondary}" FontSize="12"
+                               TextWrapping="Wrap" Margin="0,0,0,16" />
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <TextBlock Text="{DynamicResource Color}" Style="{StaticResource FieldLabel}" Width="80" />
                         <Button x:Name="SwatchRed" Style="{StaticResource ColorSwatchButton}"
-                                Background="#FF0000" Click="Color_Click" Margin="0,0,12,0" />
+                                Background="#FF0000" Click="Color_Click" Margin="0,0,10,0" />
                         <Button x:Name="SwatchGreen" Style="{StaticResource ColorSwatchButton}"
-                                Background="#00FF00" Click="Color_Click" Margin="0,0,12,0" />
+                                Background="#00FF00" Click="Color_Click" Margin="0,0,10,0" />
                         <Button x:Name="SwatchBlue" Style="{StaticResource ColorSwatchButton}"
-                                Background="#0099FF" Click="Color_Click" Margin="0,0,12,0" />
-                        <TextBlock Text="{DynamicResource CustomColorHint}"
-                                   Foreground="{StaticResource BrushTextSecondary}" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" />
-                        <Button x:Name="SwatchCustom" Style="{StaticResource ColorSwatchButton}"
-                                Background="#888888" Click="CustomColor_Click" Margin="8,0,0,0" />
+                                Background="#0099FF" Click="Color_Click" Margin="0,0,10,0" />
+                        <Button x:Name="SwatchCustom" Style="{StaticResource CustomColorSwatchButton}"
+                                Background="#888888" Click="CustomColor_Click" Margin="20,0,0,0">
+                            <Canvas Width="18" Height="18">
+                                <Ellipse Canvas.Left="1" Canvas.Top="1" Width="16" Height="16"
+                                         Fill="White" Stroke="#99000000" StrokeThickness="1.2" />
+                                <Ellipse Canvas.Left="4.5" Canvas.Top="4.5" Width="3" Height="3" Fill="#D9000000" />
+                                <Ellipse Canvas.Left="10.5" Canvas.Top="4.5" Width="3" Height="3" Fill="#D9000000" />
+                                <Ellipse Canvas.Left="7.5" Canvas.Top="10.5" Width="3" Height="3" Fill="#D9000000" />
+                            </Canvas>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Outline — shared by the static shapes and the motion dots -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource Overlay_Outline}" Style="{StaticResource FieldLabel}" Width="80" />
+                        <CheckBox x:Name="ChkOverlayOutline" VerticalAlignment="Center"
+                                  Checked="OverlayOutline_Changed" Unchecked="OverlayOutline_Changed" />
+
+                        <!-- Shown while the outline is off: without it the row is
+                             a bare checkbox with no hint of what it does. -->
+                        <TextBlock x:Name="OutlineOffHint" Text="{DynamicResource Overlay_OutlineHint}"
+                                   Foreground="{StaticResource BrushTextSecondary}" FontSize="12"
+                                   VerticalAlignment="Center" Margin="10,0,0,0" />
+
+                        <StackPanel x:Name="PanelOverlayOutline" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Visibility="Collapsed">
+                            <Button x:Name="OutlineSwatchWhite" Style="{StaticResource ColorSwatchButton}"
+                                    Background="#FFFFFF" Click="OutlineColor_Click" Margin="20,0,0,0" />
+                            <Button x:Name="OutlineSwatchBlack" Style="{StaticResource ColorSwatchButton}"
+                                    Background="#000000" Click="OutlineColor_Click" Margin="10,0,0,0" />
+                            <Button x:Name="OutlineSwatchCustom" Style="{StaticResource CustomColorSwatchButton}"
+                                    Background="#888888" Click="OutlineCustomColor_Click" Margin="20,0,0,0">
+                                <Canvas Width="18" Height="18">
+                                    <Ellipse Canvas.Left="1" Canvas.Top="1" Width="16" Height="16"
+                                             Fill="White" Stroke="#99000000" StrokeThickness="1.2" />
+                                    <Ellipse Canvas.Left="4.5" Canvas.Top="4.5" Width="3" Height="3" Fill="#D9000000" />
+                                    <Ellipse Canvas.Left="10.5" Canvas.Top="4.5" Width="3" Height="3" Fill="#D9000000" />
+                                    <Ellipse Canvas.Left="7.5" Canvas.Top="10.5" Width="3" Height="3" Fill="#D9000000" />
+                                </Canvas>
+                            </Button>
+                            <TextBlock Text="{DynamicResource Overlay_OutlineWidth}" FontSize="13"
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       VerticalAlignment="Center" Margin="24,0,8,0" />
+                            <Slider x:Name="SliderOverlayOutlineWidth" Width="120" Minimum="0.5" Maximum="5.0"
+                                    TickFrequency="0.5" VerticalAlignment="Center"
+                                    ValueChanged="OverlayOutlineWidth_Changed" />
+                            <TextBlock x:Name="OverlayOutlineWidthLabel" Width="52" Margin="10,0,0,0"
+                                       VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Edge Visibility -->

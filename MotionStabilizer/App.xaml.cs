@@ -398,7 +398,8 @@ public partial class App : Application
         Hotkeys.Register(hk.CycleTargetMonitor, CycleTargetMonitor);
         Hotkeys.Register(hk.CycleOverlayColor, () => { OverlayConfig.ColorPreset = NextColorPreset(OverlayConfig.ColorPreset); });
         Hotkeys.Register(hk.CycleCrosshairColor, () => { CrosshairConfig.ColorPreset = NextColorPreset(CrosshairConfig.ColorPreset); });
-        Hotkeys.Register(hk.CycleOutlineColor, () => { OverlayConfig.MotionDotOutlineColorPreset = NextOutlinePreset(OverlayConfig.MotionDotOutlineColorPreset); });
+        Hotkeys.Register(hk.ToggleOutline, () => { OverlayConfig.OverlayOutlineEnabled = !OverlayConfig.OverlayOutlineEnabled; });
+        Hotkeys.Register(hk.CycleOutlineColor, () => { OverlayConfig.OverlayOutlineColorPreset = NextOutlinePreset(OverlayConfig.OverlayOutlineColorPreset); });
     }
 
     private void CycleSplitScreen()

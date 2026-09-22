@@ -11,6 +11,7 @@ public static class HotkeyNames
     public const string ToggleOverlay = "ToggleOverlay";
     public const string ToggleCrosshair = "ToggleCrosshair";
     public const string ToggleClock = "ToggleClock";
+    public const string ToggleOutline = "ToggleOutline";
     public const string CycleDisplayMode = "CycleDisplayMode";
     public const string CycleSplitScreen = "CycleSplitScreen";
     public const string CycleOverlayShape = "CycleOverlayShape";
@@ -74,6 +75,10 @@ public class HotkeyConfig
     public HotkeyBinding ToggleOverlay { get; set; } = new() { Name = HotkeyNames.ToggleOverlay, Key = "F1" };
     public HotkeyBinding ToggleCrosshair { get; set; } = new() { Name = HotkeyNames.ToggleCrosshair, Key = "F2" };
     public HotkeyBinding ToggleClock { get; set; } = new() { Name = HotkeyNames.ToggleClock, Key = "F3" };
+
+    // Unbound by default, same reasoning as CycleOutlineColor: the outline is an
+    // optional feature and the F-row is already crowded.
+    public HotkeyBinding ToggleOutline { get; set; } = new() { Name = HotkeyNames.ToggleOutline };
     public HotkeyBinding CycleDisplayMode { get; set; } = new() { Name = HotkeyNames.CycleDisplayMode, Key = "F6" };
     public HotkeyBinding CycleSplitScreen { get; set; } = new() { Name = HotkeyNames.CycleSplitScreen };
     public HotkeyBinding CycleOverlayShape { get; set; } = new() { Name = HotkeyNames.CycleOverlayShape, Key = "F4" };
@@ -95,6 +100,7 @@ public class HotkeyConfig
         ToggleOverlay,
         ToggleCrosshair,
         ToggleClock,
+        ToggleOutline,
         CycleDisplayMode,
         CycleSplitScreen,
         CycleOverlayShape,

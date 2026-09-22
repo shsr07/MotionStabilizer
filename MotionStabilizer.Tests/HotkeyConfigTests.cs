@@ -71,7 +71,7 @@ public class HotkeyConfigTests
 
         // Guards the bulk actions: a binding added to HotkeyConfig but forgotten
         // in AllBindings would silently survive "clear all" and duplicate checks.
-        Assert.Equal(13, cfg.AllBindings.Count);
+        Assert.Equal(14, cfg.AllBindings.Count);
         Assert.Equal(cfg.AllBindings.Count, cfg.AllBindings.Select(b => b.Name).Distinct().Count());
     }
 }

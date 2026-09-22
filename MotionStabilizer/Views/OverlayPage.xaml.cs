@@ -64,11 +64,12 @@ public partial class OverlayPage : Page
         int parallaxPct = (int)Math.Round(cfg.MotionParallaxAmount * 100);
         SliderMotionParallaxAmount.Value = Math.Clamp(parallaxPct, 0, 100);
         MotionParallaxAmountLabel.Text = Math.Clamp(parallaxPct, 0, 100) + "%";
-        ChkMotionDotOutline.IsChecked = cfg.MotionDotOutlineEnabled;
-        SliderMotionOutlineWidth.Value = Math.Clamp(cfg.MotionDotOutlineWidth, 0.5, 5.0);
-        MotionOutlineWidthLabel.Text = cfg.MotionDotOutlineWidth.ToString("0.0") + " px";
-        UpdateOutlineSelection(cfg.MotionDotOutlineColorPreset);
-        if (cfg.MotionDotOutlineColorPreset == OutlineColorPreset.Custom)
+        ChkOverlayOutline.IsChecked = cfg.OverlayOutlineEnabled;
+        SliderOverlayOutlineWidth.Value = Math.Clamp(cfg.OverlayOutlineWidth, 0.5, 5.0);
+        OverlayOutlineWidthLabel.Text = cfg.OverlayOutlineWidth.ToString("0.0") + " px";
+        UpdateOutlineSelection(cfg.OverlayOutlineColorPreset);
+        SetOutlineRowExpanded(cfg.OverlayOutlineEnabled);
+        if (cfg.OverlayOutlineColorPreset == OutlineColorPreset.Custom)
         {
             var oc = cfg.GetOutlineColor();
             OutlineSwatchCustom.Background = new SolidColorBrush(Color.FromRgb(oc.R, oc.G, oc.B));
@@ -261,7 +262,6 @@ public partial class OverlayPage : Page
         PanelGamepadSensitivity.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         PanelGamepadDeadzone.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         PanelParallaxAmount.Visibility = cfg.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
-        PanelMotionOutline.Visibility = cfg.MotionDotOutlineEnabled ? Visibility.Visible : Visibility.Collapsed;
 
         // With no input source the dots cannot move at all — say so, otherwise
         // the static field just looks broken.
@@ -404,11 +404,25 @@ public partial class OverlayPage : Page
         UpdateMotionSectionsVisibility();
     }
 
-    private void MotionDotOutline_Changed(object sender, RoutedEventArgs e)
+    /// <summary>Outline applies to the static shapes and the motion dots alike,
+    /// so it lives with the colour settings rather than inside the dot panel.</summary>
+    private void OverlayOutline_Changed(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;
-        App.OverlayConfig.MotionDotOutlineEnabled = ChkMotionDotOutline.IsChecked == true;
-        UpdateMotionSectionsVisibility();
+        App.OverlayConfig.OverlayOutlineEnabled = ChkOverlayOutline.IsChecked == true;
+        SetOutlineRowExpanded(App.OverlayConfig.OverlayOutlineEnabled);
+    }
+
+    /// <summary>
+    /// The outline row expands in place: while it is off the row is just a
+    /// checkbox plus a one-line explanation, and turning it on swaps that hint
+    /// for the swatches and the thickness slider. One row either way, so it never
+    /// wedges a panel between the colour row and the edge-visibility row.
+    /// </summary>
+    private void SetOutlineRowExpanded(bool expanded)
+    {
+        PanelOverlayOutline.Visibility = expanded ? Visibility.Visible : Visibility.Collapsed;
+        OutlineOffHint.Visibility = expanded ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void UpdateOutlineSelection(OutlineColorPreset preset)
@@ -421,9 +435,9 @@ public partial class OverlayPage : Page
     private void OutlineColor_Click(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;
-        if (sender == OutlineSwatchWhite) App.OverlayConfig.MotionDotOutlineColorPreset = OutlineColorPreset.White;
-        else if (sender == OutlineSwatchBlack) App.OverlayConfig.MotionDotOutlineColorPreset = OutlineColorPreset.Black;
-        UpdateOutlineSelection(App.OverlayConfig.MotionDotOutlineColorPreset);
+        if (sender == OutlineSwatchWhite) App.OverlayConfig.OverlayOutlineColorPreset = OutlineColorPreset.White;
+        else if (sender == OutlineSwatchBlack) App.OverlayConfig.OverlayOutlineColorPreset = OutlineColorPreset.Black;
+        UpdateOutlineSelection(App.OverlayConfig.OverlayOutlineColorPreset);
     }
 
     private void OutlineCustomColor_Click(object sender, RoutedEventArgs e)
@@ -435,18 +449,18 @@ public partial class OverlayPage : Page
 
         if (dialog.ShowDialog() == true)
         {
-            App.OverlayConfig.MotionDotOutlineColorPreset = OutlineColorPreset.Custom;
-            App.OverlayConfig.MotionDotOutlineCustomHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+            App.OverlayConfig.OverlayOutlineColorPreset = OutlineColorPreset.Custom;
+            App.OverlayConfig.OverlayOutlineCustomHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
             OutlineSwatchCustom.Background = new SolidColorBrush(dialog.Color);
             UpdateOutlineSelection(OutlineColorPreset.Custom);
         }
     }
 
-    private void MotionOutlineWidth_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    private void OverlayOutlineWidth_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (_isLoading || MotionOutlineWidthLabel == null) return;
-        App.OverlayConfig.MotionDotOutlineWidth = Math.Round(SliderMotionOutlineWidth.Value, 1);
-        MotionOutlineWidthLabel.Text = App.OverlayConfig.MotionDotOutlineWidth.ToString("0.0") + " px";
+        if (_isLoading || OverlayOutlineWidthLabel == null) return;
+        App.OverlayConfig.OverlayOutlineWidth = Math.Round(SliderOverlayOutlineWidth.Value, 1);
+        OverlayOutlineWidthLabel.Text = App.OverlayConfig.OverlayOutlineWidth.ToString("0.0") + " px";
     }
 
     private void MotionParallaxAmount_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

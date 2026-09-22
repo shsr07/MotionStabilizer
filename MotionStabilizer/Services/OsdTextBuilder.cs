@@ -69,10 +69,11 @@ internal static class OsdTextBuilder
                 _ => "16:9"
             }}",
             HotkeyNames.CycleOpacityMode => $"{res("OpacityMode")}: {(overlay.OpacityMode == EdgeOpacityMode.Uniform ? res("OpacityMode_Uniform") : res("OpacityMode_PerEdge"))}",
+            HotkeyNames.ToggleOutline => $"{res("Overlay_Outline")}: {(overlay.OverlayOutlineEnabled ? res("Enabled") : res("Disabled"))}",
             HotkeyNames.CycleOverlayColor => $"{res("Osd_OverlayColor")}: {ColorLabel(overlay.ColorPreset, res)}",
             HotkeyNames.CycleCrosshairColor => $"{res("Osd_CrosshairColor")}: {ColorLabel(crosshair.ColorPreset, res)}",
             HotkeyNames.CycleTargetMonitor => targetMonitorLabel,
-            HotkeyNames.CycleOutlineColor => $"{res("Motion_Outline")}: {OutlineLabel(overlay.MotionDotOutlineColorPreset, res)}",
+            HotkeyNames.CycleOutlineColor => $"{res("Overlay_Outline")}: {OutlineLabel(overlay.OverlayOutlineColorPreset, res)}",
             _ => null
         };
     }

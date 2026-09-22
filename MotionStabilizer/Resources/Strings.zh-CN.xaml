@@ -104,9 +104,10 @@
     <sys:String x:Key="Motion_NoInputSource">未启用任何输入源，动态圆点将保持静止（仅保留呼吸效果）。</sys:String>
     <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标、键盘和手柄控制反向）</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">视差缩放（圆点靠近屏幕中线时自动缩小）</sys:String>
-    <sys:String x:Key="Motion_Outline">圆点描边</sys:String>
-    <sys:String x:Key="Motion_OutlineColor">描边颜色</sys:String>
-    <sys:String x:Key="Motion_OutlineWidth">描边粗细</sys:String>
+    <sys:String x:Key="Overlay_Outline">叠加层描边</sys:String>
+    <sys:String x:Key="Overlay_OutlineHint">为叠加层形状与动态圆点加一圈对比色轮廓</sys:String>
+    <sys:String x:Key="Overlay_OutlineWidth">粗细</sys:String>
+    <sys:String x:Key="Color_CustomHint">带调色板图标的色块用于自定义颜色，点击可打开取色器。</sys:String>
     <sys:String x:Key="Outline_White">白色</sys:String>
     <sys:String x:Key="Outline_Black">黑色</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">圆点缩放程度</sys:String>
@@ -185,8 +186,9 @@
     <sys:String x:Key="HK_CycleCrosshairShape">切换准星形状</sys:String>
     <sys:String x:Key="HK_CycleAspectRatio">切换宽高比</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">切换透明度模式</sys:String>
+    <sys:String x:Key="HK_ToggleOutline">开关叠加层描边</sys:String>
     <sys:String x:Key="HK_CycleTargetMonitor">切换目标显示器</sys:String>
-    <sys:String x:Key="HK_CycleOutlineColor">循环圆点描边颜色</sys:String>
+    <sys:String x:Key="HK_CycleOutlineColor">叠加层描边颜色循环 (白→黑→自定义)</sys:String>
     <sys:String x:Key="HK_CycleOverlayColor">叠加层颜色循环（红→绿→蓝→自定义）</sys:String>
     <sys:String x:Key="HK_CycleCrosshairColor">准星颜色循环（红→绿→蓝→自定义）</sys:String>
 
