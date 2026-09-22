@@ -42,19 +42,21 @@
 > - **视差缩放** — 圆点靠近屏幕中线时自动缩小，营造自然的运动景深感
 > - **可配置刷新率** — 30–360 Hz 自定义动画刷新率，匹配你的显示器
 
+- **叠加层描边 (Overlay Outline)** — 可选的一圈对比色轮廓（白 / 黑 / 自定义），同时作用于叠加层形状与动态圆点
+
 - **中心准星 (Crosshair)** — 在屏幕中心绘制准星，提供视觉焦点
 - **悬浮时钟 (Floating Clock)** — 可拖动的实时时钟，支持多种时间格式和描边字体
 - **全局快捷键 (Global Hotkeys)** — 在游戏中随时用全局快捷键切换设置
 - **多显示器支持 (Multi-Monitor)** — 自动识别所有显示器，支持在全局选项中选择**目标显示器**（仅在该屏渲染叠加层），边缘叠加、动态圆点和准星在多屏环境下正确定位与渲染，支持混合 DPI 显示器（PerMonitorV2）
 - **多语言支持** — 中文 / English
-- **配置文件管理** — 保存 / 加载 / 删除自定义配置方案，修改即自动保存
+- **配置文件管理** — 当前配置自动保存；可另存为命名方案（快照），加载方案会用快照覆盖当前配置
 
 ## 🔒 安全性 / Safety
 
 - ✓ 纯外部桌面叠加层 — 无 DLL 注入
 - ✓ 不修改游戏文件，不访问内存
 - ✓ 反作弊兼容性：
-  - 默认模式（仅鼠标 Raw Input）：与所有反作弊系统兼容，零风险
+  - 默认模式（仅鼠标 Raw Input）：可随时在叠加层设置中关闭鼠标控制，关闭后程序不再注册 Raw Input，零风险
   - WASD 键盘控制（可选）：使用 GetAsyncKeyState 标准 API，风险极低，但建议仅用于单机游戏
   - 手柄控制（可选）：使用 XInput 标准轮询，被动读取摇杆状态、不向系统注入任何输入，风险极低，但建议仅用于单机游戏
   - 本工具采用 Raw Input 只读旁路方式，不拦截输入、不修改输入流、不增加延迟，安全性高
@@ -70,18 +72,18 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v2.8.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v2.9.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 
 > 无需安装 .NET 运行时，已内置。
 
-> **校验 / Checksum (v2.8.0)**
+> **校验 / Checksum (v2.9.0)**
 >
-> SHA-256: `E5AE71E963FB9A9AB9992298304C4277BF79B82BBB53726F7727745F2CF3DE62`
+> SHA-256: `<发布 Release 后填入>`
 >
 > 验证方式 / Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.8.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.9.0-win-x64.zip SHA256`
 
 ### 方式二：从源码构建 / Build from Source
 
@@ -127,7 +129,7 @@ dotnet build -c Release
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — 硬件加速渲染动态圆点
 - **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕、Raw Input、XInput 手柄轮询
-- **xUnit** — 单元测试（266 个测试覆盖渲染辅助函数、配置模型、热键绑定、可观察配置、区域计算、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
+- **xUnit** — 单元测试（276 个测试覆盖渲染辅助函数、配置模型、热键绑定与批量操作、可观察配置、区域计算与点阵布局哈希、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
 - **C# 12** — 最新 C# 特性
 - **单文件发布** — win-x64 自包含单 exe，内置 .NET 运行时，解压即可运行
 
@@ -146,7 +148,7 @@ MotionStabilizer/                    # 主项目
 ├── Overlay/                         # 叠加层渲染
 │   ├── DirectCompositionMotionRenderer.cs  # 动态圆点 DirectComposition 渲染器
 │   ├── OverlayWindow.xaml(.cs)             # 透明覆盖窗口
-│   └── RenderHelper.cs                     # 形状构建辅助类
+│   └── RenderHelper.cs                     # 形状与描边构建辅助类
 ├── Resources/                       # 多语言字符串资源
 ├── Services/                        # 服务层
 │   ├── ConfigStore.cs               #   集中配置存储 (可订阅)
@@ -166,7 +168,7 @@ MotionStabilizer/                    # 主项目
 ├── App.xaml(.cs)                    # 应用入口
 └── MainWindow.xaml(.cs)             # 主窗口
 
-MotionStabilizer.Tests/              # 单元测试项目 (266 tests)
+MotionStabilizer.Tests/              # 单元测试项目 (276 tests)
 ├── RenderHelperTests.cs             #   渲染尺寸映射、安全区域计算
 ├── ConfigModelTests.cs              #   配置模型：颜色解析、边缘可见性/透明度
 ├── HotkeyBindingTests.cs            #   快捷键显示字符串、克隆
@@ -179,6 +181,8 @@ MotionStabilizer.Tests/              # 单元测试项目 (266 tests)
 ├── OsdTextBuilderTests.cs           #   热键 → OSD 文案映射
 ├── PositionClampTests.cs            #   分辨率变化时坐标越界夹回
 ├── CompactSurfaceTests.cs           #   1×1 紧凑表面决策
+├── ComputeZoneHashTests.cs          #   点阵布局哈希（仅几何量生效）
+├── HotkeyConfigTests.cs             #   默认绑定、批量清除、绑定表完整性
 └── MotionStabilizer.Tests.csproj    #   测试项目文件
 ```
 

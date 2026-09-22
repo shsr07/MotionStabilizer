@@ -38,19 +38,21 @@
 > - **Parallax scaling** — dots automatically shrink near the screen center for a natural sense of depth
 > - **Configurable refresh rate** — 30–360 Hz custom animation refresh rate to match your monitor
 
+- **Overlay Outline** — an optional contrasting outline (white / black / custom) applied to both the overlay shapes and the motion dots
+
 - **Crosshair** — draws a crosshair at the screen center as a visual focus point
 - **Floating Clock** — a draggable real-time clock with multiple time formats and an outline font
 - **Global Hotkeys** — switch settings anytime in-game with global hotkeys
 - **Multi-Monitor** — automatically detects all displays, lets you pick a **target monitor** in global options (render the overlay only on that screen), positions the edge overlay, motion dots, and crosshair correctly across multiple screens, and supports mixed-DPI monitors (PerMonitorV2)
 - **Multilingual** — Chinese / English
-- **Profile Management** — save / load / delete custom configuration profiles, auto-saved on change
+- **Profile Management** — the current configuration auto-saves; it can also be saved as a named profile (a snapshot), and loading a profile overwrites the current configuration
 
 ## 🔒 Safety
 
 - ✓ Pure external desktop overlay — no DLL injection
 - ✓ Does not modify game files or access memory
 - ✓ Anti-cheat compatibility:
-  - Default mode (mouse Raw Input only): compatible with all anti-cheat systems, zero risk
+  - Default mode (mouse Raw Input only): mouse control can be turned off at any time in the overlay settings, after which the app no longer registers for Raw Input at all — zero risk
   - WASD keyboard control (optional): uses the standard GetAsyncKeyState API — very low risk, but recommended for single-player games only
   - Gamepad control (optional): uses standard XInput polling — passive stick reads that inject no input into the system, very low risk, but recommended for single-player games only
   - This tool uses a read-only Raw Input bypass: it never intercepts input, never modifies the input stream, and adds no latency
@@ -66,18 +68,18 @@
 ### Download (Recommended)
 
 1. Go to the [Releases page](https://github.com/shsr07/MotionStabilizer/releases)
-2. Download `MotionStabilizer-v2.8.0-win-x64.zip`
+2. Download `MotionStabilizer-v2.9.0-win-x64.zip`
 3. Extract it to any folder
 4. Double-click `MotionStabilizer.exe` to run
 
 > The .NET runtime is bundled — no installation required.
 
-> **Checksum (v2.8.0)**
+> **Checksum (v2.9.0)**
 >
-> SHA-256: `E5AE71E963FB9A9AB9992298304C4277BF79B82BBB53726F7727745F2CF3DE62`
+> SHA-256: `<fill in after publishing the release>`
 >
 > Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.8.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.9.0-win-x64.zip SHA256`
 
 ### Build from Source
 
@@ -123,7 +125,7 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 - **.NET 8.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — hardware-accelerated motion dot rendering
 - **Win32 API** — click-through windows, global hotkey registration, system tray, multi-monitor virtual screen, Raw Input, XInput gamepad polling
-- **xUnit** — unit tests (266 tests covering render helpers, config models, hotkey bindings, observable config, area computation, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
+- **xUnit** — unit tests (276 tests covering render helpers, config models, hotkey bindings and bulk actions, observable config, area computation and dot-layout hashing, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
 - **C# 12** — latest C# features
 - **Single-file publish** — self-contained win-x64 single exe with the .NET runtime bundled; extract and run
 
@@ -142,7 +144,7 @@ MotionStabilizer/                    # Main project
 ├── Overlay/                         # Overlay rendering
 │   ├── DirectCompositionMotionRenderer.cs  # Motion dots DirectComposition renderer
 │   ├── OverlayWindow.xaml(.cs)             # Transparent overlay window
-│   └── RenderHelper.cs                     # Shape building helpers
+│   └── RenderHelper.cs                     # Shape and outline building helpers
 ├── Resources/                       # Multilingual string resources
 ├── Services/                        # Service layer
 │   ├── ConfigStore.cs               #   Centralized config store (observable)
@@ -162,7 +164,7 @@ MotionStabilizer/                    # Main project
 ├── App.xaml(.cs)                    # Application entry point
 └── MainWindow.xaml(.cs)             # Main window
 
-MotionStabilizer.Tests/              # Unit test project (266 tests)
+MotionStabilizer.Tests/              # Unit test project (276 tests)
 ├── RenderHelperTests.cs             #   Render size mapping, safe-area computation
 ├── ConfigModelTests.cs              #   Config models: color parsing, edge visibility/opacity
 ├── HotkeyBindingTests.cs            #   Hotkey display strings, cloning
@@ -175,6 +177,8 @@ MotionStabilizer.Tests/              # Unit test project (266 tests)
 ├── OsdTextBuilderTests.cs           #   Hotkey → OSD text mapping
 ├── PositionClampTests.cs            #   Resolution-change position clamping
 ├── CompactSurfaceTests.cs           #   1×1 compact-surface decision
+├── ComputeZoneHashTests.cs          #   Dot-layout hashing (geometry only)
+├── HotkeyConfigTests.cs             #   Default bindings, bulk clear, binding-table integrity
 └── MotionStabilizer.Tests.csproj    #   Test project file
 ```
 
