@@ -1,5 +1,16 @@
 namespace MotionStabilizer.Models;
 
+// ──────────────────────────────────────────────────────────────────────────
+// Every enum in this file is serialized BY NAME into profile JSON and
+// appconfig.json (JsonStringEnumConverter). Renaming, removing or reordering a
+// member that has already shipped therefore breaks every existing user's config
+// file: System.Text.Json throws on an unrecognised member name, and the working
+// profile is loaded during startup — a single rename can keep the app from
+// launching at all, for every user upgrading to that build.
+//
+// Rule: only APPEND new members. Never rename, never remove, never renumber.
+// ──────────────────────────────────────────────────────────────────────────
+
 /// <summary>Overlay shape types</summary>
 public enum OverlayShape
 {

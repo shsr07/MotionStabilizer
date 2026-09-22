@@ -19,10 +19,6 @@
                                   Content="{DynamicResource Options_MinimizeToTray}"
                                   Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
                                   Checked="MinimizeToTray_Changed" Unchecked="MinimizeToTray_Changed" />
-                        <CheckBox x:Name="ChkAutoSave" Margin="0,0,0,12"
-                                  Content="{DynamicResource Options_AutoSave}"
-                                  Foreground="{StaticResource BrushTextPrimary}" FontSize="13"
-                                  Checked="AutoSave_Changed" Unchecked="AutoSave_Changed" />
                         <CheckBox x:Name="ChkConfirmClose" Margin="0,0,0,12"
                                   Content="{DynamicResource Options_ConfirmClose}"
                                   Foreground="{StaticResource BrushTextPrimary}" FontSize="13"

@@ -120,6 +120,9 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            // The one failure path that never reached error.log. Without this a
+            // startup failure leaves the user with no trace to report.
+            AppendErrorLog("Startup", ex);
             string msg = string.Format(
                     Res("Error_StartupFail", "Startup failed:\n\n{0}: {1}\n\n{2}"),
                     ex.GetType().Name, ex.Message, ex.StackTrace)
@@ -138,16 +141,31 @@ public partial class App : Application
         // Subscribe to config changes: auto-refresh overlay + debounced auto-save
         Config.Changed += OnConfigChanged;
 
-        // Load saved configs
-        Config.App = ConfigManager.LoadAppConfig();
-        Config.Hotkeys = ConfigManager.LoadHotkeys();
-
-        // Try to load default profile
-        var defaultProfile = ConfigManager.LoadProfile("Default");
-        if (defaultProfile != null)
+        // Load saved configs. Nothing in here may abort startup: an unreadable
+        // config must degrade to defaults so the user can still open the app and
+        // still recover the damaged file by hand.
+        string? corruptProfilePath = null;
+        try
         {
-            Config.ApplyProfile(defaultProfile);
+            Config.App = ConfigManager.LoadAppConfig();
+            Config.Hotkeys = ConfigManager.LoadHotkeys();
+
+            // Working profile = the live "current configuration". A missing file
+            // simply means first run; an unreadable one is quarantined and reported.
+            var workingProfile = ConfigManager.LoadProfile(
+                ConfigManager.WorkingProfileName, out corruptProfilePath);
+            if (workingProfile != null)
+            {
+                Config.ApplyProfile(workingProfile);
+            }
         }
+        catch (Exception ex)
+        {
+            AppendErrorLog("ConfigLoad", ex);
+        }
+
+        if (corruptProfilePath != null)
+            NotifyCorruptProfileOnce(corruptProfilePath);
 
         // Apply language
         ApplyLanguage(Config.App.Language);
@@ -230,6 +248,28 @@ public partial class App : Application
             // Persist immediately — a crash right after the dialog must not
             // bring the notice back, and the debounced auto-save may lag.
             ConfigManager.SaveAppConfig(Config.App);
+        });
+    }
+
+    /// <summary>
+    /// Tell the user that their configuration file could not be read, that
+    /// defaults are in effect, and where the damaged copy was moved. Deferred to
+    /// ApplicationIdle so the main window paints first — same pattern as the
+    /// first-run hotkey notice. Without this the app just silently starts wrong.
+    /// </summary>
+    private void NotifyCorruptProfileOnce(string backupPath)
+    {
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () =>
+        {
+            string msg = string.Format(
+                    Res("Error_ProfileCorrupt_Msg",
+                        "The configuration file could not be read, so default settings were loaded.\nThe damaged file was backed up as:\n{0}"),
+                    backupPath)
+                .Replace("\\n", "\n");
+            CustomMessageBox.Show(
+                Res("Error_ProfileCorrupt_Title", "Corrupt Configuration File"),
+                msg,
+                Res("Common_OK", "OK"));
         });
     }
 
@@ -438,12 +478,14 @@ public partial class App : Application
     }
 
     // ── Debounced auto-save for overlay/crosshair/clock configs ──
+    //
+    // Always writes the WORKING profile, never a named preset: the working
+    // profile is the live "current configuration", while named profiles are
+    // read-only snapshots the user saves explicitly. Auto-saving into a preset
+    // would silently rewrite something the user deliberately stored.
     private static DispatcherTimer? _autoSaveTimer;
     private static void ScheduleAutoSave()
     {
-        // Respect the user's AutoSaveOnClose setting — if disabled, don't auto-save on changes
-        if (!Config.App.AutoSaveOnClose) return;
-
         if (_autoSaveTimer == null)
         {
             _autoSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
@@ -452,7 +494,7 @@ public partial class App : Application
                 _autoSaveTimer!.Stop();
                 ConfigManager.SaveProfile(new ProfileData
                 {
-                    ProfileName = "Default",
+                    ProfileName = ConfigManager.WorkingProfileName,
                     Overlay = Config.Overlay,
                     Crosshair = Config.Crosshair,
                     Clock = Config.Clock
@@ -495,12 +537,13 @@ public partial class App : Application
         // Reset all config objects to fresh defaults via ConfigStore
         Config.ResetToDefaults();
 
-        // Persist to disk
+        // Persist to disk. This is the way back to factory defaults now that the
+        // auto-save toggle is gone — resetting overwrites the working profile.
         ConfigManager.SaveAppConfig(Config.App);
         ConfigManager.SaveHotkeys(Config.Hotkeys);
         ConfigManager.SaveProfile(new ProfileData
         {
-            ProfileName = "Default",
+            ProfileName = ConfigManager.WorkingProfileName,
             Overlay = Config.Overlay,
             Crosshair = Config.Crosshair,
             Clock = Config.Clock
@@ -618,19 +661,20 @@ public partial class App : Application
         Config.Overlay.MotionKeyboardEnabled = false;
         Config.Overlay.MotionGamepadEnabled = false;
 
-        // Auto-save if enabled
-        if (Config.App.AutoSaveOnClose)
+        // Always save on exit. The working profile IS the current configuration,
+        // so there is no state worth discarding here; users who want factory
+        // defaults use "Reset all settings". (This used to be gated behind a
+        // single "auto-save" toggle that also switched off the debounced save —
+        // turning it off silently threw away every setting on exit.)
+        ConfigManager.SaveAppConfig(Config.App);
+        ConfigManager.SaveHotkeys(Config.Hotkeys);
+        ConfigManager.SaveProfile(new ProfileData
         {
-            ConfigManager.SaveAppConfig(Config.App);
-            ConfigManager.SaveHotkeys(Config.Hotkeys);
-            ConfigManager.SaveProfile(new ProfileData
-            {
-                ProfileName = "Default",
-                Overlay = Config.Overlay,
-                Crosshair = Config.Crosshair,
-                Clock = Config.Clock
-            });
-        }
+            ProfileName = ConfigManager.WorkingProfileName,
+            Overlay = Config.Overlay,
+            Crosshair = Config.Crosshair,
+            Clock = Config.Clock
+        });
 
         Hotkeys.Dispose();
         _tray?.Dispose();

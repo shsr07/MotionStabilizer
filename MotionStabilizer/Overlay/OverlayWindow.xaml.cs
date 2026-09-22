@@ -370,7 +370,7 @@ public partial class OverlayWindow : Window
         }
 
         // Zone width based on individual monitor width (not full virtual screen)
-        float zoneW = monW * 0.12f;
+        float zoneW = monW * RenderHelper.MotionZoneWidthRatio;
         float lengthPx = (float)RenderHelper.LengthOffsetPx(cfg.Length) * 8f * (float)scale;
 
         float leftOpacity = cfg.OpacityMode == EdgeOpacityMode.Uniform

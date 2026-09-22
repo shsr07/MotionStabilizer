@@ -49,7 +49,6 @@ public partial class OptionsPage : Page
         var cfg = App.AppConfig;
 
         ChkMinimizeToTray.IsChecked = cfg.MinimizeToTrayOnStart;
-        ChkAutoSave.IsChecked = cfg.AutoSaveOnClose;
         ChkConfirmClose.IsChecked = cfg.ConfirmBeforeClose;
 
         RefreshMonitorList();
@@ -111,13 +110,6 @@ public partial class OptionsPage : Page
     {
         if (_isLoading) return;
         App.AppConfig.MinimizeToTrayOnStart = ChkMinimizeToTray.IsChecked == true;
-        ConfigManager.SaveAppConfig(App.AppConfig);
-    }
-
-    private void AutoSave_Changed(object sender, RoutedEventArgs e)
-    {
-        if (_isLoading) return;
-        App.AppConfig.AutoSaveOnClose = ChkAutoSave.IsChecked == true;
         ConfigManager.SaveAppConfig(App.AppConfig);
     }
 

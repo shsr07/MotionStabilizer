@@ -137,6 +137,48 @@
         </Setter>
     </Style>
 
+    <!-- ═══════════════ Settings card building blocks ═══════════════ -->
+
+    <Style x:Key="SectionHeader" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
+        <Setter Property="Margin" Value="0,18,0,8" />
+    </Style>
+
+    <Style x:Key="SubRow" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource BrushBgDark}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="Margin" Value="18,10,0,10" />
+    </Style>
+
+    <Style x:Key="SubHint" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="RiskText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{StaticResource BrushAccentRed}" />
+        <Setter Property="Margin" Value="4,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="InlineNotice" TargetType="Border">
+        <Setter Property="Background" Value="#1AC99700" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="Margin" Value="0,8,0,10" />
+    </Style>
+
+    <Style x:Key="InlineNoticeText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource BrushAccentYellow}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
     <!-- ═══════════════ Slider ═══════════════ -->
 
     <Style TargetType="Slider">

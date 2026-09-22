@@ -52,7 +52,7 @@ public readonly struct MotionZone
 internal sealed class DirectCompositionMotionRenderer : IDisposable
 {
     // ── Visual constants ──
-    private const float ZoneWidthRatio = 0.12f;
+    // (Zone width ratio lives in RenderHelper.MotionZoneWidthRatio — single source of truth)
     private const float FadeMarginX = 0.04f;  // 4% of zone width — narrow wrap gap
     private const float PulseAmplitude = 0.10f;
     private const float PulsePeriod = 2.0f;
@@ -112,6 +112,7 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     private int _height;
     private bool _visible;
     private bool _disposed;
+    private bool _rawInputRegistered;
     private int _timerEnabled;
     private int _tickQueued;
     private int _timerResolutionActive;
@@ -218,8 +219,11 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
             CreateNativeWindow();
             CreateGraphicsResources();
             _rawInputWindow = new RawInputNativeWindow(OnMouseDelta);
-            if (!Win32Interop.RegisterRawMouseInput(_rawInputWindow.Handle))
-                throw new InvalidOperationException("Unable to register native raw mouse input.");
+            // Registration is owned by the MotionMouseEnabled gate (see
+            // SyncRawInputRegistration), not by initialization: a failure here
+            // must not make the whole feature unusable, since keyboard and
+            // gamepad control would still work fine without mouse input.
+            SyncRawInputRegistration();
             IsReady = true;
             DrawAndPresent();
             return true;
@@ -251,6 +255,7 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
 
         _config = config;
         _zones = zones;
+        SyncRawInputRegistration();
         int refreshRate = Math.Clamp(config.MotionRefreshRate, 30, 360);
         _pixelIntervalMs = 1000.0 / refreshRate;
         _configuredTimerPeriodMs = Math.Max(1, (int)Math.Round(_pixelIntervalMs));
@@ -309,7 +314,9 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
 
     public void OnMouseDelta(int deltaX, int deltaY)
     {
-        if (!IsVisible) return;
+        // Belt and braces: with Raw Input unregistered no WM_INPUT arrives at
+        // all, but a message already in flight must not move the dots either.
+        if (!IsVisible || !_config.MotionMouseEnabled) return;
         float sensitivity = (float)Math.Clamp(_config.MotionSensitivity, 0.05, 3.0);
         // Mouse right → dots move right, mouse up → dots move up
         // When inverted, directions are reversed
@@ -320,9 +327,51 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         EnsureTimer();
     }
 
+    /// <summary>
+    /// Keep the Raw Input registration in sync with the mouse-control gate.
+    /// Registration used to be a one-shot side effect of initialization that was
+    /// never released, so the process kept receiving WM_INPUT (RIDEV_INPUTSINK)
+    /// for its entire lifetime — even while motion dots were hidden or the user
+    /// had explicitly asked for no mouse control. It now follows a single
+    /// explicit user intent instead of an incidental renderer state.
+    /// </summary>
+    private void SyncRawInputRegistration()
+    {
+        if (_rawInputWindow == null || _disposed) return;
+
+        bool wanted = _config.MotionMouseEnabled;
+        if (wanted == _rawInputRegistered) return;
+
+        if (wanted)
+        {
+            if (Win32Interop.RegisterRawMouseInput(_rawInputWindow.Handle))
+            {
+                _rawInputRegistered = true;
+                return;
+            }
+
+            // Failure must not take the feature down: the dots remain usable
+            // through keyboard and gamepad control.
+            _rawInputRegistered = false;
+            Debug.WriteLine("Unable to register native raw mouse input.");
+        }
+        else
+        {
+            Win32Interop.UnregisterRawMouseInput();
+            _rawInputRegistered = false;
+        }
+    }
+
     // ── Zone helpers ──
 
-    private static int ComputeZoneHash(List<MotionZone> zones)
+    /// <summary>
+    /// Hash of the motion-zone layout. Must contain ONLY geometry that decides
+    /// where dots are placed. Anything applied live at draw time — zone opacity,
+    /// IsLeftSide (parallax only), colours — must stay out: including it makes
+    /// that slider rebuild the whole dot field, which also resets the motion
+    /// velocity and shows up as a visible jump.
+    /// </summary>
+    internal static int ComputeZoneHash(List<MotionZone> zones)
     {
         int hash = 17;
         foreach (var z in zones)
@@ -331,8 +380,6 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
             hash = hash * 31 + z.Y.GetHashCode();
             hash = hash * 31 + z.Width.GetHashCode();
             hash = hash * 31 + z.Height.GetHashCode();
-            hash = hash * 31 + z.IsLeftSide.GetHashCode();
-            hash = hash * 31 + z.Opacity.GetHashCode();
         }
         return hash;
     }

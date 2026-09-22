@@ -306,8 +306,24 @@ public class ObservableConfigTests
         Assert.Equal(OverlayShape.Pole, store.Overlay.Shape);
         Assert.False(store.Crosshair.IsVisible);
         Assert.False(store.Clock.IsVisible);
-        Assert.True(store.App.AutoSaveOnClose);
+        // Mouse control is on by default and must stay that way — motion dots
+        // depend on it unless the user explicitly opts out.
+        Assert.True(store.Overlay.MotionMouseEnabled);
         Assert.Equal(UIScale.Auto, store.App.Scale);
+    }
+
+    [Fact]
+    public void ConfigStore_ApplyProfile_NullSections_FallBackToDefaults()
+    {
+        var store = new ConfigStore();
+
+        // A profile JSON written with explicit nulls ("Overlay": null) used to
+        // dereference null inside the setter and abort startup.
+        store.ApplyProfile(new ProfileData { Overlay = null!, Crosshair = null!, Clock = null! });
+
+        Assert.NotNull(store.Overlay);
+        Assert.NotNull(store.Crosshair);
+        Assert.NotNull(store.Clock);
     }
 
     [Fact]

@@ -50,15 +50,13 @@ public partial class OverlayPage : Page
         MotionSensitivityLabel.Text = mouseSensDisplay.ToString("0.0") + "x";
         SliderMotionKeyboardSensitivity.Value = Math.Clamp(cfg.MotionKeyboardSensitivity, 0.1, 3.0);
         MotionKeyboardSensitivityLabel.Text = cfg.MotionKeyboardSensitivity.ToString("0.0") + "x";
-        PanelKeyboardSensitivity.Visibility = cfg.MotionKeyboardEnabled ? Visibility.Visible : Visibility.Collapsed;
         SliderMotionGamepadSensitivity.Value = Math.Clamp(cfg.MotionGamepadSensitivity, 0.1, 3.0);
         MotionGamepadSensitivityLabel.Text = cfg.MotionGamepadSensitivity.ToString("0.0") + "x";
-        PanelGamepadSensitivity.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         SliderMotionGamepadDeadzone.Value = Math.Clamp(cfg.MotionGamepadDeadzone, 0.0, 0.5);
         MotionGamepadDeadzoneLabel.Text = cfg.MotionGamepadDeadzone.ToString("0%");
-        PanelGamepadDeadzone.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         SliderMotionRefreshRate.Value = Math.Clamp(cfg.MotionRefreshRate, 30, 360);
         MotionRefreshRateLabel.Text = Math.Clamp(cfg.MotionRefreshRate, 30, 360) + " Hz";
+        ChkMotionMouse.IsChecked = cfg.MotionMouseEnabled;
         ChkMotionKeyboard.IsChecked = cfg.MotionKeyboardEnabled;
         ChkMotionGamepad.IsChecked = cfg.MotionGamepadEnabled;
         ChkMotionInverted.IsChecked = cfg.MotionInverted;
@@ -66,7 +64,11 @@ public partial class OverlayPage : Page
         int parallaxPct = (int)Math.Round(cfg.MotionParallaxAmount * 100);
         SliderMotionParallaxAmount.Value = Math.Clamp(parallaxPct, 0, 100);
         MotionParallaxAmountLabel.Text = Math.Clamp(parallaxPct, 0, 100) + "%";
-        PanelParallaxAmount.Visibility = cfg.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
+
+        // Every conditional row expands/collapses from one place. Scattering
+        // these across individual setters is exactly how rows used to end up
+        // hidden while still in use.
+        UpdateMotionSectionsVisibility();
 
         // Aspect ratio
         CbAspectRatio.SelectedIndex = (int)cfg.AspectRatio;
@@ -217,6 +219,47 @@ public partial class OverlayPage : Page
         MotionRefreshRateLabel.Text = App.OverlayConfig.MotionRefreshRate + " Hz";
     }
 
+    /// <summary>
+    /// Mouse control gate. Unlike keyboard/gamepad this one needs no risk
+    /// warning: it is on by default and uses read-only Raw Input, so it is a
+    /// plain preference. Setting the property fires ConfigStore.Changed, which
+    /// reconfigures the renderer and registers/unregisters Raw Input.
+    /// </summary>
+    private void MotionMouse_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.OverlayConfig.MotionMouseEnabled = ChkMotionMouse.IsChecked == true;
+        UpdateMotionSectionsVisibility();
+    }
+
+    /// <summary>
+    /// Mouse sensitivity also drives the gamepad's RIGHT stick — the stick is
+    /// injected as a synthetic mouse delta and runs through the very same
+    /// sensitivity/inversion chain — so this slider must stay available whenever
+    /// either turning source is enabled. Gating it on mouse control alone
+    /// orphans gamepad turning sensitivity.
+    /// </summary>
+    private void UpdateMotionSectionsVisibility()
+    {
+        var cfg = App.OverlayConfig;
+
+        // Turning sensitivity is shared: the gamepad right stick is injected as a
+        // synthetic mouse delta and runs through the same sensitivity chain, so
+        // the row must stay available for either source.
+        bool anyTurningSource = cfg.MotionMouseEnabled || cfg.MotionGamepadEnabled;
+        PanelMouseSensitivity.Visibility = anyTurningSource ? Visibility.Visible : Visibility.Collapsed;
+        PanelKeyboardSensitivity.Visibility = cfg.MotionKeyboardEnabled ? Visibility.Visible : Visibility.Collapsed;
+        PanelGamepadSensitivity.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
+        PanelGamepadDeadzone.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
+        PanelParallaxAmount.Visibility = cfg.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
+
+        // With no input source the dots cannot move at all — say so, otherwise
+        // the static field just looks broken.
+        PanelNoInputSource.Visibility = anyTurningSource || cfg.MotionKeyboardEnabled
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+    }
+
     private void MotionKeyboard_Changed(object sender, RoutedEventArgs e)
     {
         if (_isLoading) return;
@@ -238,7 +281,7 @@ public partial class OverlayPage : Page
         }
 
         App.OverlayConfig.MotionKeyboardEnabled = wantEnabled;
-        PanelKeyboardSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
+        UpdateMotionSectionsVisibility();
     }
 
     private void MotionGamepad_Changed(object sender, RoutedEventArgs e)
@@ -262,8 +305,7 @@ public partial class OverlayPage : Page
         }
 
         App.OverlayConfig.MotionGamepadEnabled = wantEnabled;
-        PanelGamepadSensitivity.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
-        PanelGamepadDeadzone.Visibility = wantEnabled ? Visibility.Visible : Visibility.Collapsed;
+        UpdateMotionSectionsVisibility();
 
         // Enable-time connectivity probe: TryGetSticks fails silently when no pad
         // is attached or XInput is unavailable — the top "it doesn't work" report
@@ -349,7 +391,7 @@ public partial class OverlayPage : Page
     {
         if (_isLoading) return;
         App.OverlayConfig.MotionParallaxScale = ChkMotionParallax.IsChecked == true;
-        PanelParallaxAmount.Visibility = App.OverlayConfig.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
+        UpdateMotionSectionsVisibility();
     }
 
     private void MotionParallaxAmount_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

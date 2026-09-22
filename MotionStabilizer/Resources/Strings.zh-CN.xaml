@@ -92,15 +92,24 @@
     <!-- Motion Dots -->
     <sys:String x:Key="Motion_SettingsCard">动态圆点设置</sys:String>
     <sys:String x:Key="Motion_Desc">在屏幕两侧显示根据鼠标移动而变化的动态圆点，提供视觉运动错点。功能生效期间会占用 GPU。</sys:String>
-    <sys:String x:Key="Motion_KeyboardEnable">启用键盘 WASD 控制动态圆点（禁止联机游戏使用）</sys:String>
-    <sys:String x:Key="Motion_GamepadEnable">启用手柄控制动态圆点（禁止联机游戏使用）</sys:String>
+    <sys:String x:Key="Motion_MouseEnable">启用鼠标控制动态圆点</sys:String>
+    <sys:String x:Key="Motion_MouseEnableHint">关闭后程序将完全不再接收鼠标输入，动态圆点也不再跟随鼠标移动（键盘与手柄控制不受影响）。</sys:String>
+    <sys:String x:Key="Motion_KeyboardEnable">启用键盘 WASD 控制动态圆点</sys:String>
+    <sys:String x:Key="Motion_GamepadEnable">启用手柄控制动态圆点</sys:String>
+    <sys:String x:Key="Motion_SectionInput">输入源</sys:String>
+    <sys:String x:Key="Motion_SectionLayout">点阵外观</sys:String>
+    <sys:String x:Key="Motion_SectionVisual">视觉效果</sys:String>
+    <sys:String x:Key="Motion_SectionPerformance">性能</sys:String>
+    <sys:String x:Key="Motion_RiskText">（禁止联机游戏使用）</sys:String>
+    <sys:String x:Key="Motion_NoInputSource">未启用任何输入源，动态圆点将保持静止（仅保留呼吸效果）。</sys:String>
     <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标、键盘和手柄控制反向）</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">视差缩放（圆点靠近屏幕中线时自动缩小）</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">圆点缩放程度</sys:String>
     <sys:String x:Key="Motion_DotColumns">圆点列数</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">圆点上下间距</sys:String>
     <sys:String x:Key="Motion_DotSpacingH">圆点左右间距</sys:String>
-    <sys:String x:Key="Motion_MouseSensitivity">鼠标与手柄转动灵敏度</sys:String>
+    <sys:String x:Key="Motion_TurnSensitivity">转向灵敏度</sys:String>
+    <sys:String x:Key="Motion_TurnSensitivityHint">鼠标与手柄右摇杆共用此灵敏度。</sys:String>
     <sys:String x:Key="Motion_KeyboardSensitivity">键盘移动灵敏度</sys:String>
     <sys:String x:Key="Motion_GamepadSensitivity">手柄移动灵敏度</sys:String>
     <sys:String x:Key="Motion_GamepadDeadzone">摇杆死区</sys:String>
@@ -174,7 +183,6 @@
     <sys:String x:Key="Options_Desc">应用程序行为与界面设置</sys:String>
     <sys:String x:Key="Options_BehaviorCard">行为设置</sys:String>
     <sys:String x:Key="Options_MinimizeToTray">首次运行时最小化到托盘</sys:String>
-    <sys:String x:Key="Options_AutoSave">自动保存设置变更</sys:String>
     <sys:String x:Key="Options_ConfirmClose">程序关闭前显示确认消息</sys:String>
     <sys:String x:Key="Options_UICard">界面定制</sys:String>
     <sys:String x:Key="Options_UIScale">UI 缩放</sys:String>
@@ -228,6 +236,17 @@
     <sys:String x:Key="ProfileSave_OverwriteTitle">覆盖配置文件</sys:String>
     <sys:String x:Key="ProfileSave_OverwriteMsg">已存在名为 "{0}" 的配置文件，是否覆盖？</sys:String>
     <sys:String x:Key="ProfileSave_OverwriteYes">覆盖</sys:String>
+    <sys:String x:Key="ProfileSave_ReservedTitle">无法使用此名称</sys:String>
+    <sys:String x:Key="ProfileSave_ReservedMsg">Default 是当前配置的保留名称，请换一个名称。</sys:String>
+
+    <!-- Profile list state -->
+    <sys:String x:Key="ProfileList_EmptyTitle">没有配置文件</sys:String>
+    <sys:String x:Key="ProfileList_EmptyMsg">你还没有保存任何配置文件。请先使用保存配置文件功能保存一个。</sys:String>
+    <sys:String x:Key="ProfileLoad_ReplacesCurrent">加载将替换当前的全部设置。</sys:String>
+    <sys:String x:Key="ProfileLoad_ConfirmTitle">加载配置文件</sys:String>
+    <sys:String x:Key="ProfileLoad_ConfirmMsg">加载 {0} 将替换你当前的全部设置，此操作无法撤销。是否继续？</sys:String>
+    <sys:String x:Key="ProfileLoad_ConfirmYes">加载</sys:String>
+    <sys:String x:Key="Common_DontShowAgain">不再提示</sys:String>
 
     <!-- Error dialogs ({0} = exception type, {1} = message, {2} = stack trace) -->
     <sys:String x:Key="Error_StartupFail">启动失败：\n\n{0}: {1}\n\n{2}</sys:String>
@@ -235,6 +254,8 @@
     <sys:String x:Key="Error_FatalException">发生致命异常：\n\n{0}: {1}\n\n{2}</sys:String>
     <sys:String x:Key="Error_Short_Title">Motion Stabilizer - 错误</sys:String>
     <sys:String x:Key="Error_Short_Msg">程序遇到内部错误，详情已写入日志文件 error.log。\n\n{0}: {1}</sys:String>
+    <sys:String x:Key="Error_ProfileCorrupt_Title">配置文件已损坏</sys:String>
+    <sys:String x:Key="Error_ProfileCorrupt_Msg">配置文件无法读取，已使用默认设置启动。\n损坏的文件已备份为：\n{0}</sys:String>
 
     <!-- Confirm dialog -->
     <sys:String x:Key="ConfirmClose_Title">确认关闭</sys:String>

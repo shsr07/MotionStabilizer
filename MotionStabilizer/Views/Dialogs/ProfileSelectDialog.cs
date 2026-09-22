@@ -15,7 +15,13 @@ public class ProfileSelectDialog : Window
 
     private static readonly string FontFam = "Segoe UI Variable, Segoe UI, Microsoft YaHei UI";
 
-    public ProfileSelectDialog(List<string> profiles, string? dialogTitle = null, string? confirmText = null)
+    /// <param name="profiles">Profile names to list.</param>
+    /// <param name="dialogTitle">Overrides the localized default title.</param>
+    /// <param name="confirmText">Overrides the localized default confirm button.</param>
+    /// <param name="hintText">Optional line above the list — used to warn that
+    /// loading replaces the current configuration.</param>
+    public ProfileSelectDialog(List<string> profiles, string? dialogTitle = null,
+        string? confirmText = null, string? hintText = null)
     {
         // Localized defaults: title and confirm button come from the resource
         // dictionaries unless the caller passes explicit values.
@@ -32,7 +38,7 @@ public class ProfileSelectDialog : Window
 
         Title = title;
         Width = 360;
-        Height = 320;
+        Height = string.IsNullOrEmpty(hintText) ? 320 : 344;
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
         Background = System.Windows.Media.Brushes.Transparent;
@@ -61,6 +67,19 @@ public class ProfileSelectDialog : Window
             Margin = new Thickness(0, 0, 0, 12)
         };
         stack.Children.Add(titleBlock);
+
+        if (!string.IsNullOrEmpty(hintText))
+        {
+            stack.Children.Add(new TextBlock
+            {
+                Text = hintText,
+                FontFamily = new FontFamily(FontFam),
+                FontSize = 12,
+                TextWrapping = System.Windows.TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x60, 0x60, 0x60)),
+                Margin = new Thickness(0, 0, 0, 12)
+            });
+        }
 
         _listBox = new ListBox
         {

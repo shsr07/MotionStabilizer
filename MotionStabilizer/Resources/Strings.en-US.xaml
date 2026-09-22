@@ -92,15 +92,24 @@
     <!-- Motion Dots -->
     <sys:String x:Key="Motion_SettingsCard">Motion Dots Settings</sys:String>
     <sys:String x:Key="Motion_Desc">Displays dynamic dots on both sides of the screen that respond to mouse movement, providing visual motion anchors. GPU usage occurs while active.</sys:String>
-    <sys:String x:Key="Motion_KeyboardEnable">Enable keyboard WASD to control motion dots (do not use in online games)</sys:String>
-    <sys:String x:Key="Motion_GamepadEnable">Enable gamepad control of motion dots (do not use in online games)</sys:String>
+    <sys:String x:Key="Motion_MouseEnable">Enable mouse control for motion dots</sys:String>
+    <sys:String x:Key="Motion_MouseEnableHint">When off, the app stops receiving mouse input entirely and the dots no longer follow the mouse. Keyboard and gamepad control are unaffected.</sys:String>
+    <sys:String x:Key="Motion_KeyboardEnable">Enable keyboard WASD to control motion dots</sys:String>
+    <sys:String x:Key="Motion_GamepadEnable">Enable gamepad control of motion dots</sys:String>
+    <sys:String x:Key="Motion_SectionInput">Input sources</sys:String>
+    <sys:String x:Key="Motion_SectionLayout">Dot layout</sys:String>
+    <sys:String x:Key="Motion_SectionVisual">Visual effects</sys:String>
+    <sys:String x:Key="Motion_SectionPerformance">Performance</sys:String>
+    <sys:String x:Key="Motion_RiskText">&#160;(do not use in online games)</sys:String>
+    <sys:String x:Key="Motion_NoInputSource">No input source is enabled, so the dots stay static (breathing effect only).</sys:String>
     <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse, keyboard and gamepad reversed)</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">Parallax scale (dots shrink near screen center)</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">Dot Scale Amount</sys:String>
     <sys:String x:Key="Motion_DotColumns">Dot Columns</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">Vertical Spacing</sys:String>
     <sys:String x:Key="Motion_DotSpacingH">Horizontal Spacing</sys:String>
-    <sys:String x:Key="Motion_MouseSensitivity">Mouse &amp; Gamepad Turning</sys:String>
+    <sys:String x:Key="Motion_TurnSensitivity">Turning sensitivity</sys:String>
+    <sys:String x:Key="Motion_TurnSensitivityHint">Shared by the mouse and the gamepad right stick.</sys:String>
     <sys:String x:Key="Motion_KeyboardSensitivity">Keyboard Movement</sys:String>
     <sys:String x:Key="Motion_GamepadSensitivity">Gamepad Movement</sys:String>
     <sys:String x:Key="Motion_GamepadDeadzone">Stick Deadzone</sys:String>
@@ -174,7 +183,6 @@
     <sys:String x:Key="Options_Desc">Application behavior and UI settings</sys:String>
     <sys:String x:Key="Options_BehaviorCard">Behavior</sys:String>
     <sys:String x:Key="Options_MinimizeToTray">Minimize to tray on first run</sys:String>
-    <sys:String x:Key="Options_AutoSave">Auto-save setting changes</sys:String>
     <sys:String x:Key="Options_ConfirmClose">Show confirmation before closing</sys:String>
     <sys:String x:Key="Options_UICard">Interface</sys:String>
     <sys:String x:Key="Options_UIScale">UI Scale</sys:String>
@@ -228,6 +236,17 @@
     <sys:String x:Key="ProfileSave_OverwriteTitle">Overwrite Profile</sys:String>
     <sys:String x:Key="ProfileSave_OverwriteMsg">A profile named "{0}" already exists. Overwrite it?</sys:String>
     <sys:String x:Key="ProfileSave_OverwriteYes">Overwrite</sys:String>
+    <sys:String x:Key="ProfileSave_ReservedTitle">Cannot Use This Name</sys:String>
+    <sys:String x:Key="ProfileSave_ReservedMsg">Default is reserved for the current configuration. Please choose another name.</sys:String>
+
+    <!-- Profile list state -->
+    <sys:String x:Key="ProfileList_EmptyTitle">No Profiles</sys:String>
+    <sys:String x:Key="ProfileList_EmptyMsg">You have not saved any profile yet. Use Save Profile to create one.</sys:String>
+    <sys:String x:Key="ProfileLoad_ReplacesCurrent">Loading replaces all of your current settings.</sys:String>
+    <sys:String x:Key="ProfileLoad_ConfirmTitle">Load Profile</sys:String>
+    <sys:String x:Key="ProfileLoad_ConfirmMsg">Loading {0} replaces all of your current settings. This cannot be undone. Continue?</sys:String>
+    <sys:String x:Key="ProfileLoad_ConfirmYes">Load</sys:String>
+    <sys:String x:Key="Common_DontShowAgain">Don't show again</sys:String>
 
     <!-- Error dialogs ({0} = exception type, {1} = message, {2} = stack trace) -->
     <sys:String x:Key="Error_StartupFail">Startup failed:\n\n{0}: {1}\n\n{2}</sys:String>
@@ -235,6 +254,8 @@
     <sys:String x:Key="Error_FatalException">A fatal exception occurred:\n\n{0}: {1}\n\n{2}</sys:String>
     <sys:String x:Key="Error_Short_Title">Motion Stabilizer - Error</sys:String>
     <sys:String x:Key="Error_Short_Msg">An internal error occurred. Details were written to error.log.\n\n{0}: {1}</sys:String>
+    <sys:String x:Key="Error_ProfileCorrupt_Title">Corrupt Configuration File</sys:String>
+    <sys:String x:Key="Error_ProfileCorrupt_Msg">The configuration file could not be read, so default settings were loaded.\nThe damaged file was backed up as:\n{0}</sys:String>
 
     <!-- Confirm dialog -->
     <sys:String x:Key="ConfirmClose_Title">Confirm Close</sys:String>

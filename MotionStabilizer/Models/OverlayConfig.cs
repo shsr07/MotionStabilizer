@@ -34,6 +34,7 @@ public class OverlayConfig : ObservableObject
     private int _edgeRightOpacity = 60;
 
     // ── Dynamic motion cue settings (MotionDots shape) ──
+    private bool _motionMouseEnabled = true;
     private bool _motionKeyboardEnabled = false;
     private bool _motionGamepadEnabled = false;
     private int _motionDotCount = 6;
@@ -75,6 +76,17 @@ public class OverlayConfig : ObservableObject
     public int EdgeRightOpacity { get => _edgeRightOpacity; set => SetProperty(ref _edgeRightOpacity, value); }
 
     // ── Dynamic motion cue settings (MotionDots shape) ──
+
+    /// <summary>
+    /// Mouse-driven motion control — on by default, and deliberately persisted
+    /// (unlike the keyboard and gamepad gates below): this is the ordinary,
+    /// low-risk way to drive the dots, so switching it off is a preference that
+    /// should survive a restart, not a per-session risk acknowledgement. While it
+    /// is off the process does not register for Raw Input at all, so no mouse
+    /// input reaches it whatsoever.
+    /// </summary>
+    public bool MotionMouseEnabled { get => _motionMouseEnabled; set => SetProperty(ref _motionMouseEnabled, value); }
+
     /// <summary>
     /// Safety gate: when false, GetAsyncKeyState is never called.
     /// Deliberately never persisted ([JsonIgnore]) — keyboard control must be

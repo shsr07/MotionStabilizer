@@ -33,6 +33,9 @@ public class ConfigStore
         get => _overlay;
         set
         {
+            // A profile JSON carrying an explicit null section ("Overlay": null)
+            // would otherwise dereference null below and abort startup.
+            value ??= new OverlayConfig();
             if (ReferenceEquals(_overlay, value)) return;
             _overlay.PropertyChanged -= OnConfigPropertyChanged;
             _overlay = value;
@@ -47,6 +50,7 @@ public class ConfigStore
         get => _crosshair;
         set
         {
+            value ??= new CrosshairConfig();
             if (ReferenceEquals(_crosshair, value)) return;
             _crosshair.PropertyChanged -= OnConfigPropertyChanged;
             _crosshair = value;
@@ -61,6 +65,7 @@ public class ConfigStore
         get => _clock;
         set
         {
+            value ??= new ClockConfig();
             if (ReferenceEquals(_clock, value)) return;
             _clock.PropertyChanged -= OnConfigPropertyChanged;
             _clock = value;
@@ -75,6 +80,7 @@ public class ConfigStore
         get => _app;
         set
         {
+            value ??= new AppConfig();
             if (ReferenceEquals(_app, value)) return;
             _app.PropertyChanged -= OnConfigPropertyChanged;
             _app = value;

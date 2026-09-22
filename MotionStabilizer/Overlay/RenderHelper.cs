@@ -62,6 +62,14 @@ public static class RenderHelper
         _ => 41
     };
 
+    /// <summary>
+    /// Width of a single motion-dot zone as a fraction of the monitor width.
+    /// Single source of truth: OverlayWindow builds MotionZone rectangles from
+    /// this ratio and the renderer consumes the resulting widths, so the value
+    /// must never be duplicated as a literal in either place.
+    /// </summary>
+    public const float MotionZoneWidthRatio = 0.12f;
+
     /// <summary>Length offset in px.</summary>
     public static double LengthOffsetPx(OffsetLevel l) => l switch
     {

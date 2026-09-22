@@ -8,18 +8,17 @@ public class AppConfig : ObservableObject
 {
     // Behavior settings
     private bool _minimizeToTrayOnStart = false;
-    private bool _autoSaveOnClose = true;
     private bool _confirmBeforeClose = true;
     private bool _hotkeyWarningAcknowledged = false;
     private bool _motionKeyboardWarningAcknowledged = false;
     private bool _motionGamepadWarningAcknowledged = false;
+    private bool _loadProfileWarningAcknowledged = false;
 
     // UI customization
     private UIScale _scale = UIScale.Auto;
     private Language _language = Language.Chinese;
 
     public bool MinimizeToTrayOnStart { get => _minimizeToTrayOnStart; set => SetProperty(ref _minimizeToTrayOnStart, value); }
-    public bool AutoSaveOnClose { get => _autoSaveOnClose; set => SetProperty(ref _autoSaveOnClose, value); }
     public bool ConfirmBeforeClose { get => _confirmBeforeClose; set => SetProperty(ref _confirmBeforeClose, value); }
 
     /// <summary>
@@ -40,6 +39,13 @@ public class AppConfig : ObservableObject
 
     /// <summary>Same as <see cref="MotionKeyboardWarningAcknowledged"/>, for GAMEPAD motion control.</summary>
     public bool MotionGamepadWarningAcknowledged { get => _motionGamepadWarningAcknowledged; set => SetProperty(ref _motionGamepadWarningAcknowledged, value); }
+
+    /// <summary>
+    /// Persisted "don't show again" for the confirmation shown before a preset is
+    /// loaded — loading overwrites the live current configuration, so the first
+    /// load always asks. A factory reset clears it and re-arms the confirmation.
+    /// </summary>
+    public bool LoadProfileWarningAcknowledged { get => _loadProfileWarningAcknowledged; set => SetProperty(ref _loadProfileWarningAcknowledged, value); }
 
     public UIScale Scale { get => _scale; set => SetProperty(ref _scale, value); }
     public Language Language { get => _language; set => SetProperty(ref _language, value); }
