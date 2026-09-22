@@ -235,6 +235,30 @@
                         </StackPanel>
                     </Border>
 
+                    <CheckBox x:Name="ChkMotionDotOutline" Content="{DynamicResource Motion_Outline}"
+                              Checked="MotionDotOutline_Changed" Unchecked="MotionDotOutline_Changed" />
+
+                    <Border x:Name="PanelMotionOutline" Style="{StaticResource SubRow}" Visibility="Collapsed">
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{DynamicResource Motion_OutlineColor}" Style="{StaticResource FieldLabel}" Width="130" />
+                                <Button x:Name="OutlineSwatchWhite" Style="{StaticResource ColorSwatchButton}"
+                                        Background="#FFFFFF" Click="OutlineColor_Click" Margin="0,0,12,0" />
+                                <Button x:Name="OutlineSwatchBlack" Style="{StaticResource ColorSwatchButton}"
+                                        Background="#000000" Click="OutlineColor_Click" Margin="0,0,12,0" />
+                                <Button x:Name="OutlineSwatchCustom" Style="{StaticResource ColorSwatchButton}"
+                                        Background="#888888" Click="OutlineCustomColor_Click" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBlock Text="{DynamicResource Motion_OutlineWidth}" Style="{StaticResource FieldLabel}" Width="130" />
+                                <Slider x:Name="SliderMotionOutlineWidth" Width="200" Minimum="0.5" Maximum="5.0"
+                                        TickFrequency="0.5" ValueChanged="MotionOutlineWidth_Changed" />
+                                <TextBlock x:Name="MotionOutlineWidthLabel" Width="48" Margin="12,0,0,0"
+                                           VerticalAlignment="Center" Foreground="{StaticResource BrushTextPrimary}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                     <!-- ═══ Performance ═══ -->
                     <TextBlock Text="{DynamicResource Motion_SectionPerformance}" Style="{StaticResource SectionHeader}" />
 

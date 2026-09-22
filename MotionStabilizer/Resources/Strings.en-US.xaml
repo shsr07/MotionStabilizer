@@ -104,6 +104,11 @@
     <sys:String x:Key="Motion_NoInputSource">No input source is enabled, so the dots stay static (breathing effect only).</sys:String>
     <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse, keyboard and gamepad reversed)</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">Parallax scale (dots shrink near screen center)</sys:String>
+    <sys:String x:Key="Motion_Outline">Dot outline</sys:String>
+    <sys:String x:Key="Motion_OutlineColor">Outline colour</sys:String>
+    <sys:String x:Key="Motion_OutlineWidth">Outline thickness</sys:String>
+    <sys:String x:Key="Outline_White">White</sys:String>
+    <sys:String x:Key="Outline_Black">Black</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">Dot Scale Amount</sys:String>
     <sys:String x:Key="Motion_DotColumns">Dot Columns</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">Vertical Spacing</sys:String>
@@ -160,6 +165,12 @@
     <sys:String x:Key="Hotkeys_Conflict">Hotkey conflict!</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">Unbound</sys:String>
     <sys:String x:Key="Hotkeys_Hint">Click a hotkey field, then press your desired key combination (supports Ctrl / Alt / Shift). Press Esc to cancel, Delete to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_ClearAll">Clear all</sys:String>
+    <sys:String x:Key="Hotkeys_ClearAllTitle">Clear all hotkeys</sys:String>
+    <sys:String x:Key="Hotkeys_ClearAllMsg">Clear every hotkey binding? No hotkey will work until you set them up again.</sys:String>
+    <sys:String x:Key="Hotkeys_RestoreDefaults">Restore defaults</sys:String>
+    <sys:String x:Key="Hotkeys_RestoreTitle">Restore default hotkeys</sys:String>
+    <sys:String x:Key="Hotkeys_RestoreMsg">Restore the default hotkeys? Your current bindings will be overwritten.</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Title">Hotkey Registration Failed</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">The following hotkeys may be occupied by another program:</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Title">Global Hotkey Notice</sys:String>
@@ -175,6 +186,7 @@
     <sys:String x:Key="HK_CycleAspectRatio">Cycle Aspect Ratio</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">Cycle Opacity Mode</sys:String>
     <sys:String x:Key="HK_CycleTargetMonitor">Cycle Target Monitor</sys:String>
+    <sys:String x:Key="HK_CycleOutlineColor">Cycle Dot Outline Colour</sys:String>
     <sys:String x:Key="HK_CycleOverlayColor">Cycle Overlay Color (Red→Green→Blue→Custom)</sys:String>
     <sys:String x:Key="HK_CycleCrosshairColor">Cycle Crosshair Color (Red→Green→Blue→Custom)</sys:String>
 

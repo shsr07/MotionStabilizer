@@ -101,6 +101,7 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     private ID2D1DeviceContext? _d2dContext;
     private ID2D1Bitmap1? _targetBitmap;
     private ID2D1SolidColorBrush? _brush;
+    private ID2D1SolidColorBrush? _outlineBrush;
     private IDCompositionDevice? _compositionDevice;
     private IDCompositionTarget? _compositionTarget;
     private IDCompositionVisual? _compositionVisual;
@@ -129,6 +130,10 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     private double _pixelIntervalMs = 1000.0 / 120.0;
     private int _configuredTimerPeriodMs = 8;
     private int _currentTimerPeriodMs = 8;
+
+    // DPI scale the dot field was built with. Cached here so the per-frame draw
+    // pass can scale the outline thickness without calling GetDpiForWindow again.
+    private float _dotDpiScale = 1f;
 
     private int _layoutDotColumns = -1;
     private double _layoutDotSpacingV = -1;
@@ -417,6 +422,7 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         double dpiScale = _window != null
             ? Win32Interop.GetDpiScaleForWindow(_window.Handle)
             : Win32Interop.GetDpiScale();
+        _dotDpiScale = (float)dpiScale;
         float baseDiameter = (float)(
             RenderHelper.MotionDotDiameter(_config.Size) *
             dpiScale);
@@ -634,6 +640,12 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         _d2dContext.Clear(new Color4(0, 0, 0, 0));
 
         var baseColor = ToColor4(_config.GetColor());
+        var outlineColor = ToColor4(_config.GetOutlineColor());
+        bool outlineWanted = _config.MotionDotOutlineEnabled && _outlineBrush != null;
+        // Thickness is absolute pixels scaled by DPI, NOT a fraction of the dot
+        // radius: dots shrink near the screen centre (parallax) and a proportional
+        // outline would disappear exactly where it is needed most.
+        float outlineWidth = (float)Math.Clamp(_config.MotionDotOutlineWidth, 0.5, 5.0) * _dotDpiScale;
 
         foreach (ZoneDot dot in _dots)
         {
@@ -688,6 +700,18 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
 
             _d2dContext.FillEllipse(
                 new Ellipse(dot.Position, radius, radius), _brush);
+
+            // Outline is stroked AFTER the fill of the same dot, and sits fully
+            // outside it: a stroke of width w centred on r + w/2 spans exactly
+            // r … r + w, so the fill is never eaten into.
+            if (outlineWanted)
+            {
+                _outlineBrush!.Color = new Color4(outlineColor.R, outlineColor.G, outlineColor.B, 1);
+                _outlineBrush.Opacity = Math.Clamp(finalOpacity, 0, 1);
+                float outer = radius + outlineWidth / 2f;
+                _d2dContext.DrawEllipse(
+                    new Ellipse(dot.Position, outer, outer), _outlineBrush, outlineWidth);
+            }
         }
 
         _d2dContext.EndDraw(out _, out _).CheckError();
@@ -737,6 +761,7 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
         _d2dContext = _d2dDevice.CreateDeviceContext(DeviceContextOptions.None);
         CreateDirect2DTarget();
         _brush = _d2dContext.CreateSolidColorBrush(new Color4(1, 1, 1, 1));
+        _outlineBrush = _d2dContext.CreateSolidColorBrush(new Color4(1, 1, 1, 1));
 
         _compositionDevice = DCompositionCreateDevice<IDCompositionDevice>(dxgiDevice);
         _compositionDevice.CreateTargetForHwnd(_window!.Handle, true, out _compositionTarget).CheckError();
@@ -886,11 +911,11 @@ internal sealed class DirectCompositionMotionRenderer : IDisposable
     private void DisposeGraphicsResources()
     {
         if (_d2dContext != null) _d2dContext.Target = null;
-        _brush?.Dispose(); _targetBitmap?.Dispose();
+        _brush?.Dispose(); _outlineBrush?.Dispose(); _targetBitmap?.Dispose();
         _d2dContext?.Dispose(); _d2dDevice?.Dispose(); _d2dFactory?.Dispose();
         _compositionVisual?.Dispose(); _compositionTarget?.Dispose(); _compositionDevice?.Dispose();
         _swapChain?.Dispose(); _d3dContext?.Dispose(); _d3dDevice?.Dispose();
-        _brush = null; _targetBitmap = null; _d2dContext = null; _d2dDevice = null;
+        _brush = null; _outlineBrush = null; _targetBitmap = null; _d2dContext = null; _d2dDevice = null;
         _d2dFactory = null; _compositionVisual = null; _compositionTarget = null;
         _compositionDevice = null; _swapChain = null; _d3dContext = null; _d3dDevice = null;
     }

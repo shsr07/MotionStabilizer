@@ -12,7 +12,17 @@
 
             <!-- Hint -->
             <TextBlock Text="{DynamicResource Hotkeys_Hint}"
-                       Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,0,0,24" TextWrapping="Wrap" />
+                       Foreground="{StaticResource BrushTextSecondary}" FontSize="12" Margin="0,0,0,16" TextWrapping="Wrap" />
+
+            <!-- Bulk actions -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Button Content="{DynamicResource Hotkeys_ClearAll}"
+                        Style="{StaticResource SecondaryButton}" Margin="0,0,12,0"
+                        Click="ClearAllHotkeys_Click" />
+                <Button Content="{DynamicResource Hotkeys_RestoreDefaults}"
+                        Style="{StaticResource SecondaryButton}"
+                        Click="RestoreDefaultHotkeys_Click" />
+            </StackPanel>
 
             <!-- ═══════ Display Mode Hotkeys ═══════ -->
             <Border Style="{StaticResource SettingsCard}">

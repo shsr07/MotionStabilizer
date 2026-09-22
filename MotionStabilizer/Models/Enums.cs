@@ -86,6 +86,19 @@ public enum ColorPreset
     Custom
 }
 
+/// <summary>
+/// Colour presets for the motion-dot outline. Deliberately a separate enum from
+/// <see cref="ColorPreset"/>: that one drives the dot FILL and is cycled by the
+/// F9 / F10 hotkeys, so adding outline colours to it would silently change the
+/// existing cycle for everyone.
+/// </summary>
+public enum OutlineColorPreset
+{
+    White,
+    Black,
+    Custom
+}
+
 /// <summary>Clock time format</summary>
 public enum ClockFormat
 {

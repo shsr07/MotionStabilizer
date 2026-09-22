@@ -104,6 +104,11 @@
     <sys:String x:Key="Motion_NoInputSource">未启用任何输入源，动态圆点将保持静止（仅保留呼吸效果）。</sys:String>
     <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标、键盘和手柄控制反向）</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">视差缩放（圆点靠近屏幕中线时自动缩小）</sys:String>
+    <sys:String x:Key="Motion_Outline">圆点描边</sys:String>
+    <sys:String x:Key="Motion_OutlineColor">描边颜色</sys:String>
+    <sys:String x:Key="Motion_OutlineWidth">描边粗细</sys:String>
+    <sys:String x:Key="Outline_White">白色</sys:String>
+    <sys:String x:Key="Outline_Black">黑色</sys:String>
     <sys:String x:Key="Motion_ParallaxAmount">圆点缩放程度</sys:String>
     <sys:String x:Key="Motion_DotColumns">圆点列数</sys:String>
     <sys:String x:Key="Motion_DotSpacingV">圆点上下间距</sys:String>
@@ -160,6 +165,12 @@
     <sys:String x:Key="Hotkeys_Conflict">热键冲突！</sys:String>
     <sys:String x:Key="Hotkeys_Unbound">已解除绑定</sys:String>
     <sys:String x:Key="Hotkeys_Hint">点击快捷键输入框，然后按下所需的组合键（支持 Ctrl / Alt / Shift）。按 Esc 取消输入，按 Delete 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_ClearAll">清除所有快捷键</sys:String>
+    <sys:String x:Key="Hotkeys_ClearAllTitle">清除所有快捷键</sys:String>
+    <sys:String x:Key="Hotkeys_ClearAllMsg">确定要清除全部快捷键绑定吗？清除后所有快捷键都将失效，需要重新设置。</sys:String>
+    <sys:String x:Key="Hotkeys_RestoreDefaults">恢复默认快捷键</sys:String>
+    <sys:String x:Key="Hotkeys_RestoreTitle">恢复默认快捷键</sys:String>
+    <sys:String x:Key="Hotkeys_RestoreMsg">确定要恢复默认快捷键吗？当前的自定义绑定将被覆盖。</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Title">快捷键注册失败</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">以下快捷键可能被其他程序占用，无法注册：</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Title">快捷键占用提示</sys:String>
@@ -175,6 +186,7 @@
     <sys:String x:Key="HK_CycleAspectRatio">切换宽高比</sys:String>
     <sys:String x:Key="HK_CycleOpacityMode">切换透明度模式</sys:String>
     <sys:String x:Key="HK_CycleTargetMonitor">切换目标显示器</sys:String>
+    <sys:String x:Key="HK_CycleOutlineColor">循环圆点描边颜色</sys:String>
     <sys:String x:Key="HK_CycleOverlayColor">叠加层颜色循环（红→绿→蓝→自定义）</sys:String>
     <sys:String x:Key="HK_CycleCrosshairColor">准星颜色循环（红→绿→蓝→自定义）</sys:String>
 

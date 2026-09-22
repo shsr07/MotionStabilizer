@@ -56,6 +56,7 @@ public partial class HotkeysPage : Page
         AddItem(_displayItems, hk.CycleSplitScreen, "HK_CycleSplitScreen");
         AddItem(_displayItems, hk.CycleAspectRatio, "HK_CycleAspectRatio");
         AddItem(_displayItems, hk.CycleTargetMonitor, "HK_CycleTargetMonitor");
+        AddItem(_displayItems, hk.CycleOutlineColor, "HK_CycleOutlineColor");
 
         // Color cycle hotkeys (2)
         AddItem(_colorItems, hk.CycleOverlayColor, "HK_CycleOverlayColor");
@@ -72,6 +73,47 @@ public partial class HotkeysPage : Page
             BindingName = binding.Name,
             Binding = binding
         });
+    }
+
+    /// <summary>
+    /// Unbind every hotkey at once — the way to hand F1–F10 back to the game.
+    /// Confirmed first, because there is no undo for this.
+    /// </summary>
+    private void ClearAllHotkeys_Click(object sender, RoutedEventArgs e)
+    {
+        var result = CustomMessageBox.Show(
+            (string)App.Current.Resources["Hotkeys_ClearAllTitle"],
+            (string)App.Current.Resources["Hotkeys_ClearAllMsg"],
+            (string)App.Current.Resources["Common_Cancel"],
+            (string)App.Current.Resources["Hotkeys_ClearAll"]);
+        if (result != CustomMessageBox.Result.Option2) return;
+
+        App.HotkeyConfig.ClearAll();
+        if (App.Current is App appInst)
+            appInst.RegisterAllHotkeys();
+        ConfigManager.SaveHotkeys(App.HotkeyConfig);
+        RefreshFromConfig();
+    }
+
+    /// <summary>
+    /// Replace the whole set with the built-in defaults (F1–F7, F9, F10).
+    /// Confirmed first, since it overwrites every custom binding.
+    /// </summary>
+    private void RestoreDefaultHotkeys_Click(object sender, RoutedEventArgs e)
+    {
+        var result = CustomMessageBox.Show(
+            (string)App.Current.Resources["Hotkeys_RestoreTitle"],
+            (string)App.Current.Resources["Hotkeys_RestoreMsg"],
+            (string)App.Current.Resources["Common_Cancel"],
+            (string)App.Current.Resources["Hotkeys_RestoreDefaults"]);
+        if (result != CustomMessageBox.Result.Option2) return;
+
+        // A fresh instance carries the built-in defaults.
+        App.Config.Hotkeys = new HotkeyConfig();
+        if (App.Current is App appInst)
+            appInst.RegisterAllHotkeys();
+        ConfigManager.SaveHotkeys(App.HotkeyConfig);
+        RefreshFromConfig();
     }
 
     /// <summary>When a hotkey TextBox gets focus, start capturing.</summary>

@@ -20,6 +20,7 @@ public static class HotkeyNames
     public const string CycleTargetMonitor = "CycleTargetMonitor";
     public const string CycleOverlayColor = "CycleOverlayColor";
     public const string CycleCrosshairColor = "CycleCrosshairColor";
+    public const string CycleOutlineColor = "CycleOutlineColor";
 }
 
 /// <summary>
@@ -85,6 +86,10 @@ public class HotkeyConfig
     public HotkeyBinding CycleOverlayColor { get; set; } = new() { Name = HotkeyNames.CycleOverlayColor, Key = "F9" };
     public HotkeyBinding CycleCrosshairColor { get; set; } = new() { Name = HotkeyNames.CycleCrosshairColor, Key = "F10" };
 
+    // Unbound by default: the outline is an optional feature and the F-row is
+    // already crowded. Users who want it can bind it on the hotkeys page.
+    public HotkeyBinding CycleOutlineColor { get; set; } = new() { Name = HotkeyNames.CycleOutlineColor };
+
     public List<HotkeyBinding> AllBindings => new()
     {
         ToggleOverlay,
@@ -98,6 +103,23 @@ public class HotkeyConfig
         CycleOpacityMode,
         CycleTargetMonitor,
         CycleOverlayColor,
-        CycleCrosshairColor
+        CycleCrosshairColor,
+        CycleOutlineColor
     };
+
+    /// <summary>
+    /// Unbind every hotkey at once (the "clear all" button). AllBindings hands
+    /// back references to the live properties, so clearing them here updates the
+    /// config in place — callers still have to re-register and save afterwards.
+    /// </summary>
+    public void ClearAll()
+    {
+        foreach (var b in AllBindings)
+        {
+            b.Key = string.Empty;
+            b.Ctrl = false;
+            b.Alt = false;
+            b.Shift = false;
+        }
+    }
 }

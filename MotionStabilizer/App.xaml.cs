@@ -398,6 +398,7 @@ public partial class App : Application
         Hotkeys.Register(hk.CycleTargetMonitor, CycleTargetMonitor);
         Hotkeys.Register(hk.CycleOverlayColor, () => { OverlayConfig.ColorPreset = NextColorPreset(OverlayConfig.ColorPreset); });
         Hotkeys.Register(hk.CycleCrosshairColor, () => { CrosshairConfig.ColorPreset = NextColorPreset(CrosshairConfig.ColorPreset); });
+        Hotkeys.Register(hk.CycleOutlineColor, () => { OverlayConfig.MotionDotOutlineColorPreset = NextOutlinePreset(OverlayConfig.MotionDotOutlineColorPreset); });
     }
 
     private void CycleSplitScreen()
@@ -430,6 +431,14 @@ public partial class App : Application
     /// </summary>
     private static ColorPreset NextColorPreset(ColorPreset current) =>
         (ColorPreset)(((int)current + 1) % 4);
+
+    /// <summary>
+    /// Cycle the dot outline colour White → Black → Custom → White. Three steps
+    /// on purpose: outline colours live in their own enum, so the F9 / F10 fill
+    /// cycle keeps its original four steps.
+    /// </summary>
+    private static OutlineColorPreset NextOutlinePreset(OutlineColorPreset current) =>
+        (OutlineColorPreset)(((int)current + 1) % 3);
 
     /// <summary>
     /// Cycle through available monitors (All → Monitor 1 → Monitor 2 → … → All).

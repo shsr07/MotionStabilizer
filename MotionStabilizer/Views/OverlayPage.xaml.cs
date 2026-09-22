@@ -64,6 +64,15 @@ public partial class OverlayPage : Page
         int parallaxPct = (int)Math.Round(cfg.MotionParallaxAmount * 100);
         SliderMotionParallaxAmount.Value = Math.Clamp(parallaxPct, 0, 100);
         MotionParallaxAmountLabel.Text = Math.Clamp(parallaxPct, 0, 100) + "%";
+        ChkMotionDotOutline.IsChecked = cfg.MotionDotOutlineEnabled;
+        SliderMotionOutlineWidth.Value = Math.Clamp(cfg.MotionDotOutlineWidth, 0.5, 5.0);
+        MotionOutlineWidthLabel.Text = cfg.MotionDotOutlineWidth.ToString("0.0") + " px";
+        UpdateOutlineSelection(cfg.MotionDotOutlineColorPreset);
+        if (cfg.MotionDotOutlineColorPreset == OutlineColorPreset.Custom)
+        {
+            var oc = cfg.GetOutlineColor();
+            OutlineSwatchCustom.Background = new SolidColorBrush(Color.FromRgb(oc.R, oc.G, oc.B));
+        }
 
         // Every conditional row expands/collapses from one place. Scattering
         // these across individual setters is exactly how rows used to end up
@@ -252,6 +261,7 @@ public partial class OverlayPage : Page
         PanelGamepadSensitivity.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         PanelGamepadDeadzone.Visibility = cfg.MotionGamepadEnabled ? Visibility.Visible : Visibility.Collapsed;
         PanelParallaxAmount.Visibility = cfg.MotionParallaxScale ? Visibility.Visible : Visibility.Collapsed;
+        PanelMotionOutline.Visibility = cfg.MotionDotOutlineEnabled ? Visibility.Visible : Visibility.Collapsed;
 
         // With no input source the dots cannot move at all — say so, otherwise
         // the static field just looks broken.
@@ -392,6 +402,51 @@ public partial class OverlayPage : Page
         if (_isLoading) return;
         App.OverlayConfig.MotionParallaxScale = ChkMotionParallax.IsChecked == true;
         UpdateMotionSectionsVisibility();
+    }
+
+    private void MotionDotOutline_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.OverlayConfig.MotionDotOutlineEnabled = ChkMotionDotOutline.IsChecked == true;
+        UpdateMotionSectionsVisibility();
+    }
+
+    private void UpdateOutlineSelection(OutlineColorPreset preset)
+    {
+        OutlineSwatchWhite.Tag = preset == OutlineColorPreset.White ? "Selected" : "";
+        OutlineSwatchBlack.Tag = preset == OutlineColorPreset.Black ? "Selected" : "";
+        OutlineSwatchCustom.Tag = preset == OutlineColorPreset.Custom ? "Selected" : "";
+    }
+
+    private void OutlineColor_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        if (sender == OutlineSwatchWhite) App.OverlayConfig.MotionDotOutlineColorPreset = OutlineColorPreset.White;
+        else if (sender == OutlineSwatchBlack) App.OverlayConfig.MotionDotOutlineColorPreset = OutlineColorPreset.Black;
+        UpdateOutlineSelection(App.OverlayConfig.MotionDotOutlineColorPreset);
+    }
+
+    private void OutlineCustomColor_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        var dialog = new ColorDialog();
+        var color = App.OverlayConfig.GetOutlineColor();
+        dialog.Color = System.Windows.Media.Color.FromArgb(255, color.R, color.G, color.B);
+
+        if (dialog.ShowDialog() == true)
+        {
+            App.OverlayConfig.MotionDotOutlineColorPreset = OutlineColorPreset.Custom;
+            App.OverlayConfig.MotionDotOutlineCustomHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+            OutlineSwatchCustom.Background = new SolidColorBrush(dialog.Color);
+            UpdateOutlineSelection(OutlineColorPreset.Custom);
+        }
+    }
+
+    private void MotionOutlineWidth_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || MotionOutlineWidthLabel == null) return;
+        App.OverlayConfig.MotionDotOutlineWidth = Math.Round(SliderMotionOutlineWidth.Value, 1);
+        MotionOutlineWidthLabel.Text = App.OverlayConfig.MotionDotOutlineWidth.ToString("0.0") + " px";
     }
 
     private void MotionParallaxAmount_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

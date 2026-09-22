@@ -72,6 +72,7 @@ internal static class OsdTextBuilder
             HotkeyNames.CycleOverlayColor => $"{res("Osd_OverlayColor")}: {ColorLabel(overlay.ColorPreset, res)}",
             HotkeyNames.CycleCrosshairColor => $"{res("Osd_CrosshairColor")}: {ColorLabel(crosshair.ColorPreset, res)}",
             HotkeyNames.CycleTargetMonitor => targetMonitorLabel,
+            HotkeyNames.CycleOutlineColor => $"{res("Motion_Outline")}: {OutlineLabel(overlay.MotionDotOutlineColorPreset, res)}",
             _ => null
         };
     }
@@ -82,5 +83,12 @@ internal static class OsdTextBuilder
         ColorPreset.Blue => res("Color_Blue"),
         ColorPreset.Custom => res("Color_Custom"),
         _ => res("Color_Red")
+    };
+
+    private static string OutlineLabel(OutlineColorPreset preset, Func<string, string> res) => preset switch
+    {
+        OutlineColorPreset.Black => res("Outline_Black"),
+        OutlineColorPreset.Custom => res("Color_Custom"),
+        _ => res("Outline_White")
     };
 }

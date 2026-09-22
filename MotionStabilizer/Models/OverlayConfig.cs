@@ -53,6 +53,12 @@ public class OverlayConfig : ObservableObject
     private bool _motionParallaxScale = true;
     private double _motionParallaxAmount = 0.8;
 
+    // ── Motion dot outline ──
+    private bool _motionDotOutlineEnabled = false;
+    private OutlineColorPreset _motionDotOutlineColorPreset = OutlineColorPreset.White;
+    private string _motionDotOutlineCustomHex = "#FFFFFF";
+    private double _motionDotOutlineWidth = 2.0;
+
     public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
     public OverlayShape Shape { get => _shape; set => SetProperty(ref _shape, value); }
     public AspectRatio AspectRatio { get => _aspectRatio; set => SetProperty(ref _aspectRatio, value); }
@@ -126,6 +132,44 @@ public class OverlayConfig : ObservableObject
     public bool MotionInverted { get => _motionInverted; set => SetProperty(ref _motionInverted, value); }
     public bool MotionParallaxScale { get => _motionParallaxScale; set => SetProperty(ref _motionParallaxScale, value); }
     public double MotionParallaxAmount { get => _motionParallaxAmount; set => SetProperty(ref _motionParallaxAmount, value); }
+
+    // ── Motion dot outline ──
+
+    /// <summary>
+    /// Draw a contrasting ring around each dot. Off by default: it costs an extra
+    /// draw call per dot and most scenes do not need it — it exists for bright
+    /// frames (snow, desert, daylight) where a solid dot washes out.
+    /// </summary>
+    public bool MotionDotOutlineEnabled { get => _motionDotOutlineEnabled; set => SetProperty(ref _motionDotOutlineEnabled, value); }
+
+    /// <summary>Outline colour preset. White by default, which stays visible on
+    /// both dark and mid-tone frames.</summary>
+    public OutlineColorPreset MotionDotOutlineColorPreset
+    {
+        get => _motionDotOutlineColorPreset;
+        set => SetProperty(ref _motionDotOutlineColorPreset, value);
+    }
+
+    public string MotionDotOutlineCustomHex { get => _motionDotOutlineCustomHex; set => SetProperty(ref _motionDotOutlineCustomHex, value); }
+
+    /// <summary>
+    /// Outline thickness in pixels. Deliberately absolute rather than a fraction
+    /// of the dot radius: dots shrink near the screen centre (parallax) and a
+    /// proportional outline would vanish exactly where it is needed most.
+    /// </summary>
+    public double MotionDotOutlineWidth { get => _motionDotOutlineWidth; set => SetProperty(ref _motionDotOutlineWidth, value); }
+
+    /// <summary>Effective outline colour, resolving the custom hex when selected.</summary>
+    public Color GetOutlineColor()
+    {
+        return MotionDotOutlineColorPreset switch
+        {
+            OutlineColorPreset.White => Color.FromRgb(0xFF, 0xFF, 0xFF),
+            OutlineColorPreset.Black => Color.FromRgb(0x00, 0x00, 0x00),
+            OutlineColorPreset.Custom => TryParseColor(MotionDotOutlineCustomHex, Color.FromRgb(0xFF, 0xFF, 0xFF)),
+            _ => Color.FromRgb(0xFF, 0xFF, 0xFF)
+        };
+    }
 
     /// <summary>Returns the actual Color based on preset or custom value.</summary>
     public Color GetColor()
