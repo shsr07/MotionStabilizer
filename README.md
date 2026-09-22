@@ -80,7 +80,7 @@
 
 > **校验 / Checksum (v2.9.0)**
 >
-> SHA-256: `<发布 Release 后填入>`
+> SHA-256: `075EF704D4F07A70D04868CC86FA0E3E78E01139E3AA22B29C658BD031D33978`
 >
 > 验证方式 / Verify:
 > - Windows: `certutil -hashfile MotionStabilizer-v2.9.0-win-x64.zip SHA256`

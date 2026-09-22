@@ -76,7 +76,7 @@
 
 > **Checksum (v2.9.0)**
 >
-> SHA-256: `<fill in after publishing the release>`
+> SHA-256: `075EF704D4F07A70D04868CC86FA0E3E78E01139E3AA22B29C658BD031D33978`
 >
 > Verify:
 > - Windows: `certutil -hashfile MotionStabilizer-v2.9.0-win-x64.zip SHA256`

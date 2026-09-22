@@ -77,5 +77,8 @@ MotionStabilizer-v*.zip
 ## ZCode AI session artifacts
 .zcode/
 
+## WorkBuddy session data (project memory + temp build logs) — never push
+.workbuddy/
+
 ## Release checksum sidecars
 *.zip.SHA256
