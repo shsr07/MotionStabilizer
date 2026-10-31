@@ -12,14 +12,14 @@ namespace MotionStabilizer.Models;
 public class OverlayConfig : ObservableObject
 {
     private bool _isVisible = false;
-    private OverlayShape _shape = OverlayShape.Pole;
+    private OverlayShape _shape = OverlayShape.DotMatrix;
     private AspectRatio _aspectRatio = AspectRatio.Ratio16x9;
     private SizePreset _size = SizePreset.M;
     private OffsetLevel _length = OffsetLevel.Plus0;
     private DisplayMode _mode = DisplayMode.Stretch;
     private SplitScreen _split = SplitScreen.None;
-    private ColorPreset _colorPreset = ColorPreset.Green;
-    private string _customColorHex = "#FFFF00";
+    private ColorPreset _colorPreset = ColorPreset.Custom;
+    private string _customColorHex = "#FFFFFF";
     private int _opacity = 60;
 
     // ── Per-edge visibility & opacity ──
@@ -54,10 +54,17 @@ public class OverlayConfig : ObservableObject
     private double _motionParallaxAmount = 0.8;
 
     // ── Overlay outline (shared by the static shapes and the motion dots) ──
-    private bool _overlayOutlineEnabled = false;
-    private OutlineColorPreset _overlayOutlineColorPreset = OutlineColorPreset.White;
+    private bool _overlayOutlineEnabled = true;
+    private OutlineColorPreset _overlayOutlineColorPreset = OutlineColorPreset.Black;
     private string _overlayOutlineCustomHex = "#FFFFFF";
-    private double _overlayOutlineWidth = 2.0;
+    private double _overlayOutlineWidth = 1.0;
+
+    // ── Static dot matrix (DotMatrix shape) ──
+    private DotMatrixGrid _dotMatrixGrid = DotMatrixGrid.Grid4x4;
+    private bool _dotMatrixSoftGlow = true;
+    private double _dotMatrixCoreDiameter = 10.0;
+    private OffsetLevel _dotMatrixSpacingLevel = OffsetLevel.Plus3;
+    private double _dotMatrixOutlineWidth = 1.0;
 
     public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
     public OverlayShape Shape { get => _shape; set => SetProperty(ref _shape, value); }
@@ -137,7 +144,8 @@ public class OverlayConfig : ObservableObject
 
     /// <summary>
     /// Draw a contrasting outline around the overlay: a ring on each motion dot
-    /// and a border on the static shapes (pole, box, dome, flag). Off by default.
+    /// and a border on the static shapes (pole, box, dome, flag). On by default,
+    /// in black.
     /// It costs one extra draw per element, and exists for bright frames (snow,
     /// desert, daylight) where the plain overlay washes out against the game.
     /// </summary>
@@ -160,6 +168,53 @@ public class OverlayConfig : ObservableObject
     /// </summary>
     public double OverlayOutlineWidth { get => _overlayOutlineWidth; set => SetProperty(ref _overlayOutlineWidth, value); }
 
+    // ── Static dot matrix (DotMatrix shape) ──
+
+    /// <summary>
+    /// Grid density of the static dot matrix. The dot positions themselves are
+    /// percentage-based (see RenderHelper.DotMatrixMarginXRatio), so every grid
+    /// stays evenly distributed at any resolution and aspect ratio.
+    /// </summary>
+    public DotMatrixGrid DotMatrixGrid { get => _dotMatrixGrid; set => SetProperty(ref _dotMatrixGrid, value); }
+
+    /// <summary>
+    /// Draw a soft halo AROUND the outermost columns' dots. The dots themselves
+    /// stay hard-edged solid discs — the glow never alters the dot body, it
+    /// only adds a bloom behind the edge columns, which sit over the dark
+    /// screen edges where it reads well. On bright scenes the outline
+    /// (OverlayOutlineEnabled) is the visibility remedy.
+    /// </summary>
+    public bool DotMatrixSoftGlow { get => _dotMatrixSoftGlow; set => SetProperty(ref _dotMatrixSoftGlow, value); }
+
+    /// <summary>
+    /// Bright-core diameter of each dot in reference pixels at 1080p (default
+    /// 10, UI range 5–25). The value is scaled proportionally with the
+    /// draw-area height at render time, so the grid keeps the same relative
+    /// dot size on every resolution and DPI scale. Edited through the shared
+    /// "尺寸" slider while the dot matrix shape is active.
+    /// </summary>
+    public double DotMatrixCoreDiameter { get => _dotMatrixCoreDiameter; set => SetProperty(ref _dotMatrixCoreDiameter, value); }
+
+    /// <summary>
+    /// Column-spacing level for the dot matrix, edited through the shared
+    /// "长度"/列间距 slider while the dot matrix shape is active. The middle
+    /// value (+3) reproduces the measured reference layout; lower levels
+    /// compress the columns toward the screen centre, higher levels spread
+    /// them toward the screen edges — the edge margins always follow the
+    /// spacing so both move together (see RenderHelper.ComputeDotMatrixCenters).
+    /// Other shapes keep using <see cref="Length"/> unchanged.
+    /// </summary>
+    public OffsetLevel DotMatrixSpacingLevel { get => _dotMatrixSpacingLevel; set => SetProperty(ref _dotMatrixSpacingLevel, value); }
+
+    /// <summary>
+    /// Outline thickness for the dot matrix, edited through the shared
+    /// outline-width slider while the dot matrix shape is active. Kept separate
+    /// from <see cref="OverlayOutlineWidth"/> so adjusting one shape's ring
+    /// does not move the other's; both default to 1px. The on/off toggle and
+    /// the outline colour are shared with every other shape.
+    /// </summary>
+    public double DotMatrixOutlineWidth { get => _dotMatrixOutlineWidth; set => SetProperty(ref _dotMatrixOutlineWidth, value); }
+
     /// <summary>Effective outline colour, resolving the custom hex when selected.</summary>
     public Color GetOutlineColor()
     {
@@ -180,7 +235,7 @@ public class OverlayConfig : ObservableObject
             ColorPreset.Red => Color.FromRgb(0xFF, 0x00, 0x00),
             ColorPreset.Green => Color.FromRgb(0x00, 0xFF, 0x00),
             ColorPreset.Blue => Color.FromRgb(0x00, 0x99, 0xFF),
-            ColorPreset.Custom => TryParseColor(CustomColorHex, Color.FromRgb(0x00, 0xFF, 0x00)),
+            ColorPreset.Custom => TryParseColor(CustomColorHex, Color.FromRgb(0xFF, 0xFF, 0xFF)),
             _ => Color.FromRgb(0x00, 0xFF, 0x00)
         };
     }

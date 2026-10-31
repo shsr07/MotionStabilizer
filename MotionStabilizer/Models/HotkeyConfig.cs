@@ -76,9 +76,9 @@ public class HotkeyConfig
     public HotkeyBinding ToggleCrosshair { get; set; } = new() { Name = HotkeyNames.ToggleCrosshair, Key = "F2" };
     public HotkeyBinding ToggleClock { get; set; } = new() { Name = HotkeyNames.ToggleClock, Key = "F3" };
 
-    // Unbound by default, same reasoning as CycleOutlineColor: the outline is an
-    // optional feature and the F-row is already crowded.
-    public HotkeyBinding ToggleOutline { get; set; } = new() { Name = HotkeyNames.ToggleOutline };
+    // F8: the outline is on by default, so it gets a default toggle too — the
+    // only free key in the F-row.
+    public HotkeyBinding ToggleOutline { get; set; } = new() { Name = HotkeyNames.ToggleOutline, Key = "F8" };
     public HotkeyBinding CycleDisplayMode { get; set; } = new() { Name = HotkeyNames.CycleDisplayMode, Key = "F6" };
     public HotkeyBinding CycleSplitScreen { get; set; } = new() { Name = HotkeyNames.CycleSplitScreen };
     public HotkeyBinding CycleOverlayShape { get; set; } = new() { Name = HotkeyNames.CycleOverlayShape, Key = "F4" };

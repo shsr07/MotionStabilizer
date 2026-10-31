@@ -53,6 +53,7 @@
     <sys:String x:Key="Shape_Cross">十字</sys:String>
     <sys:String x:Key="Shape_Diamond">菱形</sys:String>
     <sys:String x:Key="Shape_MotionDots">动态圆点</sys:String>
+    <sys:String x:Key="Shape_DotMatrix">静态点阵</sys:String>
 
     <!-- Display Modes -->
     <sys:String x:Key="Mode_Window">窗口模式</sys:String>
@@ -89,6 +90,14 @@
     <sys:String x:Key="OpacityMode_Uniform">统一</sys:String>
     <sys:String x:Key="OpacityMode_PerEdge">单独</sys:String>
 
+    <!-- Static Dot Matrix -->
+    <sys:String x:Key="DotMatrix_SettingsCard">静态点阵设置</sys:String>
+    <sys:String x:Key="DotMatrix_Desc">在屏幕上均匀分布 N×N 个静止圆点，为周边视觉提供稳定的运动参照。</sys:String>
+    <sys:String x:Key="DotMatrix_Grid">网格密度</sys:String>
+    <sys:String x:Key="DotMatrix_SoftGlow">柔边光晕</sys:String>
+    <sys:String x:Key="DotMatrix_SoftGlowHint">在最左、最右两列圆点周围绘制柔和光晕；亮色场景建议配合叠加层描边。</sys:String>
+    <sys:String x:Key="DotMatrix_ColumnSpacing">列间距</sys:String>
+
     <!-- Motion Dots -->
     <sys:String x:Key="Motion_SettingsCard">动态圆点设置</sys:String>
     <sys:String x:Key="Motion_Desc">在屏幕两侧显示根据鼠标移动而变化的动态圆点，提供视觉运动错点。功能生效期间会占用 GPU。</sys:String>
@@ -105,6 +114,8 @@
     <sys:String x:Key="Motion_InvertDirection">反转运动方向（鼠标、键盘和手柄控制反向）</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">视差缩放（圆点靠近屏幕中线时自动缩小）</sys:String>
     <sys:String x:Key="Overlay_Outline">叠加层描边</sys:String>
+    <sys:String x:Key="Crosshair_Outline">准星描边</sys:String>
+    <sys:String x:Key="Crosshair_OutlineHint">为准星加一圈对比色轮廓，亮色场景提升可见度</sys:String>
     <sys:String x:Key="Overlay_OutlineHint">为叠加层形状与动态圆点加一圈对比色轮廓</sys:String>
     <sys:String x:Key="Overlay_OutlineWidth">粗细</sys:String>
     <sys:String x:Key="Color_CustomHint">带调色板图标的色块用于自定义颜色，点击可打开取色器。</sys:String>
@@ -175,7 +186,7 @@
     <sys:String x:Key="Hotkeys_RegFail_Title">快捷键注册失败</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">以下快捷键可能被其他程序占用，无法注册：</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Title">快捷键占用提示</sys:String>
-    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">程序默认占用了 F1–F7、F9、F10 全局快捷键（未加修饰键）。程序运行期间这些按键会被本程序全局拦截，比如某些游戏内的 F1 帮助、F5 快速存档等对应功能将无法响应。\n\n如与您的游戏或常用软件冲突，请进入「快捷键绑定」页面修改按键组合，或点击输入框后按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">程序默认占用了 F1–F8、F9、F10 全局快捷键（未加修饰键）。程序运行期间这些按键会被本程序全局拦截，比如某些游戏内的 F1 帮助、F5 快速存档等对应功能将无法响应。\n\n如与您的游戏或常用软件冲突，请进入「快捷键绑定」页面修改按键组合，或点击输入框后按 Esc 解除绑定。</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Ack">我已知晓</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">开关边缘叠加</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">开关中心准星</sys:String>

@@ -249,34 +249,48 @@ public static class RenderHelper
     }
 
     /// <summary>
-    /// Add a filled rectangle, preceded — when outlines are on — by a slightly
-    /// larger copy in the outline colour underneath it.
-    /// Drawing the outline as a solid underlay instead of Shape.Stroke matters
-    /// for Box: its four rectangles overlap at the corners, and a per-rectangle
-    /// Stroke would draw lines straight across the inside of the frame. The
-    /// underlays merge into one continuous ring that the fill then covers,
-    /// leaving an even border on both the outside and the inside of the frame.
+    /// Add a filled rectangle plus — when outlines are on — an outline ring
+    /// built from four strips that sit entirely OUTSIDE the fill.
+    /// The ring must never extend under the fill: fills are translucent (the
+    /// opacity slider), so a larger underlay rectangle would darken the whole
+    /// fill area (white fill over a black underlay renders grey) and make
+    /// outlined rectangles inconsistent with the stroked paths (pole tip,
+    /// dome, flag), whose fills sit directly on the background.
+    /// Individual sides can be excluded (outlineTop/Bottom/Left/Right) for
+    /// composite shapes whose parts join flush — the pole skips the side
+    /// where its triangular tip attaches, so no seam line crosses the shape.
     /// </summary>
     private static void AddRect(List<Shape> result, Brush fill, Brush? outline, double outlineW,
-        double x, double y, double w, double h)
+        double x, double y, double w, double h,
+        bool outlineTop = true, bool outlineBottom = true, bool outlineLeft = true, bool outlineRight = true)
     {
         if (outline != null && outlineW > 0)
         {
-            var under = new Rectangle
-            {
-                Fill = outline,
-                Width = w + outlineW * 2,
-                Height = h + outlineW * 2
-            };
-            Canvas.SetLeft(under, x - outlineW);
-            Canvas.SetTop(under, y - outlineW);
-            result.Add(under);
+            // Four strips around the fill. The horizontal strips span the full
+            // outline width so they cover the corners — no gaps, no overlaps,
+            // therefore no double-blended seams between strips.
+            if (outlineTop)
+                AddRectStrip(result, outline, x - outlineW, y - outlineW, w + outlineW * 2, outlineW);
+            if (outlineBottom)
+                AddRectStrip(result, outline, x - outlineW, y + h, w + outlineW * 2, outlineW);
+            if (outlineLeft)
+                AddRectStrip(result, outline, x - outlineW, y, outlineW, h);
+            if (outlineRight)
+                AddRectStrip(result, outline, x + w, y, outlineW, h);
         }
 
         var rect = new Rectangle { Fill = fill, Width = w, Height = h };
         Canvas.SetLeft(rect, x);
         Canvas.SetTop(rect, y);
         result.Add(rect);
+    }
+
+    private static void AddRectStrip(List<Shape> result, Brush outline, double x, double y, double w, double h)
+    {
+        var strip = new Rectangle { Fill = outline, Width = w, Height = h };
+        Canvas.SetLeft(strip, x);
+        Canvas.SetTop(strip, y);
+        result.Add(strip);
     }
 
     private static List<Shape> BuildSingleOverlay(OverlayConfig cfg, Rect area, double sizePx, double lengthPx, double dpiRatio, Color color)
@@ -335,44 +349,54 @@ public static class RenderHelper
                 if (cfg.IsEdgeVisible(EdgeSide.Top))
                 {
                     AddRect(result, brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
-                        cx - poleThick / 2, y, poleThick, lenV - tipLen);
+                        cx - poleThick / 2, y, poleThick, lenV - tipLen,
+                        outlineBottom: false);
+                    // Open figure starting at the base so the stroke draws only
+                    // the two slants — the joint with the body stays clean.
                     result.Add(MakeTriangle(brushFor(EdgeSide.Top), outlineBrushFor(EdgeSide.Top), outlineW,
                         cx - poleThick / 2, y + lenV - tipLen,
+                        cx, y + lenV,
                         cx + poleThick / 2, y + lenV - tipLen,
-                        cx, y + lenV));
+                        closed: false));
                 }
 
                 // Bottom edge — vertical pole pointing up into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Bottom))
                 {
                     AddRect(result, brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
-                        cx - poleThick / 2, y + h - (lenV - tipLen), poleThick, lenV - tipLen);
+                        cx - poleThick / 2, y + h - (lenV - tipLen), poleThick, lenV - tipLen,
+                        outlineTop: false);
                     result.Add(MakeTriangle(brushFor(EdgeSide.Bottom), outlineBrushFor(EdgeSide.Bottom), outlineW,
                         cx - poleThick / 2, y + h - lenV + tipLen,
+                        cx, y + h - lenV,
                         cx + poleThick / 2, y + h - lenV + tipLen,
-                        cx, y + h - lenV));
+                        closed: false));
                 }
 
                 // Left edge — horizontal pole pointing right into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Left))
                 {
                     AddRect(result, brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
-                        x, cy - poleThick / 2, lenH - tipLen, poleThick);
+                        x, cy - poleThick / 2, lenH - tipLen, poleThick,
+                        outlineRight: false);
                     result.Add(MakeTriangle(brushFor(EdgeSide.Left), outlineBrushFor(EdgeSide.Left), outlineW,
                         x + lenH - tipLen, cy - poleThick / 2,
+                        x + lenH, cy,
                         x + lenH - tipLen, cy + poleThick / 2,
-                        x + lenH, cy));
+                        closed: false));
                 }
 
                 // Right edge — horizontal pole pointing left into the screen
                 if (cfg.IsEdgeVisible(EdgeSide.Right))
                 {
                     AddRect(result, brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
-                        x + w - (lenH - tipLen), cy - poleThick / 2, lenH - tipLen, poleThick);
+                        x + w - (lenH - tipLen), cy - poleThick / 2, lenH - tipLen, poleThick,
+                        outlineLeft: false);
                     result.Add(MakeTriangle(brushFor(EdgeSide.Right), outlineBrushFor(EdgeSide.Right), outlineW,
                         x + w - lenH + tipLen, cy - poleThick / 2,
+                        x + w - lenH, cy,
                         x + w - lenH + tipLen, cy + poleThick / 2,
-                        x + w - lenH, cy));
+                        closed: false));
                 }
                 break;
 
@@ -477,8 +501,201 @@ public static class RenderHelper
                         x + w, cy + triBase / 2,
                         x + w - triHeight, cy));
                 break;
+
+            case OverlayShape.DotMatrix:
+                // ── Static N×N grid of reference dots, evenly distributed across
+                //     the draw area. Split and per-edge visibility do not apply —
+                //     a full-screen grid has no edges. ──
+                BuildDotMatrix(result, cfg, area, dpiRatio, color);
+                break;
         }
         return result;
+    }
+
+    // ── Static dot matrix ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Horizontal inset of the outermost dot centres for the 4×4 reference
+    /// grid, as a fraction of the area width — 17.5% in the reference
+    /// screenshot. Denser grids derive their margins from this ratio (see
+    /// <see cref="ComputeDotMatrixCenters"/>).
+    /// </summary>
+    public const double DotMatrixMarginXRatio = 0.175;
+
+    /// <summary>
+    /// Vertical inset of the outermost dot centres for the 4×4 reference
+    /// grid, as a fraction of the area height — 7.75% in the reference
+    /// screenshot.
+    /// </summary>
+    public const double DotMatrixMarginYRatio = 0.0775;
+
+    /// <summary>
+    /// Edge-margin-to-spacing ratios preserved from the measured 4×4
+    /// reference (17.5%W margin vs 21.67%W spacing → margin ≈ 0.808 ×
+    /// spacing horizontally; 7.75%H vs 28.17%H → ≈ 0.275 vertically).
+    /// Every density keeps its grid's ratio, so denser grids shrink the
+    /// edge margins in the same proportion as the spacing and the pattern
+    /// stays self-similar instead of crowding against fixed margins.
+    /// </summary>
+    public const double DotMatrixMarginPerSpacingX = DotMatrixMarginXRatio * 3 / (1 - 2 * DotMatrixMarginXRatio);
+    public const double DotMatrixMarginPerSpacingY = DotMatrixMarginYRatio * 3 / (1 - 2 * DotMatrixMarginYRatio);
+
+    /// <summary>
+    /// Draw-area height the dot-matrix core diameter is specified against: a
+    /// configured diameter of 10 is exactly 10 px on a 1080p-high draw area
+    /// and scales proportionally everywhere else (see <see cref="DotMatrixCoreDiameterPx"/>).
+    /// </summary>
+    public const double DotMatrixReferenceHeight = 1080.0;
+
+    /// <summary>Number of dots per side for a dot-matrix grid preset.</summary>
+    public static int DotMatrixDotCount(DotMatrixGrid grid) => grid switch
+    {
+        DotMatrixGrid.Grid5x5 => 5,
+        DotMatrixGrid.Grid6x6 => 6,
+        _ => 4
+    };
+
+    /// <summary>
+    /// Horizontal spacing change per 列间距 (column-spacing) level, as a
+    /// fraction of the reference spacing. The middle level (+3) is the
+    /// measured reference layout; each step scales the spacing by 10%, so
+    /// the usable range is 0.7×–1.3× — wide enough to feel responsive while
+    /// keeping the outer dot centres on-screen even at 6×6.
+    /// </summary>
+    public const double DotMatrixSpacingStepPerLevel = 0.1;
+
+    /// <summary>
+    /// Centre positions of the N×N dot matrix inside a draw area of the given
+    /// size, relative to its top-left corner. Pure geometry — no Win32 calls
+    /// and no element building — so the layout is unit-testable in isolation.
+    ///
+    /// Horizontally, <paramref name="spacingLevel"/> scales the reference
+    /// column spacing around its middle value (+3 = the measured reference
+    /// layout); the edge margins absorb the difference symmetrically, so the
+    /// spacing between dots and between the outer columns and the screen
+    /// edges always moves together. Vertically, dots are evenly spaced
+    /// between margins that keep the reference 4×4 pattern's
+    /// margin-to-spacing ratio at every density. The layout follows whatever
+    /// rectangle is passed in, so resolution, aspect ratio and window mode
+    /// are handled by the caller's draw area.
+    /// </summary>
+    public static List<Point> ComputeDotMatrixCenters(DotMatrixGrid grid, OffsetLevel spacingLevel, double width, double height)
+    {
+        var centers = new List<Point>();
+        int n = DotMatrixDotCount(grid);
+        if (n < 2 || width <= 0 || height <= 0) return centers;
+
+        double refSpacingX = width / (n - 1 + 2 * DotMatrixMarginPerSpacingX);
+        double spacingX = refSpacingX * (1 + ((int)spacingLevel - 3) * DotMatrixSpacingStepPerLevel);
+        double marginX = (width - (n - 1) * spacingX) / 2;
+
+        double stepY = height / (n - 1 + 2 * DotMatrixMarginPerSpacingY);
+        double y0 = DotMatrixMarginPerSpacingY * stepY;
+
+        for (int row = 0; row < n; row++)
+        {
+            for (int col = 0; col < n; col++)
+            {
+                centers.Add(new Point(marginX + col * spacingX, y0 + row * stepY));
+            }
+        }
+        return centers;
+    }
+
+    /// <summary>
+    /// On-screen core diameter for the dot matrix, in canvas DIP: the configured
+    /// value is interpreted against a 1080p-high draw area and scaled with the
+    /// actual area height, so the grid keeps the same relative dot size at any
+    /// resolution (physical px = value × areaHeightPx / 1080, DPI-independent).
+    /// </summary>
+    public static double DotMatrixCoreDiameterPx(OverlayConfig cfg, double areaHeight)
+    {
+        double dia = cfg.DotMatrixCoreDiameter * areaHeight / DotMatrixReferenceHeight;
+        return Math.Max(dia, 2.0); // never let extreme ratios shrink dots to invisibility
+    }
+
+    /// <summary>
+    /// Build the static dot-matrix shapes for one draw area. Shares the overlay
+    /// colour (the F9 cycle) and the outline settings with the other shapes.
+    /// Every dot is a solid, hard-edged disc; the soft glow never alters the
+    /// dot body — it only draws a bloom behind the outermost columns' dots.
+    /// The halo is one shared brush; every halo dot renders with the identical
+    /// gradient, whose inner stop matches the core rim so the bloom starts
+    /// seamlessly at the dot edge.
+    /// </summary>
+    private static void BuildDotMatrix(List<Shape> result, OverlayConfig cfg, Rect area, double dpiRatio, Color color)
+    {
+        var centers = ComputeDotMatrixCenters(cfg.DotMatrixGrid, cfg.DotMatrixSpacingLevel, area.Width, area.Height);
+        if (centers.Count == 0) return;
+
+        int n = DotMatrixDotCount(cfg.DotMatrixGrid);
+        byte alpha = OpacityToByte(cfg.Opacity);
+        double dia = DotMatrixCoreDiameterPx(cfg, area.Height);
+
+        bool outlineOn = cfg.OverlayOutlineEnabled;
+        // The dot matrix keeps its own outline width so the ring can differ
+        // per shape (both default to 1px); the toggle and colour are shared.
+        double outlineW = outlineOn ? Math.Clamp(cfg.DotMatrixOutlineWidth, 0.5, 5.0) * dpiRatio : 0;
+        var outlineColor = cfg.GetOutlineColor();
+        var outlineBrush = outlineOn
+            ? new SolidColorBrush(Color.FromArgb(alpha, outlineColor.R, outlineColor.G, outlineColor.B))
+            : null;
+
+        Brush? haloBrush = null;
+        if (cfg.DotMatrixSoftGlow)
+        {
+            // The glow is a separate backdrop layer that never touches the dot
+            // body: the solid core is drawn on top and covers the gradient's
+            // centre, and the gradient is dimmer than the dot everywhere the
+            // glow is visible — 40% of the dot opacity at the core rim, then
+            // a smooth falloff — so the crisp dot always reads on top of the
+            // bloom.
+            haloBrush = new RadialGradientBrush
+            {
+                GradientStops =
+                {
+                    new GradientStop(Color.FromArgb(alpha, color.R, color.G, color.B), 0),
+                    new GradientStop(Color.FromArgb((byte)(alpha * 0.4), color.R, color.G, color.B), 1.0 / 3.0),
+                    new GradientStop(Color.FromArgb((byte)(alpha * 0.18), color.R, color.G, color.B), 0.66),
+                    new GradientStop(Colors.Transparent, 1)
+                }
+            };
+        }
+
+        var coreBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+
+        // Halo spans 3× the core diameter (reference: ~6px core, ~20px halo at 1080p).
+        double haloDia = dia * 3;
+
+        for (int i = 0; i < centers.Count; i++)
+        {
+            int col = i % n; // centers are row-major
+            bool haloColumn = col == 0 || col == n - 1;
+
+            // Halo first, core on top: the solid disc always covers the
+            // gradient's centre, so the glow can never alter the dot itself.
+            if (haloBrush != null && haloColumn)
+            {
+                var halo = new Ellipse { Width = haloDia, Height = haloDia, Fill = haloBrush };
+                Canvas.SetLeft(halo, area.X + centers[i].X - haloDia / 2);
+                Canvas.SetTop(halo, area.Y + centers[i].Y - haloDia / 2);
+                result.Add(halo);
+            }
+
+            // Stroke is centred on the rim: the visible ring weight then
+            // matches the outline strips (config value = visible line width).
+            var core = new Ellipse
+            {
+                Width = dia,
+                Height = dia,
+                Fill = coreBrush,
+                Stroke = outlineBrush,
+                StrokeThickness = outlineBrush != null ? outlineW : 0
+            };
+            Canvas.SetLeft(core, area.X + centers[i].X - dia / 2);
+            Canvas.SetTop(core, area.Y + centers[i].Y - dia / 2);
+            result.Add(core);
+        }
     }
 
     /// <summary>Create a filled half-ellipse (semi-elliptical disc).
@@ -522,7 +739,7 @@ public static class RenderHelper
             Stroke = outline,
             // Strokes are centred on the edge, so use twice the width to expose
             // the same w outside as the rectangle underlay does.
-            StrokeThickness = outline != null ? outlineW * 2 : 0,
+            StrokeThickness = outline != null ? outlineW : 0,
             Data = new PathGeometry
             {
                 Figures = { new PathFigure
@@ -544,23 +761,29 @@ public static class RenderHelper
         };
     }
 
-    /// <summary>Create a filled triangle from three points.</summary>
+    /// <summary>
+    /// Create a filled triangle from three points. With <paramref name="closed"/>
+    /// set to false the figure stays open: the fill is still solid (WPF closes
+    /// open figures implicitly for filling), but the stroke skips the implicit
+    /// base edge — used by the pole tip so no outline seam crosses the joint
+    /// where the triangle meets the pole's rectangular body.
+    /// </summary>
     private static System.Windows.Shapes.Path MakeTriangle(Brush brush, Brush? outline, double outlineW,
-        double x1, double y1, double x2, double y2, double x3, double y3)
+        double x1, double y1, double x2, double y2, double x3, double y3, bool closed = true)
     {
         return new System.Windows.Shapes.Path
         {
             Fill = brush,
             Stroke = outline,
-            // Strokes are centred on the edge, so use twice the width to expose
-            // the same w outside as the rectangle underlay does.
-            StrokeThickness = outline != null ? outlineW * 2 : 0,
+            // Strokes are centred on the edge: the visible band weight then
+            // matches the outline strips (config value = visible line width).
+            StrokeThickness = outline != null ? outlineW : 0,
             Data = new PathGeometry
             {
                 Figures = { new PathFigure
                 {
                     StartPoint = new Point(x1, y1),
-                    IsClosed = true,
+                    IsClosed = closed,
                     Segments =
                     {
                         new LineSegment(new Point(x2, y2), true),
@@ -596,6 +819,21 @@ public static class RenderHelper
         double size = CrosshairSize(cfg.Size) * dpiRatio;
         double thick = CrosshairThickness(cfg.Thickness) * dpiRatio;
 
+        // Outline: flanking bands that sit entirely OUTSIDE every element —
+        // the outline colour never lands under the translucent strokes, so the
+        // crosshair keeps blending with the game exactly as it does with the
+        // outline off (a backdrop copy would turn translucent strokes grey).
+        Brush? outlineBrush = null;
+        if (cfg.OutlineEnabled)
+        {
+            var outlineColor = cfg.GetOutlineColor();
+            outlineBrush = new SolidColorBrush(
+                Color.FromArgb(OpacityToByte(cfg.Opacity), outlineColor.R, outlineColor.G, outlineColor.B));
+        }
+        double outlineW = cfg.OutlineEnabled
+            ? Math.Clamp(cfg.OutlineWidth, 0.1, 3.0) * dpiRatio
+            : 0;
+
         double monW = monitorBounds.Width;
         double monH = monitorBounds.Height;
 
@@ -628,10 +866,99 @@ public static class RenderHelper
 
         foreach (var (px, py) in positions)
         {
+            // Flanking outline bands first (purely outside the strokes), then
+            // the coloured crosshair on top.
+            if (outlineBrush != null)
+            {
+                switch (cfg.Shape)
+                {
+                    case CrosshairShape.Circle:
+                        shapes.Add(FlankingRingOutline(px, py, size / 2 - thick / 2, size / 2 + thick / 2, outlineW, outlineBrush));
+                        break;
+                    case CrosshairShape.Cross:
+                        shapes.Add(FlankingCrossOutline(px, py, thick / 2, size / 2, outlineW, outlineBrush));
+                        break;
+                    case CrosshairShape.Diamond:
+                        shapes.Add(FlankingDiamondOutline(px, py, size / 2, outlineW, outlineBrush));
+                        break;
+                }
+            }
             shapes.AddRange(BuildSingleCrosshair(cfg.Shape, px, py, size, thick, brush));
         }
 
         return shapes;
+    }
+
+    // ── Crosshair outline geometry ──
+    // Each helper builds a band of the given width that flanks a crosshair
+    // element without covering it, so the translucent strokes keep rendering
+    // exactly as they do with the outline off.
+
+    /// <summary>Band around a ring: four concentric ellipses filled EvenOdd.
+    /// <paramref name="rInner"/>/<paramref name="rOuter"/> are the coloured
+    /// ring's inner/outer edges; the band flanks them inside and out.</summary>
+    private static Shape FlankingRingOutline(double cx, double cy, double rInner, double rOuter, double band, Brush brush)
+    {
+        var group = new GeometryGroup { FillRule = FillRule.EvenOdd };
+        foreach (var r in new[] { rOuter + band, rOuter, rInner, rInner - band })
+        {
+            if (r > 0)
+                group.Children.Add(new EllipseGeometry(new Point(cx, cy), r, r));
+        }
+        return new System.Windows.Shapes.Path { Data = group, Fill = brush };
+    }
+
+    /// <summary>Band around a plus-shaped cross: the dilated 12-gon minus the
+    /// cross itself, filled EvenOdd — the band flanks both arms and their
+    /// ends without entering them.</summary>
+    private static Shape FlankingCrossOutline(double cx, double cy, double armHalf, double lenHalf, double band, Brush brush)
+    {
+        var group = new GeometryGroup { FillRule = FillRule.EvenOdd };
+        group.Children.Add(CrossPolygonGeometry(cx, cy, armHalf + band, lenHalf + band));
+        group.Children.Add(CrossPolygonGeometry(cx, cy, armHalf, lenHalf));
+        return new System.Windows.Shapes.Path { Data = group, Fill = brush };
+    }
+
+    /// <summary>Band around a diamond: the dilated rhombus minus the rhombus
+    /// itself, filled EvenOdd. Dilating the edges outward by <paramref
+    /// name="band"/> scales the half-diagonals by 1 + band·√2 / half.</summary>
+    private static Shape FlankingDiamondOutline(double cx, double cy, double half, double band, Brush brush)
+    {
+        double scale = 1 + band * Math.Sqrt(2) / half;
+        var group = new GeometryGroup { FillRule = FillRule.EvenOdd };
+        group.Children.Add(RhombusGeometry(cx, cy, half * scale));
+        group.Children.Add(RhombusGeometry(cx, cy, half));
+        return new System.Windows.Shapes.Path { Data = group, Fill = brush };
+    }
+
+    private static Geometry CrossPolygonGeometry(double cx, double cy, double armHalf, double lenHalf)
+    {
+        var fig = new PathFigure { StartPoint = new Point(cx - lenHalf, cy - armHalf), IsClosed = true };
+        fig.Segments.Add(new LineSegment(new Point(cx - armHalf, cy - armHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx - armHalf, cy - lenHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx + armHalf, cy - lenHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx + armHalf, cy - armHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx + lenHalf, cy - armHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx + lenHalf, cy + armHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx + armHalf, cy + armHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx + armHalf, cy + lenHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx - armHalf, cy + lenHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx - armHalf, cy + armHalf), true));
+        fig.Segments.Add(new LineSegment(new Point(cx - lenHalf, cy + armHalf), true));
+        var geo = new PathGeometry { FillRule = FillRule.EvenOdd };
+        geo.Figures.Add(fig);
+        return geo;
+    }
+
+    private static Geometry RhombusGeometry(double cx, double cy, double half)
+    {
+        var fig = new PathFigure { StartPoint = new Point(cx, cy - half), IsClosed = true };
+        fig.Segments.Add(new LineSegment(new Point(cx + half, cy), true));
+        fig.Segments.Add(new LineSegment(new Point(cx, cy + half), true));
+        fig.Segments.Add(new LineSegment(new Point(cx - half, cy), true));
+        var geo = new PathGeometry();
+        geo.Figures.Add(fig);
+        return geo;
     }
 
     private static List<Shape> BuildSingleCrosshair(CrosshairShape shape, double cx, double cy, double size, double thick, Brush brush)
@@ -652,29 +979,35 @@ public static class RenderHelper
                 Canvas.SetLeft(circle, cx - half);
                 Canvas.SetTop(circle, cy - half);
                 result.Add(circle);
-                var dot = new Ellipse
+                // Centre dot only while the ring's inner hole can hold it —
+                // once the ring collapses around the centre (very thick ring
+                // on a small size) the hole is already filled by the ring's
+                // inner edge, and stacking the translucent dot there would
+                // brighten the centre.
+                if (thick / 2 <= half - thick / 2)
                 {
-                    Fill = brush,
-                    Width = Math.Max(1, thick),
-                    Height = Math.Max(1, thick)
-                };
-                Canvas.SetLeft(dot, cx - thick / 2);
-                Canvas.SetTop(dot, cy - thick / 2);
-                result.Add(dot);
+                    var dot = new Ellipse
+                    {
+                        Fill = brush,
+                        Width = Math.Max(1, thick),
+                        Height = Math.Max(1, thick)
+                    };
+                    Canvas.SetLeft(dot, cx - thick / 2);
+                    Canvas.SetTop(dot, cy - thick / 2);
+                    result.Add(dot);
+                }
                 break;
 
             case CrosshairShape.Cross:
-                result.Add(CreateLine(cx - half, cy, cx + half, cy, thick, brush));
-                result.Add(CreateLine(cx, cy - half, cx, cy + half, thick, brush));
-                var cdot = new Ellipse
+                // One filled 12-gon instead of two overlapping translucent lines
+                // plus a centre dot: overlapping translucent shapes stack their
+                // alpha, which rendered the centre brighter than the arms at
+                // low opacity. A single polygon keeps the opacity uniform.
+                result.Add(new System.Windows.Shapes.Path
                 {
                     Fill = brush,
-                    Width = Math.Max(2, thick),
-                    Height = Math.Max(2, thick)
-                };
-                Canvas.SetLeft(cdot, cx - thick / 2);
-                Canvas.SetTop(cdot, cy - thick / 2);
-                result.Add(cdot);
+                    Data = CrossPolygonGeometry(cx, cy, thick / 2, half)
+                });
                 break;
 
             case CrosshairShape.Diamond:

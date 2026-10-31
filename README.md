@@ -41,7 +41,7 @@
 > - **运动方向反转** — 可反转鼠标、键盘和手柄控制方向，适应不同游戏视角
 > - **视差缩放** — 圆点靠近屏幕中线时自动缩小，营造自然的运动景深感
 > - **可配置刷新率** — 30–360 Hz 自定义动画刷新率，匹配你的显示器
-> - **叠加层描边** — 可选的一圈对比色轮廓（白 / 黑 / 自定义），同时作用于叠加层形状与动态圆点
+> - **叠加层描边** — 默认开启的一圈对比色轮廓（黑 / 白 / 自定义），同时作用于叠加层形状与动态圆点
 
 - **中心准星 (Crosshair)** — 在屏幕中心绘制准星，提供视觉焦点
 - **悬浮时钟 (Floating Clock)** — 可拖动的实时时钟，支持多种时间格式和描边字体
@@ -71,18 +71,18 @@
 ### 方式一：直接下载（推荐）/ Download (Recommended)
 
 1. 前往 [Releases 页面](https://github.com/shsr07/MotionStabilizer/releases)
-2. 下载 `MotionStabilizer-v2.9.0-win-x64.zip`
+2. 下载 `MotionStabilizer-v2.10.0-win-x64.zip`
 3. 解压到任意目录
 4. 双击 `MotionStabilizer.exe` 即可运行
 
 > 无需安装 .NET 运行时，已内置。
 
-> **校验 / Checksum (v2.9.0)**
+> **校验 / Checksum (v2.10.0)**
 >
-> SHA-256: `075EF704D4F07A70D04868CC86FA0E3E78E01139E3AA22B29C658BD031D33978`
+> SHA-256: `672040CA86BE2D44B0F12705001047AE344AAAD95E8F5D10C5085122CAA148FD`
 >
 > 验证方式 / Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.9.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.10.0-win-x64.zip SHA256`
 
 ### 方式二：从源码构建 / Build from Source
 
@@ -118,10 +118,11 @@ dotnet build -c Release
 | F5 | 切换准星形状 |
 | F6 | 切换显示模式 |
 | F7 | 切换透明度模式 |
+| F8 | 开关叠加层描边 |
 | F9 | 叠加层颜色循环（红/绿/蓝/自定义） |
 | F10 | 准星颜色循环（红/绿/蓝/自定义） |
 
-> 💡 **管理绑定**：在「快捷键绑定」页面点击输入框后，按 **Esc** 取消输入，按 **Delete** 解除绑定。程序默认占用 F1–F7、F9、F10（未加修饰键，会被全局拦截），如与游戏冲突可在该页面修改组合键。
+> 💡 **管理绑定**：在「快捷键绑定」页面点击输入框后，按 **Esc** 取消输入，按 **Delete** 解除绑定。程序默认占用 F1–F8、F9、F10（未加修饰键，会被全局拦截），如与游戏冲突可在该页面修改组合键。
 
 ## 🛠️ 技术栈 / Tech Stack
 

@@ -21,8 +21,14 @@ public class CrosshairConfig : ObservableObject
     private int _positionY = DefaultPositionY;
     private SplitScreen _split = SplitScreen.None;
     private ColorPreset _colorPreset = ColorPreset.Red;
-    private string _customColorHex = "#FFFF00";
+    private string _customColorHex = "#FFFFFF";
     private int _opacity = 80;
+
+    // ── Crosshair outline (mirrors the overlay outline: on by default, black) ──
+    private bool _outlineEnabled = true;
+    private OutlineColorPreset _outlineColorPreset = OutlineColorPreset.Black;
+    private string _outlineCustomHex = "#FFFFFF";
+    private double _outlineWidth = 0.5;
 
     public bool IsVisible { get => _isVisible; set => SetProperty(ref _isVisible, value); }
     public CrosshairShape Shape { get => _shape; set => SetProperty(ref _shape, value); }
@@ -35,6 +41,43 @@ public class CrosshairConfig : ObservableObject
     public ColorPreset ColorPreset { get => _colorPreset; set => SetProperty(ref _colorPreset, value); }
     public string CustomColorHex { get => _customColorHex; set => SetProperty(ref _customColorHex, value); }
     public int Opacity { get => _opacity; set => SetProperty(ref _opacity, value); }
+
+    // ── Crosshair outline ──
+
+    /// <summary>
+    /// Draw a contrasting backdrop behind every crosshair element (ring, lines,
+    /// diamond, centre dot) so the crosshair stays visible when the game frame
+    /// matches its colour. On by default in black, mirroring the overlay outline.
+    /// </summary>
+    public bool OutlineEnabled { get => _outlineEnabled; set => SetProperty(ref _outlineEnabled, value); }
+
+    /// <summary>Outline colour preset for the crosshair.</summary>
+    public OutlineColorPreset OutlineColorPreset
+    {
+        get => _outlineColorPreset;
+        set => SetProperty(ref _outlineColorPreset, value);
+    }
+
+    public string OutlineCustomHex { get => _outlineCustomHex; set => SetProperty(ref _outlineCustomHex, value); }
+
+    /// <summary>
+    /// Outline thickness in pixels; the visible band extends this far beyond
+    /// each crosshair element. Deliberately absolute rather than proportional
+    /// to the crosshair size, same reasoning as the overlay outline.
+    /// </summary>
+    public double OutlineWidth { get => _outlineWidth; set => SetProperty(ref _outlineWidth, value); }
+
+    /// <summary>Effective outline colour, resolving the custom hex when selected.</summary>
+    public Color GetOutlineColor()
+    {
+        return OutlineColorPreset switch
+        {
+            OutlineColorPreset.White => Color.FromRgb(0xFF, 0xFF, 0xFF),
+            OutlineColorPreset.Black => Color.FromRgb(0x00, 0x00, 0x00),
+            OutlineColorPreset.Custom => TryParseColor(OutlineCustomHex, Color.FromRgb(0x00, 0x00, 0x00)),
+            _ => Color.FromRgb(0x00, 0x00, 0x00)
+        };
+    }
 
     /// <summary>Reset the position offset to the default (0, 0).</summary>
     public void ResetPosition()
@@ -50,8 +93,8 @@ public class CrosshairConfig : ObservableObject
             ColorPreset.Red => Color.FromRgb(0xFF, 0x00, 0x00),
             ColorPreset.Green => Color.FromRgb(0x00, 0xFF, 0x00),
             ColorPreset.Blue => Color.FromRgb(0x00, 0x99, 0xFF),
-            ColorPreset.Custom => TryParseColor(CustomColorHex, Color.FromRgb(0xFF, 0x00, 0x00)),
-            _ => Color.FromRgb(0xFF, 0x00, 0x00)
+            ColorPreset.Custom => TryParseColor(CustomColorHex, Color.FromRgb(0xFF, 0xFF, 0xFF)),
+            _ => Color.FromRgb(0xFF, 0xFF, 0xFF)
         };
     }
 

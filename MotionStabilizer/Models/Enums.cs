@@ -18,7 +18,21 @@ public enum OverlayShape
     Box,
     Dome,
     Flag,
-    MotionDots
+    MotionDots,
+    // Appended in v2.10.0 — see the serialization warning above: new members
+    // may only be added at the END of the list, never inserted or reordered.
+    DotMatrix
+}
+
+/// <summary>
+/// Static dot-matrix density: an N×N grid of fixed reference dots evenly
+/// distributed across the screen (appended in v2.10.0).
+/// </summary>
+public enum DotMatrixGrid
+{
+    Grid4x4,
+    Grid5x5,
+    Grid6x6
 }
 
 /// <summary>Crosshair shape types</summary>

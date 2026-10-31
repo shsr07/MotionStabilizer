@@ -216,11 +216,14 @@ public partial class OverlayWindow : Window
         {
             _nativeMotionRenderer.SetVisible(false);
 
-            // Surface a one-time warning when MotionDots were requested but the
-            // native renderer could not initialize (e.g. remote desktop, virtual
-            // machines, missing/outdated GPU drivers) — otherwise the feature
-            // fails silently and the user has no idea why nothing appears.
-            if (wantsNativeMotion && !_motionInitFailureReported)
+            // Surface a one-time warning when MotionDots were requested and
+            // there were zones to render, but the native renderer could not
+            // initialize (e.g. remote desktop, virtual machines, missing/outdated
+            // GPU drivers) — otherwise the feature fails silently and the user
+            // has no idea why nothing appears. An empty zone list means the
+            // user simply disabled both side edges; that is a config choice,
+            // not a renderer failure, so it must not warn.
+            if (wantsNativeMotion && motionZones.Count > 0 && !nativeMotionActive && !_motionInitFailureReported)
             {
                 _motionInitFailureReported = true;
                 string title = (string)(Application.Current.TryFindResource("Motion_InitFail_Title")

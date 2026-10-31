@@ -22,6 +22,7 @@ public class HotkeyConfigTests
         Assert.Equal("F5", cfg.CycleCrosshairShape.Key);
         Assert.Equal("F6", cfg.CycleDisplayMode.Key);
         Assert.Equal("F7", cfg.CycleOpacityMode.Key);
+        Assert.Equal("F8", cfg.ToggleOutline.Key);
         Assert.Equal("F9", cfg.CycleOverlayColor.Key);
         Assert.Equal("F10", cfg.CycleCrosshairColor.Key);
     }

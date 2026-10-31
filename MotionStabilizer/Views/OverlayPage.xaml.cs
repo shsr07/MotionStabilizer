@@ -35,6 +35,11 @@ public partial class OverlayPage : Page
         PanelMotionSettings.Visibility = cfg.Shape == OverlayShape.MotionDots
             ? Visibility.Visible
             : Visibility.Collapsed;
+        UpdateDotMatrixSectionsVisibility(cfg.Shape);
+
+        // Static dot matrix settings
+        CbDotMatrixGrid.SelectedIndex = (int)cfg.DotMatrixGrid;
+        ChkDotMatrixSoftGlow.IsChecked = cfg.DotMatrixSoftGlow;
 
         // Dynamic motion cue settings
         SliderMotionDotColumns.Value = Math.Clamp(cfg.MotionDotColumns, 1, 6);
@@ -65,8 +70,7 @@ public partial class OverlayPage : Page
         SliderMotionParallaxAmount.Value = Math.Clamp(parallaxPct, 0, 100);
         MotionParallaxAmountLabel.Text = Math.Clamp(parallaxPct, 0, 100) + "%";
         ChkOverlayOutline.IsChecked = cfg.OverlayOutlineEnabled;
-        SliderOverlayOutlineWidth.Value = Math.Clamp(cfg.OverlayOutlineWidth, 0.5, 5.0);
-        OverlayOutlineWidthLabel.Text = cfg.OverlayOutlineWidth.ToString("0.0") + " px";
+        UpdateOutlineWidthRowForShape();
         UpdateOutlineSelection(cfg.OverlayOutlineColorPreset);
         SetOutlineRowExpanded(cfg.OverlayOutlineEnabled);
         if (cfg.OverlayOutlineColorPreset == OutlineColorPreset.Custom)
@@ -84,12 +88,10 @@ public partial class OverlayPage : Page
         CbAspectRatio.SelectedIndex = (int)cfg.AspectRatio;
 
         // Size
-        SliderSize.Value = (int)cfg.Size;
-        SizeLabel.Text = SizeToText(cfg.Size);
-
-        // Length
-        SliderLength.Value = (int)cfg.Length;
-        LengthLabel.Text = "+" + (int)cfg.Length;
+        // Size & Length rows are shape-dependent: the dot matrix binds them to
+        // its core diameter (px) and column-spacing level, every other shape
+        // keeps the SizePreset / OffsetLevel mapping.
+        UpdateSizeLengthRowsForShape();
 
         // Display mode
         CbDisplayMode.SelectedIndex = (int)cfg.Mode;
@@ -145,6 +147,7 @@ public partial class OverlayPage : Page
         BtnShapeDome.Tag = shape == OverlayShape.Dome ? "Selected" : "";
         BtnShapeFlag.Tag = shape == OverlayShape.Flag ? "Selected" : "";
         BtnShapeMotion.Tag = shape == OverlayShape.MotionDots ? "Selected" : "";
+        BtnShapeDotMatrix.Tag = shape == OverlayShape.DotMatrix ? "Selected" : "";
     }
 
     private void UpdateColorSelection(ColorPreset color)
@@ -176,13 +179,90 @@ public partial class OverlayPage : Page
         else if (sender == BtnShapeDome) App.OverlayConfig.Shape = OverlayShape.Dome;
         else if (sender == BtnShapeFlag) App.OverlayConfig.Shape = OverlayShape.Flag;
         else if (sender == BtnShapeMotion) App.OverlayConfig.Shape = OverlayShape.MotionDots;
+        else if (sender == BtnShapeDotMatrix) App.OverlayConfig.Shape = OverlayShape.DotMatrix;
         UpdateShapeSelection(App.OverlayConfig.Shape);
         bool isMotion = App.OverlayConfig.Shape == OverlayShape.MotionDots;
         PanelMotionSettings.Visibility = isMotion ? Visibility.Visible : Visibility.Collapsed;
         ChkEdgeTop.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
         ChkEdgeBottom.Visibility = isMotion ? Visibility.Collapsed : Visibility.Visible;
-        // In per-edge opacity mode, hide Top/Bottom sliders for MotionDots
+        // In per-edge opacity mode, hide Top/Bottom sliders for MotionDots;
+        // also toggle the dot-matrix card / edge card / opacity panels and
+        // rebind the shared Size/Length rows to the new shape. The slider
+        // rebind needs the loading guard held: the range switch fires
+        // ValueChanged with transitional values.
+        UpdateDotMatrixSectionsVisibility(App.OverlayConfig.Shape);
+        _isLoading = true;
+        UpdateSizeLengthRowsForShape();
+        UpdateOutlineWidthRowForShape();
+        _isLoading = false;
+    }
+
+    /// <summary>
+    /// The dot matrix is a full-screen grid: it has no edges (the whole
+    /// edge-visibility card is hidden) and per-edge opacity has no effect
+    /// (the uniform slider shows regardless of mode). Extracted so
+    /// Shape_Click and RefreshFromConfig stay in agreement.
+    /// </summary>
+    private void UpdateDotMatrixSectionsVisibility(OverlayShape shape)
+    {
+        bool isDotMatrix = shape == OverlayShape.DotMatrix;
+        PanelDotMatrixSettings.Visibility = isDotMatrix ? Visibility.Visible : Visibility.Collapsed;
+        PanelEdgeVisibility.Visibility = isDotMatrix ? Visibility.Collapsed : Visibility.Visible;
         UpdateOpacityPanels();
+    }
+
+    /// <summary>
+    /// The shared 尺寸/长度 sliders change meaning with the active shape: the
+    /// dot matrix binds them to its core diameter (5–25 px) and column-spacing
+    /// level and renames 长度 to 列间距, while every other shape keeps the
+    /// SizePreset / OffsetLevel mapping. Called from RefreshFromConfig and
+    /// Shape_Click so the rows always match the shape.
+    /// The caller owns the _isLoading guard: pushing values into the sliders
+    /// fires their ValueChanged handlers, and forcing the guard false here
+    /// would leave the REST of RefreshFromConfig unguarded — which is exactly
+    /// how the edge-visibility checkboxes once wrote their still-uninitialised
+    /// states back into the config on page load (top-only overlay, dead
+    /// motion dots).
+    /// </summary>
+    private void UpdateSizeLengthRowsForShape()
+    {
+        var cfg = App.OverlayConfig;
+        bool isDotMatrix = cfg.Shape == OverlayShape.DotMatrix;
+
+        if (isDotMatrix)
+        {
+            SliderSize.Minimum = 5;
+            SliderSize.Maximum = 25;
+            SliderSize.Value = Math.Clamp(cfg.DotMatrixCoreDiameter, 5, 25);
+            SizeLabel.Text = cfg.DotMatrixCoreDiameter.ToString("0.#") + " px";
+            SliderLength.Value = Math.Clamp((int)cfg.DotMatrixSpacingLevel, 0, 6);
+            LengthLabel.Text = "+" + (int)cfg.DotMatrixSpacingLevel;
+            LabelLength.Text = (string)FindResource("DotMatrix_ColumnSpacing");
+        }
+        else
+        {
+            SliderSize.Minimum = 0;
+            SliderSize.Maximum = 6;
+            SliderSize.Value = (int)cfg.Size;
+            SizeLabel.Text = SizeToText(cfg.Size);
+            SliderLength.Value = (int)cfg.Length;
+            LengthLabel.Text = "+" + (int)cfg.Length;
+            LabelLength.Text = (string)FindResource("Length");
+        }
+    }
+
+    // ── Static dot matrix ──
+
+    private void DotMatrixGrid_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading || CbDotMatrixGrid == null) return;
+        App.OverlayConfig.DotMatrixGrid = (DotMatrixGrid)Math.Max(0, CbDotMatrixGrid.SelectedIndex);
+    }
+
+    private void DotMatrixSoftGlow_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.OverlayConfig.DotMatrixSoftGlow = ChkDotMatrixSoftGlow.IsChecked == true;
     }
 
     private void MotionDotColumns_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -456,11 +536,32 @@ public partial class OverlayPage : Page
         }
     }
 
+    /// <summary>
+    /// The outline-thickness slider is shared by every shape, but each shape
+    /// keeps its own persisted width: the dot matrix defaults to a finer 1px
+    /// ring (DotMatrixOutlineWidth) while the other shapes use the classic
+    /// OverlayOutlineWidth. Called from RefreshFromConfig and Shape_Click with
+    /// the loading guard held by the caller.
+    /// </summary>
+    private void UpdateOutlineWidthRowForShape()
+    {
+        var cfg = App.OverlayConfig;
+        double width = cfg.Shape == OverlayShape.DotMatrix
+            ? cfg.DotMatrixOutlineWidth
+            : cfg.OverlayOutlineWidth;
+        SliderOverlayOutlineWidth.Value = Math.Clamp(width, 0.5, 5.0);
+        OverlayOutlineWidthLabel.Text = width.ToString("0.0") + " px";
+    }
+
     private void OverlayOutlineWidth_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_isLoading || OverlayOutlineWidthLabel == null) return;
-        App.OverlayConfig.OverlayOutlineWidth = Math.Round(SliderOverlayOutlineWidth.Value, 1);
-        OverlayOutlineWidthLabel.Text = App.OverlayConfig.OverlayOutlineWidth.ToString("0.0") + " px";
+        double width = Math.Round(SliderOverlayOutlineWidth.Value, 1);
+        if (App.OverlayConfig.Shape == OverlayShape.DotMatrix)
+            App.OverlayConfig.DotMatrixOutlineWidth = width;
+        else
+            App.OverlayConfig.OverlayOutlineWidth = width;
+        OverlayOutlineWidthLabel.Text = width.ToString("0.0") + " px";
     }
 
     private void MotionParallaxAmount_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -480,15 +581,31 @@ public partial class OverlayPage : Page
     private void Size_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_isLoading || SizeLabel == null) return;
-        App.OverlayConfig.Size = (SizePreset)(int)SliderSize.Value;
-        SizeLabel.Text = SizeToText(App.OverlayConfig.Size);
+        if (App.OverlayConfig.Shape == OverlayShape.DotMatrix)
+        {
+            App.OverlayConfig.DotMatrixCoreDiameter = Math.Round(SliderSize.Value, 1);
+            SizeLabel.Text = App.OverlayConfig.DotMatrixCoreDiameter.ToString("0.#") + " px";
+        }
+        else
+        {
+            App.OverlayConfig.Size = (SizePreset)(int)SliderSize.Value;
+            SizeLabel.Text = SizeToText(App.OverlayConfig.Size);
+        }
     }
 
     private void Length_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_isLoading || LengthLabel == null) return;
-        App.OverlayConfig.Length = (OffsetLevel)(int)SliderLength.Value;
-        LengthLabel.Text = "+" + (int)App.OverlayConfig.Length;
+        if (App.OverlayConfig.Shape == OverlayShape.DotMatrix)
+        {
+            App.OverlayConfig.DotMatrixSpacingLevel = (OffsetLevel)(int)SliderLength.Value;
+            LengthLabel.Text = "+" + (int)App.OverlayConfig.DotMatrixSpacingLevel;
+        }
+        else
+        {
+            App.OverlayConfig.Length = (OffsetLevel)(int)SliderLength.Value;
+            LengthLabel.Text = "+" + (int)App.OverlayConfig.Length;
+        }
     }
 
     private void DisplayMode_Changed(object sender, SelectionChangedEventArgs e)
@@ -539,8 +656,12 @@ public partial class OverlayPage : Page
     {
         bool perEdge = App.OverlayConfig.OpacityMode == EdgeOpacityMode.PerEdge;
         bool isMotion = App.OverlayConfig.Shape == OverlayShape.MotionDots;
-        PanelUniformOpacity.Visibility = perEdge ? Visibility.Collapsed : Visibility.Visible;
-        PanelPerEdgeOpacity.Visibility = perEdge ? Visibility.Visible : Visibility.Collapsed;
+        bool isDotMatrix = App.OverlayConfig.Shape == OverlayShape.DotMatrix;
+        // The dot matrix renders with the uniform opacity only — hide the mode
+        // picker and the per-edge rows while it is the active shape.
+        PanelOpacityModeRow.Visibility = isDotMatrix ? Visibility.Collapsed : Visibility.Visible;
+        PanelUniformOpacity.Visibility = perEdge && !isDotMatrix ? Visibility.Collapsed : Visibility.Visible;
+        PanelPerEdgeOpacity.Visibility = perEdge && !isDotMatrix ? Visibility.Visible : Visibility.Collapsed;
         // For MotionDots, hide Top/Bottom opacity sliders
         if (perEdge && isMotion)
         {
@@ -567,10 +688,14 @@ public partial class OverlayPage : Page
     {
         if (_isLoading) return;
         var cfg = App.OverlayConfig;
-        cfg.EdgeTopVisible = ChkEdgeTop.IsChecked == true;
-        cfg.EdgeBottomVisible = ChkEdgeBottom.IsChecked == true;
-        cfg.EdgeLeftVisible = ChkEdgeLeft.IsChecked == true;
-        cfg.EdgeRightVisible = ChkEdgeRight.IsChecked == true;
+        // Write back only the checkbox that actually changed. These events
+        // also fire while RefreshFromConfig assigns the boxes one by one, and
+        // a whole-row writeback would snapshot the still-uninitialised boxes
+        // into the config.
+        if (sender == ChkEdgeTop) cfg.EdgeTopVisible = ChkEdgeTop.IsChecked == true;
+        else if (sender == ChkEdgeBottom) cfg.EdgeBottomVisible = ChkEdgeBottom.IsChecked == true;
+        else if (sender == ChkEdgeLeft) cfg.EdgeLeftVisible = ChkEdgeLeft.IsChecked == true;
+        else if (sender == ChkEdgeRight) cfg.EdgeRightVisible = ChkEdgeRight.IsChecked == true;
     }
 
     private void OpacityMode_Changed(object sender, SelectionChangedEventArgs e)

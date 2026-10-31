@@ -51,6 +51,7 @@ internal static class OsdTextBuilder
                 OverlayShape.Dome => res("Shape_Dome"),
                 OverlayShape.Flag => res("Shape_Flag"),
                 OverlayShape.MotionDots => res("Shape_MotionDots"),
+                OverlayShape.DotMatrix => res("Shape_DotMatrix"),
                 _ => res("Shape_Pole")
             }}",
             HotkeyNames.CycleCrosshairShape => $"{res("Shape")}: {crosshair.Shape switch

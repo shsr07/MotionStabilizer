@@ -38,7 +38,7 @@
 > - **Parallax scaling** — dots automatically shrink near the screen center for a natural sense of depth
 > - **Configurable refresh rate** — 30–360 Hz custom animation refresh rate to match your monitor
 
-- **Overlay Outline** — an optional contrasting outline (white / black / custom) applied to both the overlay shapes and the motion dots
+- **Overlay Outline** — a contrasting outline on by default (black / white / custom) applied to both the overlay shapes and the motion dots
 
 - **Crosshair** — draws a crosshair at the screen center as a visual focus point
 - **Floating Clock** — a draggable real-time clock with multiple time formats and an outline font
@@ -68,18 +68,18 @@
 ### Download (Recommended)
 
 1. Go to the [Releases page](https://github.com/shsr07/MotionStabilizer/releases)
-2. Download `MotionStabilizer-v2.9.0-win-x64.zip`
+2. Download `MotionStabilizer-v2.10.0-win-x64.zip`
 3. Extract it to any folder
 4. Double-click `MotionStabilizer.exe` to run
 
 > The .NET runtime is bundled — no installation required.
 
-> **Checksum (v2.9.0)**
+> **Checksum (v2.10.0)**
 >
-> SHA-256: `075EF704D4F07A70D04868CC86FA0E3E78E01139E3AA22B29C658BD031D33978`
+> SHA-256: `672040CA86BE2D44B0F12705001047AE344AAAD95E8F5D10C5085122CAA148FD`
 >
 > Verify:
-> - Windows: `certutil -hashfile MotionStabilizer-v2.9.0-win-x64.zip SHA256`
+> - Windows: `certutil -hashfile MotionStabilizer-v2.10.0-win-x64.zip SHA256`
 
 ### Build from Source
 
@@ -115,10 +115,11 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 | F5 | Cycle crosshair shape |
 | F6 | Cycle display mode |
 | F7 | Cycle opacity mode |
+| F8 | Toggle overlay outline |
 | F9 | Cycle overlay color (Red/Green/Blue/Custom) |
 | F10 | Cycle crosshair color (Red/Green/Blue/Custom) |
 
-> 💡 **Managing bindings**: click a hotkey field on the Hotkeys page, then press **Esc** to cancel the capture or **Delete** to unbind. The app occupies F1–F7, F9 and F10 by default (no modifier keys — captured system-wide); rebind them on that page if they clash with a game.
+> 💡 **Managing bindings**: click a hotkey field on the Hotkeys page, then press **Esc** to cancel the capture or **Delete** to unbind. The app occupies F1–F8, F9 and F10 by default (no modifier keys — captured system-wide); rebind them on that page if they clash with a game.
 
 ## 🛠️ Tech Stack
 

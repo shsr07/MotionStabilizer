@@ -50,6 +50,18 @@ public partial class CrosshairPage : Page
         SliderOpacity.Value = cfg.Opacity;
         OpacityLabel.Text = cfg.Opacity + "%";
 
+        // Outline row — mirrors the overlay page's outline row.
+        ChkCrosshairOutline.IsChecked = cfg.OutlineEnabled;
+        SetOutlineRowExpanded(cfg.OutlineEnabled);
+        SliderOutlineWidth.Value = Math.Clamp(cfg.OutlineWidth, 0.1, 3.0);
+        OutlineWidthLabel.Text = cfg.OutlineWidth.ToString("0.0") + " px";
+        UpdateOutlineSelection(cfg.OutlineColorPreset);
+        if (cfg.OutlineColorPreset == OutlineColorPreset.Custom)
+        {
+            var oc = cfg.GetOutlineColor();
+            OutlineSwatchCustom.Background = new SolidColorBrush(Color.FromRgb(oc.R, oc.G, oc.B));
+        }
+
         var hk = App.HotkeyConfig.ToggleCrosshair;
         HotkeyLabel.Text = hk.IsSet ? $"[{hk.DisplayString}]" : "";
 
@@ -168,6 +180,59 @@ public partial class CrosshairPage : Page
             SwatchCustom.Background = new SolidColorBrush(dialog.Color);
             UpdateColorSelection(ColorPreset.Custom);
         }
+    }
+
+    // ── Outline (mirrors the overlay page's outline row) ──
+
+    private void CrosshairOutline_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.CrosshairConfig.OutlineEnabled = ChkCrosshairOutline.IsChecked == true;
+        SetOutlineRowExpanded(App.CrosshairConfig.OutlineEnabled);
+    }
+
+    private void SetOutlineRowExpanded(bool expanded)
+    {
+        PanelCrosshairOutline.Visibility = expanded ? Visibility.Visible : Visibility.Collapsed;
+        OutlineOffHint.Visibility = expanded ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void UpdateOutlineSelection(OutlineColorPreset preset)
+    {
+        OutlineSwatchWhite.Tag = preset == OutlineColorPreset.White ? "Selected" : "";
+        OutlineSwatchBlack.Tag = preset == OutlineColorPreset.Black ? "Selected" : "";
+        OutlineSwatchCustom.Tag = preset == OutlineColorPreset.Custom ? "Selected" : "";
+    }
+
+    private void OutlineColor_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        if (sender == OutlineSwatchWhite) App.CrosshairConfig.OutlineColorPreset = OutlineColorPreset.White;
+        else if (sender == OutlineSwatchBlack) App.CrosshairConfig.OutlineColorPreset = OutlineColorPreset.Black;
+        UpdateOutlineSelection(App.CrosshairConfig.OutlineColorPreset);
+    }
+
+    private void OutlineCustomColor_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        var dialog = new ColorDialog();
+        var color = App.CrosshairConfig.GetOutlineColor();
+        dialog.Color = System.Windows.Media.Color.FromArgb(255, color.R, color.G, color.B);
+
+        if (dialog.ShowDialog() == true)
+        {
+            App.CrosshairConfig.OutlineColorPreset = OutlineColorPreset.Custom;
+            App.CrosshairConfig.OutlineCustomHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+            OutlineSwatchCustom.Background = new SolidColorBrush(dialog.Color);
+            UpdateOutlineSelection(OutlineColorPreset.Custom);
+        }
+    }
+
+    private void OutlineWidth_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading || OutlineWidthLabel == null) return;
+        App.CrosshairConfig.OutlineWidth = Math.Round(SliderOutlineWidth.Value, 1);
+        OutlineWidthLabel.Text = App.CrosshairConfig.OutlineWidth.ToString("0.0") + " px";
     }
 
     private void Opacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

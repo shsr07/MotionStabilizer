@@ -303,7 +303,7 @@ public class ObservableConfigTests
         var store = new ConfigStore();
 
         Assert.False(store.Overlay.IsVisible);
-        Assert.Equal(OverlayShape.Pole, store.Overlay.Shape);
+        Assert.Equal(OverlayShape.DotMatrix, store.Overlay.Shape);
         Assert.False(store.Crosshair.IsVisible);
         Assert.False(store.Clock.IsVisible);
         // Mouse control is on by default and must stay that way — motion dots

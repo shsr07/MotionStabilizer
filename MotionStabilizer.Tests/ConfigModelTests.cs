@@ -45,10 +45,10 @@ public class ConfigModelTests
     }
 
     [Fact]
-    public void OverlayConfig_GetColor_Custom_InvalidHex_FallsBackToGreen()
+    public void OverlayConfig_GetColor_Custom_InvalidHex_FallsBackToWhite()
     {
         var cfg = new OverlayConfig { ColorPreset = ColorPreset.Custom, CustomColorHex = "not-a-color" };
-        Assert.Equal(Color.FromRgb(0x00, 0xFF, 0x00), cfg.GetColor());
+        Assert.Equal(Color.FromRgb(0xFF, 0xFF, 0xFF), cfg.GetColor());
     }
 
     // ── OverlayConfig.IsEdgeVisible ──
@@ -131,10 +131,20 @@ public class ConfigModelTests
     }
 
     [Fact]
-    public void CrosshairConfig_GetColor_Custom_InvalidHex_FallsBackToRed()
+    public void CrosshairConfig_GetColor_Custom_InvalidHex_FallsBackToWhite()
     {
         var cfg = new CrosshairConfig { ColorPreset = ColorPreset.Custom, CustomColorHex = "!!!" };
-        Assert.Equal(Color.FromRgb(0xFF, 0x00, 0x00), cfg.GetColor());
+        Assert.Equal(Color.FromRgb(0xFF, 0xFF, 0xFF), cfg.GetColor());
+    }
+
+    [Fact]
+    public void CrosshairConfig_Outline_HasExpectedDefaults()
+    {
+        var cfg = new CrosshairConfig();
+        Assert.True(cfg.OutlineEnabled);
+        Assert.Equal(OutlineColorPreset.Black, cfg.OutlineColorPreset);
+        Assert.Equal(0.5, cfg.OutlineWidth, 6);
+        Assert.Equal(Color.FromRgb(0x00, 0x00, 0x00), cfg.GetOutlineColor());
     }
 
     // ── ClockConfig ──

@@ -53,6 +53,7 @@
     <sys:String x:Key="Shape_Cross">Cross</sys:String>
     <sys:String x:Key="Shape_Diamond">Diamond</sys:String>
     <sys:String x:Key="Shape_MotionDots">Motion Dots</sys:String>
+    <sys:String x:Key="Shape_DotMatrix">Dot Matrix</sys:String>
 
     <!-- Display Modes -->
     <sys:String x:Key="Mode_Window">Window</sys:String>
@@ -89,6 +90,14 @@
     <sys:String x:Key="OpacityMode_Uniform">Uniform</sys:String>
     <sys:String x:Key="OpacityMode_PerEdge">Per Edge</sys:String>
 
+    <!-- Static Dot Matrix -->
+    <sys:String x:Key="DotMatrix_SettingsCard">Dot Matrix Settings</sys:String>
+    <sys:String x:Key="DotMatrix_Desc">Distributes an N×N grid of static dots evenly across the screen, giving your peripheral vision a stable motion reference.</sys:String>
+    <sys:String x:Key="DotMatrix_Grid">Grid</sys:String>
+    <sys:String x:Key="DotMatrix_SoftGlow">Soft glow</sys:String>
+    <sys:String x:Key="DotMatrix_SoftGlowHint">Draws a soft halo around the outer columns' dots; pair with the overlay outline on bright scenes.</sys:String>
+    <sys:String x:Key="DotMatrix_ColumnSpacing">Column Spacing</sys:String>
+
     <!-- Motion Dots -->
     <sys:String x:Key="Motion_SettingsCard">Motion Dots Settings</sys:String>
     <sys:String x:Key="Motion_Desc">Displays dynamic dots on both sides of the screen that respond to mouse movement, providing visual motion anchors. GPU usage occurs while active.</sys:String>
@@ -105,6 +114,8 @@
     <sys:String x:Key="Motion_InvertDirection">Invert motion direction (mouse, keyboard and gamepad reversed)</sys:String>
     <sys:String x:Key="Motion_ParallaxScale">Parallax scale (dots shrink near screen center)</sys:String>
     <sys:String x:Key="Overlay_Outline">Overlay outline</sys:String>
+    <sys:String x:Key="Crosshair_Outline">Crosshair outline</sys:String>
+    <sys:String x:Key="Crosshair_OutlineHint">Adds a contrasting outline around the crosshair for bright scenes</sys:String>
     <sys:String x:Key="Overlay_OutlineHint">Adds a contrasting outline to the overlay shapes and the motion dots</sys:String>
     <sys:String x:Key="Overlay_OutlineWidth">Thickness</sys:String>
     <sys:String x:Key="Color_CustomHint">Swatches marked with a palette icon are custom colours — click to open the picker.</sys:String>
@@ -175,7 +186,7 @@
     <sys:String x:Key="Hotkeys_RegFail_Title">Hotkey Registration Failed</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">The following hotkeys may be occupied by another program:</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Title">Global Hotkey Notice</sys:String>
-    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">The default hotkeys F1–F7, F9 and F10 use no modifier keys. While the app is running, these keys are captured system-wide — for example, some in-game functions bound to them (F1 help, F5 quicksave, etc.) will not respond.\n\nIf they conflict with your games or other software, rebind them on the Hotkeys page, or click a binding box and press Esc to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">The default hotkeys F1–F8, F9 and F10 use no modifier keys. While the app is running, these keys are captured system-wide — for example, some in-game functions bound to them (F1 help, F5 quicksave, etc.) will not respond.\n\nIf they conflict with your games or other software, rebind them on the Hotkeys page, or click a binding box and press Esc to unbind.</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Ack">I Understand</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">Toggle Overlay</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">Toggle Crosshair</sys:String>

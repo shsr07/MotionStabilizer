@@ -377,6 +377,21 @@ public partial class App : Application
         dict.Add(langDict);
     }
 
+    // F4 cycles the overlay shapes in the same order the settings panel lists
+    // them: DotMatrix → Pole → Flag → Dome → Box → MotionDots. An explicit
+    // table (instead of enum arithmetic) keeps the hotkey order and the UI
+    // order from drifting apart while the serialized-by-name enum stays
+    // append-only.
+    private static readonly OverlayShape[] OverlayShapeCycle =
+    {
+        OverlayShape.DotMatrix,
+        OverlayShape.Pole,
+        OverlayShape.Flag,
+        OverlayShape.Dome,
+        OverlayShape.Box,
+        OverlayShape.MotionDots
+    };
+
     /// <summary>Register all hotkeys from config.</summary>
     public void RegisterAllHotkeys()
     {
@@ -391,7 +406,13 @@ public partial class App : Application
         Hotkeys.Register(hk.ToggleClock, () => { ClockConfig.IsVisible = !ClockConfig.IsVisible; });
         Hotkeys.Register(hk.CycleDisplayMode, () => { OverlayConfig.Mode = OverlayConfig.Mode == DisplayMode.Window ? DisplayMode.Stretch : DisplayMode.Window; });
         Hotkeys.Register(hk.CycleSplitScreen, CycleSplitScreen);
-        Hotkeys.Register(hk.CycleOverlayShape, () => { OverlayConfig.Shape = (OverlayShape)(((int)OverlayConfig.Shape + 1) % 5); });
+        // Walk the explicit panel-order cycle; an unknown shape (never
+        // expected) falls back to index 0 → Pole on the next press.
+        Hotkeys.Register(hk.CycleOverlayShape, () =>
+        {
+            int idx = Array.IndexOf(OverlayShapeCycle, OverlayConfig.Shape);
+            OverlayConfig.Shape = OverlayShapeCycle[(idx + 1) % OverlayShapeCycle.Length];
+        });
         Hotkeys.Register(hk.CycleCrosshairShape, () => { CrosshairConfig.Shape = (CrosshairShape)(((int)CrosshairConfig.Shape + 1) % 3); });
         Hotkeys.Register(hk.CycleAspectRatio, CycleAspectRatio);
         Hotkeys.Register(hk.CycleOpacityMode, () => { OverlayConfig.OpacityMode = (EdgeOpacityMode)(((int)OverlayConfig.OpacityMode + 1) % 2); });
