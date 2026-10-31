@@ -64,7 +64,7 @@
 
 - Windows 10/11 (64-bit)
 - 直接下载版无需安装 .NET（已内置）
-- 从源码构建需要 [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- 从源码构建需要 [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ## 🚀 快速开始 / Getting Started
 
@@ -79,7 +79,7 @@
 
 > **校验 / Checksum (v2.10.0)**
 >
-> SHA-256: `672040CA86BE2D44B0F12705001047AE344AAAD95E8F5D10C5085122CAA148FD`
+> SHA-256: `19DAA9E92E8E4B69D54B5E0DD3B69D2BF7BB1BE2F0E0220553E7980664C20783`
 >
 > 验证方式 / Verify:
 > - Windows: `certutil -hashfile MotionStabilizer-v2.10.0-win-x64.zip SHA256`
@@ -92,7 +92,7 @@ cd MotionStabilizer
 dotnet build -c Release
 ```
 
-构建产物位于 `MotionStabilizer/bin/Release/net8.0-windows/`。
+构建产物位于 `MotionStabilizer/bin/Release/net10.0-windows/`。
 
 ## 📖 使用说明 / Usage
 
@@ -122,7 +122,7 @@ dotnet build -c Release
 | F9 | 叠加层颜色循环（红/绿/蓝/自定义） |
 | F10 | 准星颜色循环（红/绿/蓝/自定义） |
 
-> 💡 **管理绑定**：在「快捷键绑定」页面点击输入框后，按 **Esc** 取消输入，按 **Delete** 解除绑定。程序默认占用 F1–F8、F9、F10（未加修饰键，会被全局拦截），如与游戏冲突可在该页面修改组合键。
+> 💡 **管理绑定**：在「快捷键绑定」页面点击输入框后，按 **Esc** 取消输入，按 **Delete** 解除绑定。程序默认占用 F1–F10（未加修饰键，会被全局拦截），如与游戏冲突可在该页面修改组合键。
 
 ## 🛠️ 技术栈 / Tech Stack
 

@@ -61,7 +61,7 @@
 
 - Windows 10/11 (64-bit)
 - The download release bundles the .NET runtime — no installation needed
-- Building from source requires the [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- Building from source requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ## 🚀 Getting Started
 
@@ -76,7 +76,7 @@
 
 > **Checksum (v2.10.0)**
 >
-> SHA-256: `672040CA86BE2D44B0F12705001047AE344AAAD95E8F5D10C5085122CAA148FD`
+> SHA-256: `19DAA9E92E8E4B69D54B5E0DD3B69D2BF7BB1BE2F0E0220553E7980664C20783`
 >
 > Verify:
 > - Windows: `certutil -hashfile MotionStabilizer-v2.10.0-win-x64.zip SHA256`
@@ -89,7 +89,7 @@ cd MotionStabilizer
 dotnet build -c Release
 ```
 
-Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
+Build output is at `MotionStabilizer/bin/Release/net10.0-windows/`.
 
 ## 📖 Usage
 
@@ -119,7 +119,7 @@ Build output is at `MotionStabilizer/bin/Release/net8.0-windows/`.
 | F9 | Cycle overlay color (Red/Green/Blue/Custom) |
 | F10 | Cycle crosshair color (Red/Green/Blue/Custom) |
 
-> 💡 **Managing bindings**: click a hotkey field on the Hotkeys page, then press **Esc** to cancel the capture or **Delete** to unbind. The app occupies F1–F8, F9 and F10 by default (no modifier keys — captured system-wide); rebind them on that page if they clash with a game.
+> 💡 **Managing bindings**: click a hotkey field on the Hotkeys page, then press **Esc** to cancel the capture or **Delete** to unbind. The app occupies F1–F10 by default (no modifier keys — captured system-wide); rebind them on that page if they clash with a game.
 
 ## 🛠️ Tech Stack
 

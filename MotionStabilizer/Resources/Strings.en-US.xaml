@@ -186,7 +186,7 @@
     <sys:String x:Key="Hotkeys_RegFail_Title">Hotkey Registration Failed</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">The following hotkeys may be occupied by another program:</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Title">Global Hotkey Notice</sys:String>
-    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">The default hotkeys F1–F8, F9 and F10 use no modifier keys. While the app is running, these keys are captured system-wide — for example, some in-game functions bound to them (F1 help, F5 quicksave, etc.) will not respond.\n\nIf they conflict with your games or other software, rebind them on the Hotkeys page, or click a binding box and press Esc to unbind.</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">The default hotkeys F1–F10 use no modifier keys. While the app is running, these keys are captured system-wide — for example, some in-game functions bound to them (F1 help, F5 quicksave, etc.) will not respond.\n\nIf they conflict with your games or other software, rebind them on the Hotkeys page, or click a binding box and press Esc to unbind.</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Ack">I Understand</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">Toggle Overlay</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">Toggle Crosshair</sys:String>

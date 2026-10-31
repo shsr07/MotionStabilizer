@@ -186,7 +186,7 @@
     <sys:String x:Key="Hotkeys_RegFail_Title">快捷键注册失败</sys:String>
     <sys:String x:Key="Hotkeys_RegFail_Msg">以下快捷键可能被其他程序占用，无法注册：</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Title">快捷键占用提示</sys:String>
-    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">程序默认占用了 F1–F8、F9、F10 全局快捷键（未加修饰键）。程序运行期间这些按键会被本程序全局拦截，比如某些游戏内的 F1 帮助、F5 快速存档等对应功能将无法响应。\n\n如与您的游戏或常用软件冲突，请进入「快捷键绑定」页面修改按键组合，或点击输入框后按 Esc 解除绑定。</sys:String>
+    <sys:String x:Key="Hotkeys_GlobalWarn_Msg">程序默认占用了 F1–F10 全局快捷键（未加修饰键）。程序运行期间这些按键会被本程序全局拦截，比如某些游戏内的 F1 帮助、F5 快速存档等对应功能将无法响应。\n\n如与您的游戏或常用软件冲突，请进入「快捷键绑定」页面修改按键组合，或点击输入框后按 Esc 解除绑定。</sys:String>
     <sys:String x:Key="Hotkeys_GlobalWarn_Ack">我已知晓</sys:String>
     <sys:String x:Key="HK_ToggleOverlay">开关边缘叠加</sys:String>
     <sys:String x:Key="HK_ToggleCrosshair">开关中心准星</sys:String>
