@@ -1,6 +1,7 @@
 using MotionStabilizer.Overlay;
 using MotionStabilizer.Models;
 using System.Windows;
+using System.Windows.Shapes;
 using Xunit;
 
 namespace MotionStabilizer.Tests;
@@ -240,5 +241,26 @@ public class DotMatrixTests
         Assert.Equal("#FFFFFF", cfg.CustomColorHex);
         Assert.True(cfg.OverlayOutlineEnabled);
         Assert.Equal(OutlineColorPreset.Black, cfg.OverlayOutlineColorPreset);
+    }
+
+    [Fact]
+    public void DotMatrixCoreDiameterPx_MixedDpi_NormalizedHeightKeepsFractionConstant()
+    {
+        // Mixed-DPI contract: the harness/window denominates canvas heights in
+        // the PRIMARY monitor's DIP. A secondary 1620px@1.5x monitor therefore
+        // reports area.Height = 1620 with dpiRatio = 1.5 — the caller divides,
+        // and the resulting dot fraction of the monitor height must equal the
+        // 1080p reference fraction (cfg/1080) on both monitors.
+        var cfg = new OverlayConfig { DotMatrixCoreDiameter = 10 };
+
+        double diaPrimary = RenderHelper.DotMatrixCoreDiameterPx(cfg, 1080 / 1.0);   // 1080px @1.0
+        double diaSecondary = RenderHelper.DotMatrixCoreDiameterPx(cfg, 1620 / 1.5); // 1620px @1.5
+
+        Assert.Equal(10.0, diaPrimary, 6);
+        Assert.Equal(10.0, diaSecondary, 6);
+        // Physical size on the secondary = diaSecondary x 1.5 (its DPI scale);
+        // that physical size must be the same fraction of 1620px as the
+        // primary's is of 1080px.
+        Assert.Equal(diaSecondary * 1.5 / 1620, diaPrimary / 1080, 6);
     }
 }

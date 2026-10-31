@@ -630,12 +630,19 @@ public static class RenderHelper
 
         int n = DotMatrixDotCount(cfg.DotMatrixGrid);
         byte alpha = OpacityToByte(cfg.Opacity);
-        double dia = DotMatrixCoreDiameterPx(cfg, area.Height);
+
+        // area.Height is denominated in the overlay window's DIP (the primary
+        // monitor's scale). Dividing by dpiRatio yields the target monitor's
+        // own logical height — without this, a higher-DPI secondary monitor
+        // would draw proportionally larger dots than a 1080p reference. With
+        // it, the dot's fraction of the monitor height is cfg/1080 everywhere.
+        double dpiHeight = area.Height / dpiRatio;
+        double dia = DotMatrixCoreDiameterPx(cfg, dpiHeight);
 
         bool outlineOn = cfg.OverlayOutlineEnabled;
-        // The dot matrix keeps its own outline width so the ring can differ
-        // per shape (both default to 1px); the toggle and colour are shared.
-        double outlineW = outlineOn ? Math.Clamp(cfg.DotMatrixOutlineWidth, 0.5, 5.0) * dpiRatio : 0;
+        // The dot matrix keeps its own outline width (scales with the dots);
+        // the toggle and colour are shared with every other shape.
+        double outlineW = outlineOn ? Math.Clamp(cfg.DotMatrixOutlineWidth, 0.5, 5.0) * dpiHeight / DotMatrixReferenceHeight : 0;
         var outlineColor = cfg.GetOutlineColor();
         var outlineBrush = outlineOn
             ? new SolidColorBrush(Color.FromArgb(alpha, outlineColor.R, outlineColor.G, outlineColor.B))
