@@ -16,7 +16,7 @@
     <td align="center"><b>中心准星 / Crosshair</b></td>  
   </tr>
   <tr>
-    <td><img src="docs/screenshots/边缘叠加界面.jpg" width="480" alt="边缘叠加界面" /></td>
+    <td><img src="docs/screenshots/边缘叠加界面.png" width="480" alt="边缘叠加界面" /></td>
     <td><img src="docs/screenshots/悬浮时钟界面.png" width="480" alt="悬浮时钟界面" /></td>
   </tr>
   <tr>

@@ -12,7 +12,7 @@
     <td align="center"><b>In-Game Test</b></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/边缘叠加界面.jpg" width="480" alt="Edge Overlay" /></td>
+    <td><img src="docs/screenshots/边缘叠加界面.png" width="480" alt="Edge Overlay" /></td>
     <td><img src="docs/screenshots/运行测试画面.gif" width="480" alt="In-Game Test" /></td>
   </tr>
   <tr>
