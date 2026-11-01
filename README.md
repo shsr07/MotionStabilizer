@@ -31,12 +31,12 @@
 
 ## ✨ 功能特性 / Features
 
-- **边缘叠加 (Edge Overlay)** — 在屏幕边缘绘制参考框线（长杆 / 方框 / 圆顶 / 旗帜四种形状），为大脑提供视觉稳定锚点
+- **边缘叠加 (Edge Overlay)** — 在屏幕边缘绘制参考框线（点阵 / 长杆 / 旗帜 / 圆顶 / 方框五种形状），为大脑提供视觉稳定锚点
 
 > [!TIP]
 > **核心功能(Core Features)：动态圆点 (Motion Dots)**
 >
-> 本质是极简的人工光流刺激，专门向你的周边视觉补充"身体正在运动"的视觉证据，让视觉信号与内耳前庭的平衡信号对齐，从根源缓解感官冲突。
+> 本质是极简的人工光流刺激，专门向你的周边视觉补充"身体正在运动"的视觉证据，让视觉信号与内耳前庭的平衡信号对齐，从而缓解感官冲突。
 >
 > - **运动方向反转** — 可反转鼠标、键盘和手柄控制方向，适应不同游戏视角
 > - **视差缩放** — 圆点靠近屏幕中线时自动缩小，营造自然的运动景深感
@@ -64,7 +64,7 @@
 
 - Windows 10/11 (64-bit)
 - 直接下载版无需安装 .NET（已内置）
-- 从源码构建需要 [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- 从源码构建需要 [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## 🚀 快速开始 / Getting Started
 
@@ -126,11 +126,11 @@ dotnet build -c Release
 
 ## 🛠️ 技术栈 / Tech Stack
 
-- **.NET 8.0** + **WPF** (Windows Presentation Foundation)
+- **.NET 10.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — 硬件加速渲染动态圆点
 - **Win32 API** — 点击穿透窗口、全局热键注册、系统托盘、多显示器虚拟屏幕、Raw Input、XInput 手柄轮询
-- **xUnit** — 单元测试（276 个测试覆盖渲染辅助函数、配置模型、热键绑定与批量操作、可观察配置、区域计算与点阵布局哈希、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
-- **C# 12** — 最新 C# 特性
+- **xUnit** — 单元测试（298 个测试覆盖渲染辅助函数、配置模型、热键绑定与批量操作、可观察配置、区域计算与点阵布局哈希、点阵布局与多显示器适配、键码映射、显示器选择、手柄输入数学、OSD 文案映射、表面压缩决策、前台窗口矩形比较）
+- **C# 14** — 最新 C# 特性
 - **单文件发布** — win-x64 自包含单 exe，内置 .NET 运行时，解压即可运行
 
 ## 📁 项目结构 / Project Structure
@@ -168,7 +168,7 @@ MotionStabilizer/                    # 主项目
 ├── App.xaml(.cs)                    # 应用入口
 └── MainWindow.xaml(.cs)             # 主窗口
 
-MotionStabilizer.Tests/              # 单元测试项目 (276 tests)
+MotionStabilizer.Tests/              # 单元测试项目 (298 tests)
 ├── RenderHelperTests.cs             #   渲染尺寸映射、安全区域计算
 ├── ConfigModelTests.cs              #   配置模型：颜色解析、边缘可见性/透明度
 ├── HotkeyBindingTests.cs            #   快捷键显示字符串、克隆
@@ -182,6 +182,7 @@ MotionStabilizer.Tests/              # 单元测试项目 (276 tests)
 ├── PositionClampTests.cs            #   分辨率变化时坐标越界夹回
 ├── CompactSurfaceTests.cs           #   1×1 紧凑表面决策
 ├── ComputeZoneHashTests.cs          #   点阵布局哈希（仅几何量生效）
+├── DotMatrixTests.cs                #   点阵布局、边距与多显示器适配
 ├── HotkeyConfigTests.cs             #   默认绑定、批量清除、绑定表完整性
 └── MotionStabilizer.Tests.csproj    #   测试项目文件
 ```

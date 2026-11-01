@@ -27,12 +27,12 @@
 
 ## ✨ Features
 
-- **Edge Overlay** — draws reference borders at the screen edges (four shapes: Pole / Box / Dome / Flag) to provide visual stability anchors
+- **Edge Overlay** — draws reference borders at the screen edges (five shapes: Dot Matrix / Pole / Flag / Dome / Box) to provide visual stability anchors
 
 > [!TIP]
 > **Core Feature: Motion Dots**
 >
-> An ultra-minimal artificial optical-flow stimulus that feeds "your body is moving" visual evidence to your peripheral vision, aligning the visual signal with the inner-ear vestibular signal to relieve sensory conflict at the source.
+> An ultra-minimal artificial optical-flow stimulus that feeds "your body is moving" visual evidence to your peripheral vision, aligning the visual signal with the inner-ear vestibular signal to relieve the sensory conflict.
 >
 > - **Direction inversion** — invert mouse, keyboard, and gamepad control direction to match different game camera styles
 > - **Parallax scaling** — dots automatically shrink near the screen center for a natural sense of depth
@@ -61,7 +61,7 @@
 
 - Windows 10/11 (64-bit)
 - The download release bundles the .NET runtime — no installation needed
-- Building from source requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- Building from source requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## 🚀 Getting Started
 
@@ -123,11 +123,11 @@ Build output is at `MotionStabilizer/bin/Release/net10.0-windows/`.
 
 ## 🛠️ Tech Stack
 
-- **.NET 8.0** + **WPF** (Windows Presentation Foundation)
+- **.NET 10.0** + **WPF** (Windows Presentation Foundation)
 - **Vortice** (DirectComposition / Direct2D1 / Direct3D11 / DXGI) — hardware-accelerated motion dot rendering
 - **Win32 API** — click-through windows, global hotkey registration, system tray, multi-monitor virtual screen, Raw Input, XInput gamepad polling
-- **xUnit** — unit tests (276 tests covering render helpers, config models, hotkey bindings and bulk actions, observable config, area computation and dot-layout hashing, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
-- **C# 12** — latest C# features
+- **xUnit** — unit tests (298 tests covering render helpers, config models, hotkey bindings and bulk actions, observable config, area computation and dot-layout hashing, dot-matrix layout and multi-monitor adaptation, key-code mapping, monitor selection, gamepad input math, OSD text mapping, compact-surface decision, foreground-rect change detection)
+- **C# 14** — latest C# features
 - **Single-file publish** — self-contained win-x64 single exe with the .NET runtime bundled; extract and run
 
 ## 📁 Project Structure
@@ -165,7 +165,7 @@ MotionStabilizer/                    # Main project
 ├── App.xaml(.cs)                    # Application entry point
 └── MainWindow.xaml(.cs)             # Main window
 
-MotionStabilizer.Tests/              # Unit test project (276 tests)
+MotionStabilizer.Tests/              # Unit test project (298 tests)
 ├── RenderHelperTests.cs             #   Render size mapping, safe-area computation
 ├── ConfigModelTests.cs              #   Config models: color parsing, edge visibility/opacity
 ├── HotkeyBindingTests.cs            #   Hotkey display strings, cloning
@@ -179,6 +179,7 @@ MotionStabilizer.Tests/              # Unit test project (276 tests)
 ├── PositionClampTests.cs            #   Resolution-change position clamping
 ├── CompactSurfaceTests.cs           #   1×1 compact-surface decision
 ├── ComputeZoneHashTests.cs          #   Dot-layout hashing (geometry only)
+├── DotMatrixTests.cs                #   Dot-matrix layout, margins, multi-monitor adaptation
 ├── HotkeyConfigTests.cs             #   Default bindings, bulk clear, binding-table integrity
 └── MotionStabilizer.Tests.csproj    #   Test project file
 ```
