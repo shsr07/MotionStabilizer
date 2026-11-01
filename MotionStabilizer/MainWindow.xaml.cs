@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using MotionStabilizer.Models;
 using MotionStabilizer.Services;
 using MotionStabilizer.Views;
@@ -34,7 +33,6 @@ public partial class MainWindow : Window
         try { Icon = AppIcon.CreateImageSource(); }
         catch { /* icon generation is non-critical */ }
         ContentFrame.Navigate(_overlayPage);
-        StateChanged += MainWindow_StateChanged;
 
         Loaded += (_, _) =>
         {
@@ -115,7 +113,6 @@ public partial class MainWindow : Window
         if (sender == NavOverlay)
         {
             ContentFrame.Navigate(_overlayPage);
-        StateChanged += MainWindow_StateChanged;
             CurrentPage = "Overlay";
         }
         else if (sender == NavCrosshair)
@@ -173,172 +170,11 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Keep the taskbar button: minimize normally, with a Win11-style
-        // fade + shrink-toward-taskbar animation.
-        AnimateMinimizeOut();
+        // Keep the taskbar button: minimize normally. The window is
+        // non-layered, so the DWM plays the real system minimize animation.
+        WindowState = WindowState.Minimized;
     }
 
-    // ── Win11-style minimize/restore animation ──
-    // Transparent custom-chrome windows get no DWM minimize animation, so the
-    // flight toward the taskbar is drawn by the app itself: the window shrinks,
-    // fades and drifts toward the taskbar centre (Win11 sends it toward its
-    // taskbar button), then reverses on restore.
-
-    private readonly ScaleTransform _minimizeScale = new(1, 1);
-    private readonly TranslateTransform _minimizeTranslate = new();
-    private TransformGroup? _minimizeTransformGroup;
-    private bool _minimizeAnimOutRunning;
-    private bool _restoreFromMinimize;
-
-    private void ApplyMinimizeTransform()
-    {
-        if (_minimizeTransformGroup == null)
-        {
-            _minimizeTransformGroup = new TransformGroup();
-            _minimizeTransformGroup.Children.Add(_minimizeScale);
-            _minimizeTransformGroup.Children.Add(_minimizeTranslate);
-        }
-        // Scale around the centre; the translate carries the window toward the
-        // taskbar. Transforms go on the root Border: a Window does not support
-        // RenderTransform.
-        RootBorder.RenderTransformOrigin = new Point(0.5, 0.5);
-        RootBorder.RenderTransform = _minimizeTransformGroup;
-    }
-
-    /// <summary>DIP vector from the window centre to the taskbar centre
-    /// (Win11 flies the window toward its taskbar button; the button rect
-    /// would need UIAutomation, so the taskbar centre approximates it).
-    /// Falls back to a downward drift when the taskbar cannot be found.</summary>
-    private Vector MinimizeTargetOffset()
-    {
-        var tb = Win32Interop.GetTaskbarRect();
-        if (tb == null)
-            return new Vector(0, 120);
-
-        // Physical px -> window DIP (approximated with the window's DPI scale;
-        // the main taskbar lives on the primary display in nearly all setups).
-        var hwnd = new WindowInteropHelper(this).Handle;
-        double scale = Win32Interop.GetDpiScaleForWindow(hwnd);
-        if (scale <= 0) scale = 1;
-        var centre = new Point(
-            (tb.Value.Left + tb.Value.Right) / 2.0 / scale,
-            (tb.Value.Top + tb.Value.Bottom) / 2.0 / scale);
-        var winCentre = new Point(Left + ActualWidth / 2, Top + ActualHeight / 2);
-        return centre - winCentre;
-    }
-
-    private void SnapMinimizeState()
-    {
-        var target = MinimizeTargetOffset() * 0.65;
-        ApplyMinimizeTransform();
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, null);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-        _minimizeScale.ScaleX = 0.3;
-        _minimizeScale.ScaleY = 0.3;
-        _minimizeTranslate.X = target.X;
-        _minimizeTranslate.Y = target.Y;
-        BeginAnimation(OpacityProperty, null);
-        Opacity = 0;
-    }
-
-    private void AnimateMinimizeOut()
-    {
-        if (_minimizeAnimOutRunning) return;
-        _minimizeAnimOutRunning = true;
-
-        var target = MinimizeTargetOffset() * 0.65;
-        ApplyMinimizeTransform();
-        var dur = TimeSpan.FromMilliseconds(200);
-        var ease = new CubicEase { EasingMode = EasingMode.EaseIn };
-
-        var sx = new DoubleAnimation(1, 0.3, dur) { EasingFunction = ease };
-        var sy = new DoubleAnimation(1, 0.3, dur) { EasingFunction = ease };
-        var tx = new DoubleAnimation(0, target.X, dur) { EasingFunction = ease };
-        var ty = new DoubleAnimation(0, target.Y, dur) { EasingFunction = ease };
-        var fade = new DoubleAnimation(1, 0, dur) { EasingFunction = ease };
-        fade.Completed += (_, _) =>
-        {
-            _minimizeAnimOutRunning = false;
-            _restoreFromMinimize = true;
-            WindowState = WindowState.Minimized;
-        };
-
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, tx);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
-        BeginAnimation(OpacityProperty, fade);
-    }
-
-    private void AnimateRestoreIn()
-    {
-        var target = MinimizeTargetOffset() * 0.65;
-        ApplyMinimizeTransform();
-        var dur = TimeSpan.FromMilliseconds(220);
-        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, null);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-        _minimizeScale.ScaleX = 0.3;
-        _minimizeScale.ScaleY = 0.3;
-        _minimizeTranslate.X = target.X;
-        _minimizeTranslate.Y = target.Y;
-        BeginAnimation(OpacityProperty, null);
-        Opacity = 0;
-
-        var sx = new DoubleAnimation(0.3, 1, dur) { EasingFunction = ease };
-        var sy = new DoubleAnimation(0.3, 1, dur) { EasingFunction = ease };
-        var tx = new DoubleAnimation(target.X, 0, dur) { EasingFunction = ease };
-        var ty = new DoubleAnimation(target.Y, 0, dur) { EasingFunction = ease };
-        var fade = new DoubleAnimation(0, 1, dur) { EasingFunction = ease };
-        fade.Completed += (_, _) => ResetMinimizeVisualState();
-
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, tx);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
-        BeginAnimation(OpacityProperty, fade);
-    }
-
-    /// <summary>Clear every minimize-animation artefact (transform, opacity,
-    /// running animations) so the window renders in its normal state.</summary>
-    private void ResetMinimizeVisualState()
-    {
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-        BeginAnimation(OpacityProperty, null);
-        RootBorder.RenderTransform = null;
-        Opacity = 1;
-    }
-
-    private void MainWindow_StateChanged(object? sender, EventArgs e)
-    {
-        if (WindowState == WindowState.Minimized)
-        {
-            // Invisible while minimized — pre-set the restore start state so
-            // the window doesn't flash at full opacity when restored.
-            if (!_minimizeAnimOutRunning)
-                SnapMinimizeState();
-            _restoreFromMinimize = true;
-        }
-        else if (WindowState == WindowState.Normal && _restoreFromMinimize)
-        {
-            _restoreFromMinimize = false;
-            AnimateRestoreIn();
-        }
-        else
-        {
-            // Maximized or other states — drop any animation artefacts so the
-            // window never gets stuck faded/shrunk.
-            _restoreFromMinimize = false;
-            ResetMinimizeVisualState();
-        }
-    }
 
     /// <summary>
     /// Shared close path for the ✕ button and Alt+F4: shows the confirmation
