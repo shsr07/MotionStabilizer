@@ -2,6 +2,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using MotionStabilizer.Models;
 using MotionStabilizer.Services;
 using MotionStabilizer.Views;
@@ -32,6 +34,7 @@ public partial class MainWindow : Window
         try { Icon = AppIcon.CreateImageSource(); }
         catch { /* icon generation is non-critical */ }
         ContentFrame.Navigate(_overlayPage);
+        StateChanged += MainWindow_StateChanged;
 
         Loaded += (_, _) =>
         {
@@ -112,6 +115,7 @@ public partial class MainWindow : Window
         if (sender == NavOverlay)
         {
             ContentFrame.Navigate(_overlayPage);
+        StateChanged += MainWindow_StateChanged;
             CurrentPage = "Overlay";
         }
         else if (sender == NavCrosshair)
@@ -169,8 +173,125 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Keep the taskbar button: minimize the window normally.
-        WindowState = WindowState.Minimized;
+        // Keep the taskbar button: minimize normally, with a Win11-style
+        // fade + shrink-toward-taskbar animation.
+        AnimateMinimizeOut();
+    }
+
+    // ── Win11-style minimize/restore animation ──
+
+    private readonly ScaleTransform _minimizeScale = new(1, 1);
+    private readonly TranslateTransform _minimizeTranslate = new();
+    private TransformGroup? _minimizeTransformGroup;
+    private bool _minimizeAnimOutRunning;
+    private bool _restoreFromMinimize;
+
+    private void ApplyMinimizeTransform()
+    {
+        if (_minimizeTransformGroup == null)
+        {
+            _minimizeTransformGroup = new TransformGroup();
+            _minimizeTransformGroup.Children.Add(_minimizeScale);
+            _minimizeTransformGroup.Children.Add(_minimizeTranslate);
+        }
+        // Shrink around the bottom edge — toward the taskbar.
+        RenderTransformOrigin = new Point(0.5, 1);
+        RenderTransform = _minimizeTransformGroup;
+    }
+
+    private void SnapMinimizeState()
+    {
+        ApplyMinimizeTransform();
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+        _minimizeScale.ScaleX = 0.8;
+        _minimizeScale.ScaleY = 0.8;
+        _minimizeTranslate.Y = 40;
+        BeginAnimation(OpacityProperty, null);
+        Opacity = 0;
+    }
+
+    private void AnimateMinimizeOut()
+    {
+        if (_minimizeAnimOutRunning) return;
+        _minimizeAnimOutRunning = true;
+
+        ApplyMinimizeTransform();
+        var dur = TimeSpan.FromMilliseconds(180);
+        var ease = new QuadraticEase { EasingMode = EasingMode.EaseIn };
+
+        var sx = new DoubleAnimation(1, 0.8, dur) { EasingFunction = ease };
+        var sy = new DoubleAnimation(1, 0.8, dur) { EasingFunction = ease };
+        var ty = new DoubleAnimation(0, 40, dur) { EasingFunction = ease };
+        var fade = new DoubleAnimation(1, 0, dur) { EasingFunction = ease };
+        fade.Completed += (_, _) =>
+        {
+            _minimizeAnimOutRunning = false;
+            _restoreFromMinimize = true;
+            WindowState = WindowState.Minimized;
+        };
+
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
+        BeginAnimation(OpacityProperty, fade);
+    }
+
+    private void AnimateRestoreIn()
+    {
+        ApplyMinimizeTransform();
+        var dur = TimeSpan.FromMilliseconds(200);
+        var ease = new QuadraticEase { EasingMode = EasingMode.EaseOut };
+
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+        _minimizeScale.ScaleX = 0.8;
+        _minimizeScale.ScaleY = 0.8;
+        _minimizeTranslate.Y = 40;
+        BeginAnimation(OpacityProperty, null);
+        Opacity = 0;
+
+        var sx = new DoubleAnimation(0.8, 1, dur) { EasingFunction = ease };
+        var sy = new DoubleAnimation(0.8, 1, dur) { EasingFunction = ease };
+        var ty = new DoubleAnimation(40, 0, dur) { EasingFunction = ease };
+        var fade = new DoubleAnimation(0, 1, dur) { EasingFunction = ease };
+        fade.Completed += (_, _) =>
+        {
+            _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+            BeginAnimation(OpacityProperty, null);
+            RenderTransform = null;
+            Opacity = 1;
+        };
+
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
+        BeginAnimation(OpacityProperty, fade);
+    }
+
+    private void MainWindow_StateChanged(object? sender, EventArgs e)
+    {
+        if (WindowState == WindowState.Minimized)
+        {
+            // Invisible while minimized — pre-set the restore start state so
+            // the window doesn't flash at full opacity when restored.
+            if (!_minimizeAnimOutRunning)
+                SnapMinimizeState();
+            _restoreFromMinimize = true;
+        }
+        else if (WindowState == WindowState.Normal && _restoreFromMinimize)
+        {
+            _restoreFromMinimize = false;
+            AnimateRestoreIn();
+        }
+        else
+        {
+            _restoreFromMinimize = false;
+        }
     }
 
     /// <summary>
