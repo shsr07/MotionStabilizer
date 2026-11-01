@@ -10,7 +10,7 @@
         ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen">
 
-    <Border Background="#F3F3F3" CornerRadius="10" MouseLeftButtonDown="Border_MouseLeftButtonDown">
+    <Border x:Name="RootBorder" Background="#F3F3F3" CornerRadius="10" MouseLeftButtonDown="Border_MouseLeftButtonDown">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220" />

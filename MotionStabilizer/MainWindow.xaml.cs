@@ -194,9 +194,10 @@ public partial class MainWindow : Window
             _minimizeTransformGroup.Children.Add(_minimizeScale);
             _minimizeTransformGroup.Children.Add(_minimizeTranslate);
         }
-        // Shrink around the bottom edge — toward the taskbar.
-        RenderTransformOrigin = new Point(0.5, 1);
-        RenderTransform = _minimizeTransformGroup;
+        // Shrink around the bottom edge — toward the taskbar. Transforms go on
+        // the root Border: a Window does not support RenderTransform.
+        RootBorder.RenderTransformOrigin = new Point(0.5, 1);
+        RootBorder.RenderTransform = _minimizeTransformGroup;
     }
 
     private void SnapMinimizeState()
@@ -257,20 +258,24 @@ public partial class MainWindow : Window
         var sy = new DoubleAnimation(0.8, 1, dur) { EasingFunction = ease };
         var ty = new DoubleAnimation(40, 0, dur) { EasingFunction = ease };
         var fade = new DoubleAnimation(0, 1, dur) { EasingFunction = ease };
-        fade.Completed += (_, _) =>
-        {
-            _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-            _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-            _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-            BeginAnimation(OpacityProperty, null);
-            RenderTransform = null;
-            Opacity = 1;
-        };
+        fade.Completed += (_, _) => ResetMinimizeVisualState();
 
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
         _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
         BeginAnimation(OpacityProperty, fade);
+    }
+
+    /// <summary>Clear every minimize-animation artefact (transform, opacity,
+    /// running animations) so the window renders in its normal state.</summary>
+    private void ResetMinimizeVisualState()
+    {
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+        BeginAnimation(OpacityProperty, null);
+        RootBorder.RenderTransform = null;
+        Opacity = 1;
     }
 
     private void MainWindow_StateChanged(object? sender, EventArgs e)
@@ -290,7 +295,10 @@ public partial class MainWindow : Window
         }
         else
         {
+            // Maximized or other states — drop any animation artefacts so the
+            // window never gets stuck faded/shrunk.
             _restoreFromMinimize = false;
+            ResetMinimizeVisualState();
         }
     }
 
