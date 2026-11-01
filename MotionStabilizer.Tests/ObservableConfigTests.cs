@@ -304,6 +304,7 @@ public class ObservableConfigTests
 
         Assert.False(store.Overlay.IsVisible);
         Assert.Equal(OverlayShape.DotMatrix, store.Overlay.Shape);
+        Assert.True(store.App.HideFromTaskbarOnMinimize);
         Assert.False(store.Crosshair.IsVisible);
         Assert.False(store.Clock.IsVisible);
         // Mouse control is on by default and must stay that way — motion dots

@@ -208,6 +208,7 @@
     <sys:String x:Key="Options_Desc">应用程序行为与界面设置</sys:String>
     <sys:String x:Key="Options_BehaviorCard">行为设置</sys:String>
     <sys:String x:Key="Options_MinimizeToTray">首次运行时最小化到托盘</sys:String>
+    <sys:String x:Key="Options_HideFromTaskbar">点击最小化后从任务栏消失（仅保留托盘图标）</sys:String>
     <sys:String x:Key="Options_ConfirmClose">程序关闭前显示确认消息</sys:String>
     <sys:String x:Key="Options_UICard">界面定制</sys:String>
     <sys:String x:Key="Options_UIScale">UI 缩放</sys:String>

@@ -163,7 +163,14 @@ public partial class MainWindow : Window
 
     private void BtnMinimize_Click(object sender, RoutedEventArgs e)
     {
-        this.Hide();
+        if (App.AppConfig.HideFromTaskbarOnMinimize)
+        {
+            this.Hide();
+            return;
+        }
+
+        // Keep the taskbar button: minimize the window normally.
+        WindowState = WindowState.Minimized;
     }
 
     /// <summary>

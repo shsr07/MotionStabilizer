@@ -208,6 +208,7 @@
     <sys:String x:Key="Options_Desc">Application behavior and UI settings</sys:String>
     <sys:String x:Key="Options_BehaviorCard">Behavior</sys:String>
     <sys:String x:Key="Options_MinimizeToTray">Minimize to tray on first run</sys:String>
+    <sys:String x:Key="Options_HideFromTaskbar">Hide from the taskbar when minimized (tray icon only)</sys:String>
     <sys:String x:Key="Options_ConfirmClose">Show confirmation before closing</sys:String>
     <sys:String x:Key="Options_UICard">Interface</sys:String>
     <sys:String x:Key="Options_UIScale">UI Scale</sys:String>

@@ -49,6 +49,7 @@ public partial class OptionsPage : Page
         var cfg = App.AppConfig;
 
         ChkMinimizeToTray.IsChecked = cfg.MinimizeToTrayOnStart;
+        ChkHideFromTaskbar.IsChecked = cfg.HideFromTaskbarOnMinimize;
         ChkConfirmClose.IsChecked = cfg.ConfirmBeforeClose;
 
         RefreshMonitorList();
@@ -104,6 +105,12 @@ public partial class OptionsPage : Page
             App.AppConfig.TargetMonitor = "";
             ConfigManager.SaveAppConfig(App.AppConfig);
         }
+    }
+
+    private void HideFromTaskbar_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        App.AppConfig.HideFromTaskbarOnMinimize = ChkHideFromTaskbar.IsChecked == true;
     }
 
     private void MinimizeToTray_Changed(object sender, RoutedEventArgs e)

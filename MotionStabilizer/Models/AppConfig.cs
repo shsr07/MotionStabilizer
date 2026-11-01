@@ -8,6 +8,7 @@ public class AppConfig : ObservableObject
 {
     // Behavior settings
     private bool _minimizeToTrayOnStart = false;
+    private bool _hideFromTaskbarOnMinimize = true;
     private bool _confirmBeforeClose = true;
     private bool _hotkeyWarningAcknowledged = false;
     private bool _motionKeyboardWarningAcknowledged = false;
@@ -19,6 +20,14 @@ public class AppConfig : ObservableObject
     private Language _language = Language.Chinese;
 
     public bool MinimizeToTrayOnStart { get => _minimizeToTrayOnStart; set => SetProperty(ref _minimizeToTrayOnStart, value); }
+
+    /// <summary>
+    /// When true (default), the custom title-bar minimize button hides the
+    /// window — it disappears from the taskbar and only the tray icon remains.
+    /// When false, the window minimizes normally and keeps its taskbar button.
+    /// Applies to the next minimize; the tray icon is always available either way.
+    /// </summary>
+    public bool HideFromTaskbarOnMinimize { get => _hideFromTaskbarOnMinimize; set => SetProperty(ref _hideFromTaskbarOnMinimize, value); }
     public bool ConfirmBeforeClose { get => _confirmBeforeClose; set => SetProperty(ref _confirmBeforeClose, value); }
 
     /// <summary>
