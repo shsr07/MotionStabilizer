@@ -419,6 +419,32 @@ public static class Win32Interop
 
     #endregion
 
+    #region Taskbar
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
+
+    /// <summary>
+    /// Physical-pixel rectangle of the main taskbar (Shell_TrayWnd), or null
+    /// when the taskbar window cannot be found. Auto-hidden taskbars still
+    /// report their docked rect.
+    /// </summary>
+    public static RECT? GetTaskbarRect()
+    {
+        IntPtr hwnd = FindWindow("Shell_TrayWnd", null);
+        if (hwnd == IntPtr.Zero) return null;
+
+        var rect = new RECT();
+        if (!GetWindowRect(hwnd, ref rect)) return null;
+
+        if (rect.Right - rect.Left <= 0 || rect.Bottom - rect.Top <= 0)
+            return null;
+
+        return rect;
+    }
+
+    #endregion
+
     #region Single Instance
 
     public static readonly IntPtr HWND_BROADCAST = new(0xFFFF);

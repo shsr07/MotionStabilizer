@@ -179,6 +179,10 @@ public partial class MainWindow : Window
     }
 
     // ── Win11-style minimize/restore animation ──
+    // Transparent custom-chrome windows get no DWM minimize animation, so the
+    // flight toward the taskbar is drawn by the app itself: the window shrinks,
+    // fades and drifts toward the taskbar centre (Win11 sends it toward its
+    // taskbar button), then reverses on restore.
 
     private readonly ScaleTransform _minimizeScale = new(1, 1);
     private readonly TranslateTransform _minimizeTranslate = new();
@@ -194,21 +198,47 @@ public partial class MainWindow : Window
             _minimizeTransformGroup.Children.Add(_minimizeScale);
             _minimizeTransformGroup.Children.Add(_minimizeTranslate);
         }
-        // Shrink around the bottom edge — toward the taskbar. Transforms go on
-        // the root Border: a Window does not support RenderTransform.
-        RootBorder.RenderTransformOrigin = new Point(0.5, 1);
+        // Scale around the centre; the translate carries the window toward the
+        // taskbar. Transforms go on the root Border: a Window does not support
+        // RenderTransform.
+        RootBorder.RenderTransformOrigin = new Point(0.5, 0.5);
         RootBorder.RenderTransform = _minimizeTransformGroup;
+    }
+
+    /// <summary>DIP vector from the window centre to the taskbar centre
+    /// (Win11 flies the window toward its taskbar button; the button rect
+    /// would need UIAutomation, so the taskbar centre approximates it).
+    /// Falls back to a downward drift when the taskbar cannot be found.</summary>
+    private Vector MinimizeTargetOffset()
+    {
+        var tb = Win32Interop.GetTaskbarRect();
+        if (tb == null)
+            return new Vector(0, 120);
+
+        // Physical px -> window DIP (approximated with the window's DPI scale;
+        // the main taskbar lives on the primary display in nearly all setups).
+        var hwnd = new WindowInteropHelper(this).Handle;
+        double scale = Win32Interop.GetDpiScaleForWindow(hwnd);
+        if (scale <= 0) scale = 1;
+        var centre = new Point(
+            (tb.Value.Left + tb.Value.Right) / 2.0 / scale,
+            (tb.Value.Top + tb.Value.Bottom) / 2.0 / scale);
+        var winCentre = new Point(Left + ActualWidth / 2, Top + ActualHeight / 2);
+        return centre - winCentre;
     }
 
     private void SnapMinimizeState()
     {
+        var target = MinimizeTargetOffset() * 0.65;
         ApplyMinimizeTransform();
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, null);
         _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-        _minimizeScale.ScaleX = 0.8;
-        _minimizeScale.ScaleY = 0.8;
-        _minimizeTranslate.Y = 40;
+        _minimizeScale.ScaleX = 0.3;
+        _minimizeScale.ScaleY = 0.3;
+        _minimizeTranslate.X = target.X;
+        _minimizeTranslate.Y = target.Y;
         BeginAnimation(OpacityProperty, null);
         Opacity = 0;
     }
@@ -218,13 +248,15 @@ public partial class MainWindow : Window
         if (_minimizeAnimOutRunning) return;
         _minimizeAnimOutRunning = true;
 
+        var target = MinimizeTargetOffset() * 0.65;
         ApplyMinimizeTransform();
-        var dur = TimeSpan.FromMilliseconds(180);
-        var ease = new QuadraticEase { EasingMode = EasingMode.EaseIn };
+        var dur = TimeSpan.FromMilliseconds(200);
+        var ease = new CubicEase { EasingMode = EasingMode.EaseIn };
 
-        var sx = new DoubleAnimation(1, 0.8, dur) { EasingFunction = ease };
-        var sy = new DoubleAnimation(1, 0.8, dur) { EasingFunction = ease };
-        var ty = new DoubleAnimation(0, 40, dur) { EasingFunction = ease };
+        var sx = new DoubleAnimation(1, 0.3, dur) { EasingFunction = ease };
+        var sy = new DoubleAnimation(1, 0.3, dur) { EasingFunction = ease };
+        var tx = new DoubleAnimation(0, target.X, dur) { EasingFunction = ease };
+        var ty = new DoubleAnimation(0, target.Y, dur) { EasingFunction = ease };
         var fade = new DoubleAnimation(1, 0, dur) { EasingFunction = ease };
         fade.Completed += (_, _) =>
         {
@@ -235,33 +267,39 @@ public partial class MainWindow : Window
 
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, tx);
         _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
         BeginAnimation(OpacityProperty, fade);
     }
 
     private void AnimateRestoreIn()
     {
+        var target = MinimizeTargetOffset() * 0.65;
         ApplyMinimizeTransform();
-        var dur = TimeSpan.FromMilliseconds(200);
-        var ease = new QuadraticEase { EasingMode = EasingMode.EaseOut };
+        var dur = TimeSpan.FromMilliseconds(220);
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
 
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, null);
         _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-        _minimizeScale.ScaleX = 0.8;
-        _minimizeScale.ScaleY = 0.8;
-        _minimizeTranslate.Y = 40;
+        _minimizeScale.ScaleX = 0.3;
+        _minimizeScale.ScaleY = 0.3;
+        _minimizeTranslate.X = target.X;
+        _minimizeTranslate.Y = target.Y;
         BeginAnimation(OpacityProperty, null);
         Opacity = 0;
 
-        var sx = new DoubleAnimation(0.8, 1, dur) { EasingFunction = ease };
-        var sy = new DoubleAnimation(0.8, 1, dur) { EasingFunction = ease };
-        var ty = new DoubleAnimation(40, 0, dur) { EasingFunction = ease };
+        var sx = new DoubleAnimation(0.3, 1, dur) { EasingFunction = ease };
+        var sy = new DoubleAnimation(0.3, 1, dur) { EasingFunction = ease };
+        var tx = new DoubleAnimation(target.X, 0, dur) { EasingFunction = ease };
+        var ty = new DoubleAnimation(target.Y, 0, dur) { EasingFunction = ease };
         var fade = new DoubleAnimation(0, 1, dur) { EasingFunction = ease };
         fade.Completed += (_, _) => ResetMinimizeVisualState();
 
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleXProperty, sx);
         _minimizeScale.BeginAnimation(ScaleTransform.ScaleYProperty, sy);
+        _minimizeTranslate.BeginAnimation(TranslateTransform.XProperty, tx);
         _minimizeTranslate.BeginAnimation(TranslateTransform.YProperty, ty);
         BeginAnimation(OpacityProperty, fade);
     }
